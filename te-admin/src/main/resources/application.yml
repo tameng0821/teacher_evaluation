@@ -6,7 +6,7 @@ server:
     min-spare-threads: 30
   port: 8080
   servlet:
-    context-path: /lte-admin
+    context-path: /te-admin
 
 spring:
   profiles:

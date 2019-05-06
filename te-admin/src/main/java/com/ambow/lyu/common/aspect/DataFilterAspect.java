@@ -2,7 +2,7 @@ package com.ambow.lyu.common.aspect;
 
 
 import com.ambow.lyu.common.annotation.DataFilter;
-import com.ambow.lyu.common.exception.LteException;
+import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.common.utils.Constant;
 import com.ambow.lyu.modules.sys.entity.SysUserEntity;
 import com.ambow.lyu.modules.sys.service.SysDeptService;
@@ -55,7 +55,7 @@ public class DataFilterAspect {
             return ;
         }
 
-        throw new LteException("数据权限接口，只能是Map类型参数，且不能为NULL");
+        throw new TeException("数据权限接口，只能是Map类型参数，且不能为NULL");
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.ambow.lyu.modules.sys.shiro;
 
 import com.ambow.lyu.modules.sys.entity.SysUserEntity;
-import com.ambow.lyu.common.exception.LteException;
+import com.ambow.lyu.common.exception.TeException;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.session.Session;
@@ -57,7 +57,7 @@ public class ShiroUtils {
 	public static String getKaptcha(String key) {
 		Object kaptcha = getSessionAttribute(key);
 		if(kaptcha == null){
-			throw new LteException("验证码已失效");
+			throw new TeException("验证码已失效");
 		}
 		getSession().removeAttribute(key);
 		return kaptcha.toString();

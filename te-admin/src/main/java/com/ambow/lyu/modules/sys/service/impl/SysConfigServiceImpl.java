@@ -6,7 +6,7 @@ import com.ambow.lyu.modules.sys.service.SysConfigService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.ambow.lyu.common.exception.LteException;
+import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.common.utils.Query;
 import com.google.gson.Gson;
@@ -72,7 +72,7 @@ public class SysConfigServiceImpl extends ServiceImpl<SysConfigDao, SysConfigEnt
 		try {
 			return clazz.newInstance();
 		} catch (Exception e) {
-			throw new LteException("获取参数失败");
+			throw new TeException("获取参数失败");
 		}
 	}
 }

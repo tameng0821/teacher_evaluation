@@ -1,7 +1,7 @@
 package com.ambow.lyu.common.validator;
 
 
-import com.ambow.lyu.common.exception.LteException;
+import com.ambow.lyu.common.exception.TeException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -26,14 +26,14 @@ public class ValidatorUtils {
      * 校验对象
      * @param object        待校验对象
      * @param groups        待校验的组
-     * @throws LteException  校验不通过，则报LteException异常
+     * @throws TeException  校验不通过，则报LteException异常
      */
     public static void validateEntity(Object object, Class<?>... groups)
-            throws LteException {
+            throws TeException {
         Set<ConstraintViolation<Object>> constraintViolations = validator.validate(object, groups);
         if (!constraintViolations.isEmpty()) {
         	ConstraintViolation<Object> constraint = (ConstraintViolation<Object>)constraintViolations.iterator().next();
-            throw new LteException(constraint.getMessage());
+            throw new TeException(constraint.getMessage());
         }
     }
 }

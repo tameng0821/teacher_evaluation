@@ -1,7 +1,7 @@
-package com.ambow.lyu.common.exception;
+package com.ambow.lyu.exception;
 
+import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.common.vo.Response;
-import org.apache.shiro.authz.AuthorizationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * @author Mark sunlightcs@gmail.com
  */
 @RestControllerAdvice
-public class LteExceptionHandler {
+public class TeExceptionHandler {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * 处理自定义异常
 	 */
-	@ExceptionHandler(LteException.class)
-	public Response handleLteException(LteException e){
+	@ExceptionHandler(TeException.class)
+	public Response handleLteException(TeException e){
 		Response r = new Response();
 		r.put("code", e.getCode());
 		r.put("msg", e.getMessage());
@@ -33,12 +33,6 @@ public class LteExceptionHandler {
 	public Response handleDuplicateKeyException(DuplicateKeyException e){
 		logger.error(e.getMessage(), e);
 		return Response.error("数据库中已存在该记录");
-	}
-
-	@ExceptionHandler(AuthorizationException.class)
-	public Response handleAuthorizationException(AuthorizationException e){
-		logger.error(e.getMessage(), e);
-		return Response.error("没有权限，请联系管理员授权");
 	}
 
 	@ExceptionHandler(Exception.class)

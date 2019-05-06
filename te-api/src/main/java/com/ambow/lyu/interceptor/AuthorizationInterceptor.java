@@ -2,7 +2,7 @@ package com.ambow.lyu.interceptor;
 
 
 import com.ambow.lyu.annotation.Login;
-import com.ambow.lyu.common.exception.LteException;
+import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.entity.TokenEntity;
 import com.ambow.lyu.service.TokenService;
 import org.apache.commons.lang3.StringUtils;
@@ -48,13 +48,13 @@ public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
 
         //token为空
         if(StringUtils.isBlank(token)){
-            throw new LteException("token不能为空");
+            throw new TeException("token不能为空");
         }
 
         //查询token信息
         TokenEntity tokenEntity = tokenService.queryByToken(token);
         if(tokenEntity == null || tokenEntity.getExpireTime().getTime() < System.currentTimeMillis()){
-            throw new LteException("token失效，请重新登录");
+            throw new TeException("token失效，请重新登录");
         }
 
         //设置userId到request里，后续根据userId，获取用户信息

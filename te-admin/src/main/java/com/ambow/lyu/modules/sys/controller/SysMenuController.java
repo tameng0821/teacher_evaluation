@@ -3,7 +3,7 @@ package com.ambow.lyu.modules.sys.controller;
 import com.ambow.lyu.common.annotation.SysLog;
 import com.ambow.lyu.common.vo.Response;
 import com.ambow.lyu.modules.sys.entity.SysMenuEntity;
-import com.ambow.lyu.common.exception.LteException;
+import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.common.utils.Constant;
 import com.ambow.lyu.modules.sys.service.SysMenuService;
 import org.apache.commons.lang3.StringUtils;
@@ -140,17 +140,17 @@ public class SysMenuController extends AbstractController {
 	 */
 	private void verifyForm(SysMenuEntity menu){
 		if(StringUtils.isBlank(menu.getName())){
-			throw new LteException("菜单名称不能为空");
+			throw new TeException("菜单名称不能为空");
 		}
 		
 		if(menu.getParentId() == null){
-			throw new LteException("上级菜单不能为空");
+			throw new TeException("上级菜单不能为空");
 		}
 		
 		//菜单
 		if(menu.getType() == Constant.MenuType.MENU.getValue()){
 			if(StringUtils.isBlank(menu.getUrl())){
-				throw new LteException("菜单URL不能为空");
+				throw new TeException("菜单URL不能为空");
 			}
 		}
 		
@@ -165,7 +165,7 @@ public class SysMenuController extends AbstractController {
 		if(menu.getType() == Constant.MenuType.CATALOG.getValue() ||
 				menu.getType() == Constant.MenuType.MENU.getValue()){
 			if(parentType != Constant.MenuType.CATALOG.getValue()){
-				throw new LteException("上级菜单只能为目录类型");
+				throw new TeException("上级菜单只能为目录类型");
 			}
 			return ;
 		}
@@ -173,7 +173,7 @@ public class SysMenuController extends AbstractController {
 		//按钮
 		if(menu.getType() == Constant.MenuType.BUTTON.getValue()){
 			if(parentType != Constant.MenuType.MENU.getValue()){
-				throw new LteException("上级菜单只能为菜单类型");
+				throw new TeException("上级菜单只能为菜单类型");
 			}
 			return ;
 		}

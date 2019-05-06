@@ -5,30 +5,30 @@ package com.ambow.lyu.common.exception;
  *
  * @author Mark sunlightcs@gmail.com
  */
-public class LteException extends RuntimeException {
+public class TeException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 	
     private String msg;
     private int code = 500;
     
-    public LteException(String msg) {
+    public TeException(String msg) {
 		super(msg);
 		this.msg = msg;
 	}
 	
-	public LteException(String msg, Throwable e) {
+	public TeException(String msg, Throwable e) {
 		super(msg, e);
 		this.msg = msg;
 	}
 	
-	public LteException(String msg, int code) {
+	public TeException(String msg, int code) {
 		super(msg);
 		this.msg = msg;
 		this.code = code;
 	}
 	
-	public LteException(String msg, int code, Throwable e) {
+	public TeException(String msg, int code, Throwable e) {
 		super(msg, e);
 		this.msg = msg;
 		this.code = code;

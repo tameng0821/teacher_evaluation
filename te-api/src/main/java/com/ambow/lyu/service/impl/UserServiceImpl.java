@@ -5,7 +5,7 @@ import com.ambow.lyu.service.TokenService;
 import com.ambow.lyu.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.ambow.lyu.common.exception.LteException;
+import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.common.validator.Assert;
 import com.ambow.lyu.dao.UserDao;
 import com.ambow.lyu.entity.TokenEntity;
@@ -35,7 +35,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements
 
 		//密码错误
 		if(!user.getPassword().equals(DigestUtils.sha256Hex(form.getPassword()))){
-			throw new LteException("手机号或密码错误");
+			throw new TeException("手机号或密码错误");
 		}
 
 		//获取登录token
