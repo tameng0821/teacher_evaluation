@@ -26,19 +26,17 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <junit.version>4.12</junit.version>
-        <druid.version>1.1.13</druid.version>
-        <mybatisplus.version>3.0.7.1</mybatisplus.version>
-        <mysql.version>8.0.15</mysql.version>
-        <mssql.version>4.0</mssql.version>
-        <oracle.version>11.2.0.3</oracle.version>
-        <commons.lang.version>2.6</commons.lang.version>
-        <commons.fileupload.version>1.3.1</commons.fileupload.version>
-        <commons.io.version>2.5</commons.io.version>
-        <commons.codec.version>1.10</commons.codec.version>
-        <fastjson.version>1.2.45</fastjson.version>
-        <joda.time.version>2.9.9</joda.time.version>
-        <lombok.version>1.18.4</lombok.version>
-        <swagger.version>2.7.0</swagger.version>
+        <mysql.version>8.0.16</mysql.version>
+        <druid.version>1.1.16</druid.version>
+        <mybatisplus.version>3.1.1</mybatisplus.version>
+        <fastjson.version>1.2.58</fastjson.version>
+        <commons.lang3.version>3.9</commons.lang3.version>
+        <commons.fileupload.version>1.4</commons.fileupload.version>
+        <commons.io.version>2.6</commons.io.version>
+        <commons.codec.version>1.12</commons.codec.version>
+        <joda.time.version>2.10.1</joda.time.version>
+        <lombok.version>1.18.6</lombok.version>
+        <swagger.version>2.9.2</swagger.version>
     </properties>
 
     <dependencies>
@@ -76,23 +74,6 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysql.version}</version>
         </dependency>
-        <!-- oracle驱动 -->
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>${oracle.version}</version>
-        </dependency>
-        <!-- mssql驱动 -->
-        <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>sqljdbc4</artifactId>
-            <version>${mssql.version}</version>
-        </dependency>
-        <!-- postgresql驱动 -->
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>
@@ -102,38 +83,38 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>${mybatisplus.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.baomidou</groupId>
-                    <artifactId>mybatis-plus-generator</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>${fastjson.version}</version>
         </dependency>
+        <!--Apache Commons Lang，一个Java实用程序类包，用于java.lang层次结构中的类，或被认为是标准的，以证明java.lang中的存在。-->
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>${commons.lang.version}</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang3.version}</version>
         </dependency>
+        <!--Apache Commons FileUpload组件提供了一种简单而灵活的方法，可以为servlet和Web应用程序添加对多部分文件上载功能的支持。-->
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
             <version>${commons.fileupload.version}</version>
         </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons.io.version}</version>
-        </dependency>
+        <!--Apache Commons IO库包含实用程序类，流实现，文件过滤器，文件比较器，endian转换类等等。-->
+        <!--<dependency>-->
+            <!--<groupId>commons-io</groupId>-->
+            <!--<artifactId>commons-io</artifactId>-->
+            <!--<version>${commons.io.version}</version>-->
+        <!--</dependency>-->
+        <!--Apache Commons Codec软件包包含各种格式的简单编码器和解码器，如Base64和Hexadecimal。
+         除了这些广泛使用的编码器和解码器之外，编解码器包还维护一组语音编码实用程序。-->
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>${commons.codec.version}</version>
         </dependency>
+        <!--用于替换JDK日期处理的日期和时间库-->
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>

@@ -12,7 +12,7 @@ import com.ambow.lyu.common.validator.ValidatorUtils;
 import com.ambow.lyu.common.validator.group.AddGroup;
 import com.ambow.lyu.common.validator.group.UpdateGroup;
 import com.ambow.lyu.modules.sys.service.SysUserRoleService;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

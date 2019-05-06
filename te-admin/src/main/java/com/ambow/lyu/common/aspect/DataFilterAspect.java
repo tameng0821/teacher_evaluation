@@ -9,7 +9,7 @@ import com.ambow.lyu.modules.sys.service.SysDeptService;
 import com.ambow.lyu.modules.sys.service.SysRoleDeptService;
 import com.ambow.lyu.modules.sys.service.SysUserRoleService;
 import com.ambow.lyu.modules.sys.shiro.ShiroUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -74,14 +74,20 @@ public class DataFilterAspect {
         Set<Long> deptIdList = new HashSet<>();
 
         //用户角色对应的部门ID列表
-        List<Long> roleIdList = sysUserRoleService.queryRoleIdList(user.getUserId());
-        if(roleIdList.size() > 0){
-            List<Long> userDeptIdList = sysRoleDeptService.queryDeptIdList(roleIdList.toArray(new Long[roleIdList.size()]));
-            deptIdList.addAll(userDeptIdList);
+        if(dataFilter.roleDept()){
+            List<Long> roleIdList = sysUserRoleService.queryRoleIdList(user.getUserId());
+            if(roleIdList.size() > 0){
+                List<Long> userDeptIdList = sysRoleDeptService.queryDeptIdList(roleIdList.toArray(new Long[roleIdList.size()]));
+                deptIdList.addAll(userDeptIdList);
+            }
         }
 
-        //用户子部门ID列表
-        if(dataFilter.subDept()){
+        //用户部门ID列表
+        if(dataFilter.userDept()){
+            //用户部门
+            deptIdList.add(user.getDeptId());
+
+            //子部门
             List<Long> subDeptIdList = sysDeptService.getSubDeptIdList(user.getDeptId());
             deptIdList.addAll(subDeptIdList);
         }

@@ -10,7 +10,7 @@ import com.ambow.lyu.common.exception.LteException;
 import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.common.utils.Query;
 import com.google.gson.Gson;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

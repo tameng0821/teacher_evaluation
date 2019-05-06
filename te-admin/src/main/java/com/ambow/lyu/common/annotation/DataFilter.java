@@ -14,11 +14,14 @@ public @interface DataFilter {
     /**  表的别名 */
     String tableAlias() default "";
 
-    /**  true：没有本部门数据权限，也能查询本人数据 */
-    boolean user() default true;
+    /**  true：拥有用户角色对应的部门列表数据权限 */
+    boolean roleDept() default false;
 
-    /**  true：拥有子部门数据权限 */
-    boolean subDept() default false;
+    /**  true：拥有用户所属部门以及子部门数据权限 */
+    boolean userDept() default true;
+
+    /**  true：没有本部门数据权限，也能查询本人数据 */
+    boolean user() default false;
 
     /**  部门ID */
     String deptId() default "dept_id";

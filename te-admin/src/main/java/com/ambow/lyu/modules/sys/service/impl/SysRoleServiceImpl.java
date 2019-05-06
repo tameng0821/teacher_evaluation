@@ -11,7 +11,7 @@ import com.ambow.lyu.common.annotation.DataFilter;
 import com.ambow.lyu.common.utils.Constant;
 import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.common.utils.Query;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +38,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleDao, SysRoleEntity> i
 	private SysDeptService sysDeptService;
 
 	@Override
-	@DataFilter(subDept = true, user = false)
+	@DataFilter(roleDept = true, userDept = true, user = false)
 	public PageUtils queryPage(Map<String, Object> params) {
 		String roleName = (String)params.get("roleName");
 
