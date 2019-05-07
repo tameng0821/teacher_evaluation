@@ -30,7 +30,7 @@ public class ShiroConfig {
      */
     @Bean
     @ConditionalOnProperty(prefix = "lte", name = "cluster", havingValue = "false")
-    public DefaultWebSessionManager sessionManager(@Value("${lte.globalSessionTimeout:3600}") long globalSessionTimeout){
+    public DefaultWebSessionManager sessionManager(@Value("${lte.globalSessionTimeout:3600}") long globalSessionTimeout) {
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
         sessionManager.setSessionValidationSchedulerEnabled(true);
         sessionManager.setSessionIdUrlRewritingEnabled(false);

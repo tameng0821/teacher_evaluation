@@ -21,45 +21,45 @@ import java.util.List;
 @Data
 @TableName("sys_role")
 public class SysRoleEntity implements Serializable {
-	private static final long serialVersionUID = 1L;
-	
-	/**
-	 * 角色ID
-	 */
-	@TableId
-	private Long roleId;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * 角色名称
-	 */
-	@NotBlank(message="角色名称不能为空")
-	private String roleName;
+    /**
+     * 角色ID
+     */
+    @TableId
+    private Long roleId;
 
-	/**
-	 * 备注
-	 */
-	private String remark;
+    /**
+     * 角色名称
+     */
+    @NotBlank(message = "角色名称不能为空")
+    private String roleName;
 
-	/**
-	 * 部门ID
-	 */
-	@NotNull(message="部门不能为空")
-	private Long deptId;
+    /**
+     * 备注
+     */
+    private String remark;
 
-	/**
-	 * 部门名称
-	 */
-	@TableField(exist=false)
-	private String deptName;
+    /**
+     * 部门ID
+     */
+    @NotNull(message = "部门不能为空")
+    private Long deptId;
 
-	@TableField(exist=false)
-	private List<Long> menuIdList;
-	@TableField(exist=false)
-	private List<Long> deptIdList;
-	
-	/**
-	 * 创建时间
-	 */
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-	private Date createTime;
+    /**
+     * 部门名称
+     */
+    @TableField(exist = false)
+    private String deptName;
+
+    @TableField(exist = false)
+    private List<Long> menuIdList;
+    @TableField(exist = false)
+    private List<Long> deptIdList;
+
+    /**
+     * 创建时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date createTime;
 }

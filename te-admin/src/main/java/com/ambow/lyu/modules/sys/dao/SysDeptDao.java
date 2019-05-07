@@ -19,7 +19,8 @@ public interface SysDeptDao extends BaseMapper<SysDeptEntity> {
 
     /**
      * 查询子部门ID列表
-     * @param parentId  上级部门ID
+     *
+     * @param parentId 上级部门ID
      */
     List<Long> queryDetpIdList(Long parentId);
 

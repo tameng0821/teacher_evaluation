@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ambow.lyu.modules.eval.dao.ColleagueEvalTaskDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ambow.lyu.modules.eval.entity.ColleagueEvalTaskEntity" id="colleagueEvalTaskMap">
+        <result property="id" column="id"/>
+        <result property="standardId" column="standard_id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="userId" column="user_id"/>
+    </resultMap>
+
+
+</mapper>

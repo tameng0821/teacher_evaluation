@@ -6,10 +6,14 @@ package com.ambow.lyu.common.utils;
  * @author Mark sunlightcs@gmail.com
  */
 public class Constant {
-	/** 超级管理员ID */
-	public static final int SUPER_ADMIN = 1;
-    /** 数据权限过滤 */
-	public static final String SQL_FILTER = "sql_filter";
+    /**
+     * 超级管理员ID
+     */
+    public static final int SUPER_ADMIN = 1;
+    /**
+     * 数据权限过滤
+     */
+    public static final String SQL_FILTER = "sql_filter";
     /**
      * 当前页码
      */
@@ -27,18 +31,18 @@ public class Constant {
      */
     public static final String ORDER = "order";
     /**
-     *  升序
+     * 升序
      */
     public static final String ASC = "asc";
 
-	/**
-	 * 菜单类型
-	 */
+    /**
+     * 菜单类型
+     */
     public enum MenuType {
         /**
          * 目录
          */
-    	CATALOG(0),
+        CATALOG(0),
         /**
          * 菜单
          */

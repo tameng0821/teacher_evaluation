@@ -1,10 +1,10 @@
 package com.ambow.lyu.modules.sys.controller;
 
+import com.ambow.lyu.common.utils.PageUtils;
+import com.ambow.lyu.common.validator.ValidatorUtils;
 import com.ambow.lyu.common.vo.Response;
 import com.ambow.lyu.modules.sys.entity.SysDictEntity;
 import com.ambow.lyu.modules.sys.service.SysDictService;
-import com.ambow.lyu.common.utils.PageUtils;
-import com.ambow.lyu.common.validator.ValidatorUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +28,7 @@ public class SysDictController {
      */
     @RequestMapping("/list")
     @RequiresPermissions("sys:dict:list")
-    public Response list(@RequestParam Map<String, Object> params){
+    public Response list(@RequestParam Map<String, Object> params) {
         PageUtils page = sysDictService.queryPage(params);
 
         return Response.ok().put("page", page);
@@ -40,7 +40,7 @@ public class SysDictController {
      */
     @RequestMapping("/info/{id}")
     @RequiresPermissions("sys:dict:info")
-    public Response info(@PathVariable("id") Long id){
+    public Response info(@PathVariable("id") Long id) {
         SysDictEntity dict = sysDictService.getById(id);
 
         return Response.ok().put("dict", dict);
@@ -51,7 +51,7 @@ public class SysDictController {
      */
     @RequestMapping("/save")
     @RequiresPermissions("sys:dict:save")
-    public Response save(@RequestBody SysDictEntity dict){
+    public Response save(@RequestBody SysDictEntity dict) {
         //校验类型
         ValidatorUtils.validateEntity(dict);
 
@@ -65,7 +65,7 @@ public class SysDictController {
      */
     @RequestMapping("/update")
     @RequiresPermissions("sys:dict:update")
-    public Response update(@RequestBody SysDictEntity dict){
+    public Response update(@RequestBody SysDictEntity dict) {
         //校验类型
         ValidatorUtils.validateEntity(dict);
 
@@ -79,7 +79,7 @@ public class SysDictController {
      */
     @RequestMapping("/delete")
     @RequiresPermissions("sys:dict:delete")
-    public Response delete(@RequestBody Long[] ids){
+    public Response delete(@RequestBody Long[] ids) {
         sysDictService.removeByIds(Arrays.asList(ids));
 
         return Response.ok();

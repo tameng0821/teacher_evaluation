@@ -15,19 +15,19 @@ import java.io.Serializable;
 @Data
 @TableName("sys_role_dept")
 public class SysRoleDeptEntity implements Serializable {
-	private static final long serialVersionUID = 1L;
-	@TableId
-	private Long id;
+    private static final long serialVersionUID = 1L;
+    @TableId
+    private Long id;
 
-	/**
-	 * 角色ID
-	 */
-	private Long roleId;
+    /**
+     * 角色ID
+     */
+    private Long roleId;
 
-	/**
-	 * 部门ID
-	 */
-	private Long deptId;
+    /**
+     * 部门ID
+     */
+    private Long deptId;
 
-	
+
 }

@@ -26,11 +26,11 @@ import java.io.IOException;
  */
 @Controller
 public class SysLoginController {
-	@Autowired
-	private Producer producer;
-	
-	@RequestMapping("captcha.jpg")
-	public void captcha(HttpServletResponse response)throws IOException {
+    @Autowired
+    private Producer producer;
+
+    @RequestMapping("captcha.jpg")
+    public void captcha(HttpServletResponse response) throws IOException {
         response.setHeader("Cache-Control", "no-store, no-cache");
         response.setContentType("image/jpeg");
 
@@ -40,46 +40,46 @@ public class SysLoginController {
         BufferedImage image = producer.createImage(text);
         //保存到shiro session
         ShiroUtils.setSessionAttribute(Constants.KAPTCHA_SESSION_KEY, text);
-        
+
         ServletOutputStream out = response.getOutputStream();
         ImageIO.write(image, "jpg", out);
-	}
-	
-	/**
-	 * 登录
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/sys/login", method = RequestMethod.POST)
-	public Response login(String username, String password, String captcha) {
-		String kaptcha = ShiroUtils.getKaptcha(Constants.KAPTCHA_SESSION_KEY);
-		if(!captcha.equalsIgnoreCase(kaptcha)){
-			return Response.error("验证码不正确");
-		}
-		
-		try{
-			Subject subject = ShiroUtils.getSubject();
-			UsernamePasswordToken token = new UsernamePasswordToken(username, password);
-			subject.login(token);
-		}catch (UnknownAccountException e) {
-			return Response.error(e.getMessage());
-		}catch (IncorrectCredentialsException e) {
-			return Response.error("账号或密码不正确");
-		}catch (LockedAccountException e) {
-			return Response.error("账号已被锁定,请联系管理员");
-		}catch (AuthenticationException e) {
-			return Response.error("账户验证失败");
-		}
-	    
-		return Response.ok();
-	}
-	
-	/**
-	 * 退出
-	 */
-	@RequestMapping(value = "logout", method = RequestMethod.GET)
-	public String logout() {
-		ShiroUtils.logout();
-		return "redirect:login.html";
-	}
-	
+    }
+
+    /**
+     * 登录
+     */
+    @ResponseBody
+    @RequestMapping(value = "/sys/login", method = RequestMethod.POST)
+    public Response login(String username, String password, String captcha) {
+        String kaptcha = ShiroUtils.getKaptcha(Constants.KAPTCHA_SESSION_KEY);
+        if (!captcha.equalsIgnoreCase(kaptcha)) {
+            return Response.error("验证码不正确");
+        }
+
+        try {
+            Subject subject = ShiroUtils.getSubject();
+            UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+            subject.login(token);
+        } catch (UnknownAccountException e) {
+            return Response.error(e.getMessage());
+        } catch (IncorrectCredentialsException e) {
+            return Response.error("账号或密码不正确");
+        } catch (LockedAccountException e) {
+            return Response.error("账号已被锁定,请联系管理员");
+        } catch (AuthenticationException e) {
+            return Response.error("账户验证失败");
+        }
+
+        return Response.ok();
+    }
+
+    /**
+     * 退出
+     */
+    @RequestMapping(value = "logout", method = RequestMethod.GET)
+    public String logout() {
+        ShiroUtils.logout();
+        return "redirect:login.html";
+    }
+
 }
