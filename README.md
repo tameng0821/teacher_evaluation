@@ -10,7 +10,7 @@
 #### 安装教程
 
 1. 修改数据库连接地址、配置文件内的端口、ContextPath，打包te-admin.jar。
-2. 使用setsid java -jar te-admin.jar，后台运行项目。
+2. 使用setsid java -jar te-admin.jar &，后台运行项目。
 
 #### 使用说明
 
