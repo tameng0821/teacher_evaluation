@@ -26,7 +26,7 @@
 3. 提交代码
     1. git add .
     2. git commit -m "第一次提交"
-    3. git push origin master
+    3. git push gitee dev
 4. 管理员新建 Pull Request，将dev分支代码合并到master分支（保护分支）。
 
 
