@@ -27,6 +27,7 @@ import java.util.*;
  */
 @Component
 public class UserRealm extends AuthorizingRealm {
+
     @Autowired
     private SysUserDao sysUserDao;
     @Autowired

@@ -164,201 +164,63 @@ INSERT INTO `sys_dict`(`id`, `name`, `type`, `code`, `value`, `order_num`, `rema
 /* 教师评价系统                                  */
 /*==============================================================*/
 
-create table tb_eval_standard
+create table tb_eval_base_item
 (
    id                   bigint not null AUTO_INCREMENT,
    name                 varchar(100) not null COMMENT '名称',
    percentage           int not null COMMENT '百分比',
    remark               varchar(500) COMMENT '备注',
    primary key (id)
-)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='评分标准';
+)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='评分标准基础项目';
 
-create table tb_eval_task
+create table tb_colleague_eval_base_item
 (
    id                   bigint not null AUTO_INCREMENT,
    name                 varchar(100) not null COMMENT '名称',
-   create_time          datetime COMMENT '创建时间',
-   status               tinyint COMMENT '状态，0：开启；1：关闭；',
-   dept_id              bigint COMMENT '所属部门',
+   percentage           int not null COMMENT '百分比',
    remark               varchar(500) COMMENT '备注',
    primary key (id)
-)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='评价任务';
+)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='同行评价基础项目';
 
-create table tb_eval_result
+create table tb_inspector_eval_base_item
 (
    id                   bigint not null AUTO_INCREMENT,
-   task_id              bigint COMMENT '任务ID',
-   user_id              bigint COMMENT '用户ID',
-   student_eval_score   double COMMENT '学生评价分数',
-   colleague_eval_score double COMMENT '同行评价分数',
-   inspector_eval_score double COMMENT '督导评价分数',
-   other_eval_score     double COMMENT '其他评价分数',
-   account_score        double COMMENT '合计分数',
-   ranking              bigint COMMENT '排名',
-   update_time          datetime COMMENT '修改时间',
+   name                 varchar(100) not null COMMENT '名称',
+   percentage           int not null COMMENT '百分比',
+   remark               varchar(500) COMMENT '备注',
    primary key (id)
-)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='评价结果';
-
-alter table tb_eval_result add constraint FK_Reference_21 foreign key (task_id)
-      references tb_eval_task (id) on delete restrict on update restrict;
-
-create table tb_student_eval_task
-(
-   id                   bigint not null AUTO_INCREMENT,
-   standard_id          bigint COMMENT '评价标准ID',
-   task_id              bigint COMMENT '任务ID',
-   dept_id              bigint COMMENT '部门ID',
-   primary key (id)
-)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='学生任务';
-
-alter table tb_student_eval_task add constraint FK_Reference_13 foreign key (task_id)
-      references tb_eval_task (id) on delete restrict on update restrict;
-
-alter table tb_student_eval_task add constraint FK_Reference_9 foreign key (standard_id)
-      references tb_eval_standard (id) on delete restrict on update restrict;
-
-create table tb_student_eval_record
-(
-   id                   bigint not null AUTO_INCREMENT,
-   sub_task_id          bigint COMMENT '子任务ID',
-   user_id              bigint COMMENT '用户ID',
-   score                double COMMENT '分数',
-   update_time          datetime COMMENT '修改时间',
-   primary key (id)
-)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='学生评价记录';
-
-alter table tb_student_eval_record add constraint FK_Reference_17 foreign key (sub_task_id)
-      references tb_student_eval_task (id) on delete restrict on update restrict;
-
-create table tb_colleague_eval_task
-(
-   id                   bigint not null AUTO_INCREMENT,
-   standard_id          bigint COMMENT '评价标准ID',
-   task_id              bigint COMMENT '任务ID',
-   dept_id              bigint COMMENT '部门ID',
-   user_id              bigint COMMENT '评价人ID',
-   primary key (id)
-)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='同行评价任务';
-
-alter table tb_colleague_eval_task add constraint FK_Reference_10 foreign key (standard_id)
-      references tb_eval_standard (id) on delete restrict on update restrict;
-
-alter table tb_colleague_eval_task add constraint FK_Reference_14 foreign key (task_id)
-      references tb_eval_task (id) on delete restrict on update restrict;
-
-create table tb_colleague_eval_record
-(
-   id                   bigint not null AUTO_INCREMENT,
-   sub_task_id          bigint COMMENT '子任务ID',
-   user_id              bigint COMMENT '用户ID',
-   score                double COMMENT '分数',
-   update_time          datetime COMMENT '修改时间',
-   primary key (id)
-)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='同行评价记录';
-
-alter table tb_colleague_eval_record add constraint FK_Reference_18 foreign key (sub_task_id)
-      references tb_colleague_eval_task (id) on delete restrict on update restrict;
-
-create table tb_inspector_eval_task
-(
-   id                   bigint not null AUTO_INCREMENT,
-   standard_id          bigint COMMENT '评价标准ID',
-   task_id              bigint COMMENT '任务ID',
-   dept_id              bigint COMMENT '部门ID',
-   user_id              bigint COMMENT '评价人ID',
-   primary key (id)
-)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='督导评价';
-
-alter table tb_inspector_eval_task add constraint FK_Reference_11 foreign key (standard_id)
-      references tb_eval_standard (id) on delete restrict on update restrict;
-
-alter table tb_inspector_eval_task add constraint FK_Reference_15 foreign key (task_id)
-      references tb_eval_task (id) on delete restrict on update restrict;
-
-create table tb_inspector_eval_record
-(
-   id                   bigint not null AUTO_INCREMENT,
-   sub_task_id          bigint COMMENT '子任务ID',
-   user_id              bigint COMMENT '用户ID',
-   score                double COMMENT '分数',
-   update_time          datetime COMMENT '修改时间',
-   primary key (id)
-)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='督导评价记录';
-
-alter table tb_inspector_eval_record add constraint FK_Reference_19 foreign key (sub_task_id)
-      references tb_inspector_eval_task (id) on delete restrict on update restrict;
-
-create table tb_other_eval_task
-(
-   id                   bigint not null AUTO_INCREMENT,
-   standard_id          bigint COMMENT '评价标准ID',
-   task_id              bigint COMMENT '任务ID',
-   dept_id              bigint COMMENT '部门ID',
-   primary key (id)
-)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='其他评价';
-
-alter table tb_other_eval_task add constraint FK_Reference_12 foreign key (standard_id)
-      references tb_eval_standard (id) on delete restrict on update restrict;
-
-alter table tb_other_eval_task add constraint FK_Reference_16 foreign key (task_id)
-      references tb_eval_task (id) on delete restrict on update restrict;
-
-create table tb_other_eval_record
-(
-   id                   bigint not null AUTO_INCREMENT,
-   sub_task_id          bigint COMMENT '子任务ID',
-   user_id              bigint COMMENT '用户ID',
-   score                double COMMENT '分数',
-   update_time          datetime COMMENT '修改时间',
-   primary key (id)
-)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='其他评价记录';
-
-alter table tb_other_eval_record add constraint FK_Reference_20 foreign key (sub_task_id)
-      references tb_other_eval_task (id) on delete restrict on update restrict;
+)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='督导评价基础项目';
 
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('100', '0', '评价管理', NULL, NULL, '0', 'fa fa-cog', '0');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('110', '100', '标准管理', 'modules/eval/evalstandard.html', NULL, '1', 'fa fa-bandcamp', '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('111', '100', '任务管理', 'modules/eval/evaltask.html', NULL, '1', 'fa fa-tasks', '2');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('112', '100', '学生评价', 'modules/eval/studentevalrecord.html', NULL, '1', 'fa fa-graduation-cap', '3');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('113', '100', '同行评价', 'modules/eval/colleagueevalrecord.html', NULL, '1', 'fa fa-user-o', '4');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('114', '100', '督导评价', 'modules/eval/inspectorevalrecord.html', NULL, '1', 'fa fa-eye', '5');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('115', '100', '其他评价', 'modules/eval/otherevalrecord.html', NULL, '1', 'fa fa-check-circle', '6');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('116', '100', '评价结果', 'modules/eval/evalresult.html', NULL, '1', 'fa fa-book', '7');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('110', '100', '评价标准', 'modules/eval/evalbaseitem.html', NULL, '1', 'fa fa-bandcamp', '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('111', '100', '同行评价项目', 'modules/eval/colleagueevalbaseitem.html', NULL, '1', 'fa fa-bandcamp', '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('112', '100', '督导评价项目', 'modules/eval/inspectorevalbaseitem.html', NULL, '1', 'fa fa-bandcamp', '1');
 
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('130', '110', '查看', null, 'eval:evalstandard:list,eval:evalstandard:info', '2', null, '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('131', '110', '新增', null, 'eval:evalstandard:save', '2', null, '2');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('132', '110', '修改', null, 'eval:evalstandard:update', '2', null, '3');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('133', '110', '删除', null, 'eval:evalstandard:delete', '2', null, '4');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('130', '110', '查看', null, 'eval:evalbaseitem:list,eval:evalbaseitem:info', '2', null, '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('132', '110', '修改', null, 'eval:evalbaseitem:update', '2', null, '3');
 
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('134', '111', '查看', null, 'eval:evaltask:list,eval:evaltask:info', '2', null, '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('135', '111', '新增', null, 'eval:evaltask:save', '2', null, '2');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('136', '111', '修改', null, 'eval:evaltask:update', '2', null, '3');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('137', '111', '删除', null, 'eval:evaltask:delete', '2', null, '4');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('134', '111', '查看', null, 'eval:colleagueevalbaseitem:list,eval:colleagueevalbaseitem:info', '2', null, '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('135', '111', '新增', null, 'eval:colleagueevalbaseitem:save', '2', null, '2');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('136', '111', '修改', null, 'eval:colleagueevalbaseitem:update', '2', null, '3');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('137', '111', '删除', null, 'eval:colleagueevalbaseitem:delete', '2', null, '4');
 
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('138', '112', '查看', null, 'eval:studentevalrecord:list,eval:studentevalrecord:info', '2', null, '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('139', '112', '新增', null, 'eval:studentevalrecord:save', '2', null, '2');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('140', '112', '修改', null, 'eval:studentevalrecord:update', '2', null, '3');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('141', '112', '删除', null, 'eval:studentevalrecord:delete', '2', null, '4');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('138', '112', '查看', null, 'eval:inspectorevalbaseitem:list,eval:inspectorevalbaseitem:info', '2', null, '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('139', '112', '新增', null, 'eval:inspectorevalbaseitem:save', '2', null, '2');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('140', '112', '修改', null, 'eval:inspectorevalbaseitem:update', '2', null, '3');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('141', '112', '删除', null, 'eval:inspectorevalbaseitem:delete', '2', null, '4');
 
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('142', '113', '查看', null, 'eval:colleagueevalrecord:list,eval:colleagueevalrecord:info', '2', null, '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('143', '113', '新增', null, 'eval:colleagueevalrecord:save', '2', null, '2');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('144', '113', '修改', null, 'eval:colleagueevalrecord:update', '2', null, '3');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('145', '113', '删除', null, 'eval:colleagueevalrecord:delete', '2', null, '4');
+INSERT INTO `tb_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (1,'学生评价',30,'学生评价由学生对任课教师进行网上评价，给出评价结果。无法通过网上评教的教学环节，可以通过发放学生问卷方式进行评价，后续结果由管理员录入。对于承担多项教学任务的教师，其学生评教得分取多次评教的平均分。 ');
+INSERT INTO `tb_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (2,'同行评价',30,'同行评价以系（教研室）为单位，分别组织系主任或同行教师对每位教师进行评价。');
+INSERT INTO `tb_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (3,'督导评价',20,'学院教学督导和教学工作指导委员会评价根据教师教学态度、教学过程、教学水平、教学档案质量、教学成效等进行综合评价，给出评价结果。');
+INSERT INTO `tb_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (4,'其他评价',20,'其他教学工作由教学研究与改革、产教融合、教师参加其他教学工作情况等给出评价结果，后续结果由管理员录入。');
 
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('146', '114', '查看', null, 'eval:inspectorevalrecord:list,eval:inspectorevalrecord:info', '2', null, '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('147', '114', '新增', null, 'eval:inspectorevalrecord:save', '2', null, '2');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('148', '114', '修改', null, 'eval:inspectorevalrecord:update', '2', null, '3');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('149', '114', '删除', null, 'eval:inspectorevalrecord:delete', '2', null, '4');
+INSERT INTO `tb_colleague_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (1,'教学工作量',50,NULL);
+INSERT INTO `tb_colleague_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (2,'教学结果',50,NULL);
 
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('150', '115', '查看', null, 'eval:otherevalrecord:list,eval:otherevalrecord:info', '2', null, '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('151', '115', '新增', null, 'eval:otherevalrecord:save', '2', null, '2');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('152', '115', '修改', null, 'eval:otherevalrecord:update', '2', null, '3');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('153', '115', '删除', null, 'eval:otherevalrecord:delete', '2', null, '4');
-
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('154', '116', '查看', null, 'eval:evalresult:list,eval:evalresult:info', '2', null, '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('155', '116', '新增', null, 'eval:evalresult:save', '2', null, '2');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('156', '116', '修改', null, 'eval:evalresult:update', '2', null, '3');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('157', '116', '删除', null, 'eval:evalresult:delete', '2', null, '4');
-
+INSERT INTO `tb_inspector_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (1,'教学态度',20,NULL);
+INSERT INTO `tb_inspector_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (2,'教学过程',20,NULL);
+INSERT INTO `tb_inspector_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (3,'教学水平',20,NULL);
+INSERT INTO `tb_inspector_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (4,'教学档案质量',20,NULL);
+INSERT INTO `tb_inspector_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (5,'教学成效',20,NULL);
 
 
