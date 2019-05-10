@@ -9,15 +9,15 @@
 
 #### 安装教程
 
-1. 修改数据库连接地址、配置文件内的端口、ContextPath，打包te-admin.jar。
+1. 根据情形修改数据库连接地址、配置文件内的端口、ContextPath，打包te-admin.jar。
 2. 使用setsid java -jar te-admin.jar &，后台运行项目。
 
 #### 使用说明
 
-1. 环境要求 JDK1.8、Mysql8.0
+1. 环境要求 JDK1.8
 
 #### 参与贡献
-1. 代码仓库（私有）拥有者lyu_info_chuangke， 需加入组织。默认分支为dev分支（常规分支）。
+1. 默认分支为dev分支（常规分支）。对项目感兴趣欢迎fork。项目参与人员使用如下命令更新/提交。
 2. 创建本地仓库。
     1. mkdir teacher_evaluation
     2. git init
