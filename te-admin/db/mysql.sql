@@ -113,7 +113,7 @@ CREATE TABLE `sys_log` (
 -- 初始数据
 INSERT INTO `sys_user` (`user_id`, `username`, `password`, `salt`,`name`,`email`, `mobile`, `status`, `dept_id`, `create_time`) VALUES ('1', 'admin', 'e1153123d7d180ceeb820d577ff119876678732a68eef4e6ffc0b1f06a01f91b', 'YzcmCZNvbXocrsz9dm8e','管理员', 'root@lyu.edu.cn', '13612345678', '1', '1', '2019-5-1 11:11:11');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('1', '0', '系统管理', NULL, NULL, '0', 'fa fa-cog', '0');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('2', '1', '管理员管理', 'modules/sys/user.html', NULL, '1', 'fa fa-user', '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('2', '1', '用户管理', 'modules/sys/user.html', NULL, '1', 'fa fa-user', '1');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('3', '1', '角色管理', 'modules/sys/role.html', NULL, '1', 'fa fa-user-secret', '2');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('4', '1', '菜单管理', 'modules/sys/menu.html', NULL, '1', 'fa fa-th-list', '3');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('5', '1', 'SQL监控', 'druid/sql.html', NULL, '1', 'fa fa-bug', '4');
@@ -224,3 +224,77 @@ INSERT INTO `tb_inspector_eval_base_item` (`id`,`name`,`percentage`,`remark`) VA
 INSERT INTO `tb_inspector_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (5,'教学成效',20,NULL);
 
 
+create table tb_eval_task
+(
+   id                   bigint not null AUTO_INCREMENT,
+   name                 varchar(100) not null COMMENT '名称',
+   create_time          datetime COMMENT '创建时间',
+   status               tinyint COMMENT '状态，0：开启；1：关闭；',
+   dept_id              bigint COMMENT '评价部门ID',
+   remark               varchar(500) COMMENT '备注',
+   primary key (id)
+)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='评价任务';
+
+create table tb_student_eval_task
+(
+   id                   bigint not null AUTO_INCREMENT,
+   task_id              bigint COMMENT '任务ID',
+   percentage  int COMMENT '评价占比',
+   primary key (id)
+)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='学生评价子任务';
+
+create table tb_colleague_eval_task
+(
+   id                   bigint not null AUTO_INCREMENT,
+   task_id              bigint  COMMENT '任务ID',
+   dept_id              bigint  COMMENT '部门ID',
+   user_id              bigint  COMMENT '系主任ID',
+   percentage  int COMMENT '评价占比',
+   primary key (id)
+)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='同行/系主任评价子任务';
+
+create table tb_colleague_eval_task_item
+(
+   id                   bigint not null AUTO_INCREMENT,
+   task_id              bigint COMMENT '任务ID',
+   name                 varchar(100) COMMENT '评价项目名称',
+   percentage           int COMMENT '评价占比',
+   remark               varchar(500) COMMENT '项目备注',
+   primary key (id)
+)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='同行评价子任务评价项目';
+
+create table tb_inspector_eval_task
+(
+   id                   bigint not null AUTO_INCREMENT,
+   task_id              bigint COMMENT '任务ID',
+   user_id              bigint COMMENT '督导ID',
+   percentage  int COMMENT '评价占比',
+   primary key (id)
+)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='督导评价子任务';
+
+create table tb_inspector_eval_task_item
+(
+   id                   bigint not null AUTO_INCREMENT,
+   task_id              bigint COMMENT '任务ID',
+   name                 varchar(100) COMMENT '评价项目名称',
+   percentage           int COMMENT '评价占比',
+   remark               varchar(500) COMMENT '项目备注',
+   primary key (id)
+)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='督导评价子任务评价项目';
+
+create table tb_other_eval_task
+(
+   id                   bigint not null AUTO_INCREMENT,
+   task_id              bigint COMMENT '任务ID',
+   percentage  int not null COMMENT '评价占比',
+   primary key (id)
+)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='其他评价子任务';
+
+
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('113', '100', '评价任务', 'modules/eval/evaltask.html', NULL, '1', 'fa fa-tasks', '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('142', '113', '查看', null, 'eval:evaltask:list,eval:evaltask:info', '2', null, '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('143', '113', '创建', null, 'eval:evaltask:save', '2', null, '2');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('144', '113', '修改', null, 'eval:evaltask:update', '2', null, '3');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('145', '113', '删除', null, 'eval:evaltask:delete', '2', null, '4');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('146', '113', '开关', null, 'eval:evaltask:switch', '2', null, '5');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('147', '113', '生成结果', null, 'eval:evaltask:result', '2', null, '6');
