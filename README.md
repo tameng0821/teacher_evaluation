@@ -4,8 +4,7 @@
 根据《教师教学质量评价实施方案（试行）》开发教师评价系统。
 
 #### 软件架构
-1. 使用人人开源社区项目renren_security为基础开发。
-2. 技术关键词：Java、Spring、SpringBoot、Mybatis、Mybatis-plus、shiro。
+1. 技术关键词：Java、Spring、SpringBoot、Mybatis、Mybatis-plus、shiro。
 
 #### 安装教程
 
