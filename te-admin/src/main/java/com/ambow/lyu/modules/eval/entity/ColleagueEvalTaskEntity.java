@@ -1,5 +1,6 @@
 package com.ambow.lyu.modules.eval.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -40,5 +41,17 @@ public class ColleagueEvalTaskEntity implements Serializable {
 	 * 评价占比
 	 */
 	private Integer percentage;
+
+	/**
+	 * 部门名称
+	 */
+	@TableField(exist = false)
+	private String deptName;
+	/**
+	 * 系主任名称
+	 */
+	@TableField(exist = false)
+	private String userName;
+
 
 }

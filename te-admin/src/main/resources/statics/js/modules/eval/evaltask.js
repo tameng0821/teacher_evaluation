@@ -9,7 +9,7 @@ $(function () {
 			{ label: '创建时间', name: 'createTime', index: 'create_time', width: 100 },
 			{ label: '状态', name: 'status', index: 'status', width: 40 , formatter: function(value, options, row){
                     return value === 1 ?
-                        '<span class="label label-danger">关闭</span>' :
+                        '<span class="label label-primary">关闭</span>' :
                         '<span class="label label-success">开启</span>';
 			}}
         ],
@@ -59,14 +59,59 @@ var vm = new Vue({
 	el:'#rrapp',
 	data:{
 		showList: true,
+        addStep:1,
+        showAdd: false,
+		showDetail: false,
+
 		title: null,
 		evalTask: {
-            status:0,
+            status:1,
             deptId:null,
-            deptName:null
-        }
+            deptName:null,
+
+            studentPercentage:null,
+            colleaguePercentage:null,
+            inspectorPercentage:null,
+            otherPercentage:null,
+
+            studentEvalTask:null,
+            colleagueEvalTasks:null,
+            colleagueEvalTaskItems:null,
+            inspectorEvalTasks:null,
+            inspectorEvalTaskItems:null,
+            otherEvalTask:null
+        },
+        evalBaseItems:null,
+        colleagueEvalBaseItems:null,
+        inspectorEvalBaseItems:null
+
 	},
 	methods: {
+
+	    switchList:function(){
+	        vm.showList = true;
+	        vm.showAdd = false;
+	        vm.showDetail = false;
+        },
+        switchAdd:function(){
+            vm.showList = false;
+            vm.addStep = 1;
+            vm.showAdd = true;
+            vm.showDetail = false;
+        },
+        switchDetail:function(){
+            vm.showList = false;
+            vm.showAdd = false;
+            vm.showDetail = true;
+        },
+        addStepPre:function(){
+            if(vm.addStep > 1){
+                vm.addStep--;
+            }
+        },
+        addStepNext:function(){
+            vm.addStep++;
+        },
 		query: function () {
 			vm.reload();
 		},
@@ -82,22 +127,90 @@ var vm = new Vue({
                 }
             })
         },
-        detail:function(){
-
+        getEvalBaseItems: function() {
+            //加载评价基础标准
+            $.get(baseURL + "eval/evalbaseitem/list", function (r) {
+                vm.evalBaseItems = r.page.list;
+                for (var i=0;i < vm.evalBaseItems.length;++i) {
+                    if (vm.evalBaseItems[i].name === '学生评价') {
+                        vm.evalTask.studentPercentage = vm.evalBaseItems[i].percentage;
+                    } else if (vm.evalBaseItems[i].name === '同行评价') {
+                        vm.evalTask.colleaguePercentage = vm.evalBaseItems[i].percentage;
+                    } else if (vm.evalBaseItems[i].name === '督导评价') {
+                        vm.evalTask.inspectorPercentage = vm.evalBaseItems[i].percentage;
+                    } else if (vm.evalBaseItems[i].name === '其他评价') {
+                        vm.evalTask.otherPercentage = vm.evalBaseItems[i].percentage;
+                    }
+                }
+            })
         },
-		add: function(){
-			vm.showList = false;
-			vm.title = "新增";
-            vm.evalTask = {deptName:null, deptId:null, status:1};
+        getColleagueEvalBaseItems: function(){
+            //加载同行评价基础标准
+            $.get(baseURL + "eval/colleagueevalbaseitem/list", function(r){
+                vm.colleagueEvalBaseItems = r.page.list;
 
+                for(var i=0;i < vm.colleagueEvalBaseItems.length;++i){
+                    vm.evalTask.colleagueEvalTaskItems[i] = {
+                        name:vm.colleagueEvalBaseItems[i].name,
+                        percentage:vm.colleagueEvalBaseItems[i].percentage,
+                        remark:vm.colleagueEvalBaseItems[i].remark
+                    };
+                }
+            })
+        },
+        getInspectorEvalBaseItems: function(){
+            //加载督导评价基础标准
+            $.get(baseURL + "eval/inspectorevalbaseitem/list", function(r){
+                vm.inspectorEvalBaseItems = r.page.list;
+
+                for(var i=0;i < vm.inspectorEvalBaseItems.length;++i){
+                    vm.evalTask.inspectorEvalTaskItems[i] = {
+                        name:vm.inspectorEvalBaseItems[i].name,
+                        percentage:vm.inspectorEvalBaseItems[i].percentage,
+                        remark:vm.inspectorEvalBaseItems[i].remark
+                    };
+                }
+            })
+        },
+        detail:function(){
+            vm.switchDetail();
+        },
+
+		add: function(){
+            vm.title = "新增";
+			vm.switchAdd();
+
+            vm.evalTask = {
+                status:1,
+                deptId:null,
+                deptName:null,
+
+                studentPercentage:null,
+                colleaguePercentage:null,
+                inspectorPercentage:null,
+                otherPercentage:null,
+
+                studentEvalTask:null,
+                colleagueEvalTasks:[],
+                colleagueEvalTaskItems:[],
+                inspectorEvalTasks:[],
+                inspectorEvalTaskItems:[],
+                otherEvalTask:null
+            };
+
+            //获取部门
             vm.getDept();
+            //获取评价基本标准,同行评价基本标准,督导评价基本标准
+            vm.getEvalBaseItems();
+            vm.getColleagueEvalBaseItems();
+            vm.getInspectorEvalBaseItems();
 		},
 		update: function (event) {
 			var id = getSelectedRow();
 			if(id == null){
 				return ;
 			}
-			vm.showList = false;
+			vm.showAdd();
             vm.title = "修改";
             
             vm.getInfo(id)
@@ -176,12 +289,19 @@ var vm = new Vue({
                     vm.evalTask.deptId = node[0].deptId;
                     vm.evalTask.deptName = node[0].name;
 
+                    //列出子部门，生成同行评价选项
+                    for(var i=0; i < node[0].children.length ; ++i){
+                        vm.evalTask.colleagueEvalTasks[i] = {};
+                        vm.evalTask.colleagueEvalTasks[i].deptId = node[0].children[i].deptId;
+                        vm.evalTask.colleagueEvalTasks[i].deptName = node[0].children[i].name;
+                    }
+
                     layer.close(index);
                 }
             });
         },
 		reload: function (event) {
-			vm.showList = true;
+			vm.switchList();
 			var page = $("#jqGrid").jqGrid('getGridParam','page');
 			$("#jqGrid").jqGrid('setGridParam',{ 
                 page:page

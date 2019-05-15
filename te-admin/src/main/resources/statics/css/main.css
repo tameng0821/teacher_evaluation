@@ -49,6 +49,22 @@ tbody > tr > th {font-weight: normal; }
 }
 .col-xs-6{padding-left: 0px;padding-right: 0px;}
 .form-horizontal .form-group {margin-left:0px;margin-right:0px;}
+.form-horizontal .row {
+    border: 0;
+    padding: 0;
+    margin: 5px 0 0;
+}
 .form-horizontal{
 	width:550px;padding-top:20px;
+}
+.div-border-top-bottom {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    padding:0px 0px 5px 0px;
+    margin:5px 0px 5px 0px;
+}
+.div-border-all {
+    border: 1px solid #ddd;
+    padding:0px 0px 5px 0px;
+    margin:5px 0px 5px 0px;
 }
