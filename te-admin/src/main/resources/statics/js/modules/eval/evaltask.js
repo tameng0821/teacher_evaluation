@@ -8,9 +8,13 @@ $(function () {
             { label: '所属部门', name: 'deptName', sortable: false, width: 100 },
 			{ label: '创建时间', name: 'createTime', index: 'create_time', width: 100 },
 			{ label: '状态', name: 'status', index: 'status', width: 40 , formatter: function(value, options, row){
-                    return value === 1 ?
-                        '<span class="label label-primary">关闭</span>' :
-                        '<span class="label label-success">开启</span>';
+			        if(value === 0){
+			            return '<span class="label label-default">新建</span>';
+                    }else if(value === 1){
+                        return '<span class="label label-success">发布</span>';
+                    }else if(value === 2){
+                        return '<span class="label label-danger">关闭</span>';
+                    }
 			}}
         ],
 		viewrecords: true,
@@ -83,8 +87,9 @@ var vm = new Vue({
         },
         evalBaseItems:null,
         colleagueEvalBaseItems:null,
-        inspectorEvalBaseItems:null
+        inspectorEvalBaseItems:null,
 
+        subTaskItem: {}
 	},
 	methods: {
 
@@ -175,7 +180,59 @@ var vm = new Vue({
         detail:function(){
             vm.switchDetail();
         },
+        addSubTask:function(taskType){
+            vm.subTaskItem = {};
+	        var subTaskAddTitle;
+	        if(taskType === 'colleague'){
+                subTaskAddTitle = "添加同行评级项目";
+            }else if(taskType === 'inspector'){
+                subTaskAddTitle = "添加督导评级项目";
+            }
+            layer.open({
+                type: 1,
+                offset: '50px',
+                skin: 'layui-layer-molv',
+                title: subTaskAddTitle,
+                area: ['600px', '420px'],
+                shade: 0,
+                shadeClose: false,
+                content: jQuery("#subTaskItemLayer"),
+                btn: ['添加', '取消'],
+                btn1: function (index) {
+                    if(isBlank(vm.subTaskItem.name)){
+                        layer.msg("名称不能为空！", {icon: 5});
+                    }else if(isBlank(vm.subTaskItem.percentage)){
+                        layer.msg("百分比不能为空！", {icon: 5});
+                    }else {
+                        if(taskType === 'colleague'){
+                            Vue.set(vm.evalTask.colleagueEvalTaskItems,vm.evalTask.colleagueEvalTaskItems.length,vm.subTaskItem);
+                        }else if(taskType === 'inspector'){
+                            Vue.set(vm.evalTask.inspectorEvalTaskItems,vm.evalTask.inspectorEvalTaskItems.length,vm.subTaskItem);
+                        }
+                        layer.close(index);
+                    }
+                }
+            });
+        },
+        deleteSubTaskItem:function(taskType,index){
+            if(taskType === 'colleague'){
+                if(vm.evalTask.colleagueEvalTaskItems.length === 1){
+                    layer.msg("最少需要一个同行评价项目！", {icon: 5});
+                }
+                Vue.delete(vm.evalTask.colleagueEvalTaskItems,index);
+            }else if(taskType === 'inspector'){
+                if(vm.evalTask.inspectorEvalTaskItems.length === 1){
+                    layer.msg("最少需要一个督导评价项目！", {icon: 5});
+                }
+                Vue.delete(vm.evalTask.inspectorEvalTaskItems,index);
+            }
+        },
+        addInspectorTask:function(){
 
+        },
+        deleteInspectorTask:function(){
+
+        },
 		add: function(){
             vm.title = "新增";
 			vm.switchAdd();
@@ -210,11 +267,42 @@ var vm = new Vue({
 			if(id == null){
 				return ;
 			}
-			vm.showAdd();
-            vm.title = "修改";
+
+            var rowData = $("#jqGrid").getRowData(id);
+            if(rowData.status.indexOf('新建') === -1){
+                layer.msg("只有处于新建状态的任务才能修改！", {icon: 2});
+                return;
+            }
+
+			// vm.showAdd();
+            // vm.title = "修改";
             
-            vm.getInfo(id)
+            // vm.getInfo(id)
 		},
+        turnOn: function (event) {
+            var id = getSelectedRow();
+            if(id == null){
+                return ;
+            }
+
+            var rowData = $("#jqGrid").getRowData(id);
+            if(rowData.status.indexOf('新建') === -1){
+                layer.msg("只有处于新建状态的任务才能发布！", {icon: 2});
+                return;
+            }
+        },
+        turnOff: function (event) {
+            var id = getSelectedRow();
+            if(id == null){
+                return ;
+            }
+
+            var rowData = $("#jqGrid").getRowData(id);
+            if(rowData.status.indexOf('发布') === -1){
+                layer.msg("只有处于发布状态的任务才能关闭！", {icon: 2});
+                return;
+            }
+        },
 		saveOrUpdate: function (event) {
 		    $('#btnSaveOrUpdate').button('loading').delay(1000).queue(function() {
                 var url = vm.evalTask.id == null ? "eval/evaltask/save" : "eval/evaltask/update";
@@ -288,14 +376,18 @@ var vm = new Vue({
                     //选择上级部门
                     vm.evalTask.deptId = node[0].deptId;
                     vm.evalTask.deptName = node[0].name;
-
                     //列出子部门，生成同行评价选项
-                    for(var i=0; i < node[0].children.length ; ++i){
-                        vm.evalTask.colleagueEvalTasks[i] = {};
-                        vm.evalTask.colleagueEvalTasks[i].deptId = node[0].children[i].deptId;
-                        vm.evalTask.colleagueEvalTasks[i].deptName = node[0].children[i].name;
+                    if(node[0].children === undefined){
+                        vm.evalTask.colleagueEvalTasks[0] = {};
+                        vm.evalTask.colleagueEvalTasks[0].deptId = node[0].deptId;
+                        vm.evalTask.colleagueEvalTasks[0].deptName = node[0].name;
+                    }else {
+                        for(var i=0; i < node[0].children.length ; ++i){
+                            vm.evalTask.colleagueEvalTasks[i] = {};
+                            vm.evalTask.colleagueEvalTasks[i].deptId = node[0].children[i].deptId;
+                            vm.evalTask.colleagueEvalTasks[i].deptName = node[0].children[i].name;
+                        }
                     }
-
                     layer.close(index);
                 }
             });
