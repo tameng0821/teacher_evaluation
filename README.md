@@ -4,7 +4,7 @@
 根据《教师教学质量评价实施方案（试行）》开发教师评价系统。
 
 #### 软件架构
-1. 技术关键词：Java、Spring、SpringBoot、Mybatis、Mybatis-plus、shiro。
+1. 技术关键词：Java、Spring、SpringBoot、Mybatis、Mybatis-plus、shiro、es6/vue/layui/jGrid/bootstrap。
 
 #### 安装教程
 

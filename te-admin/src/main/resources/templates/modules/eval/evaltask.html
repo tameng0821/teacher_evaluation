@@ -155,7 +155,7 @@
                             <div class="col-sm-5">
                                 <div class="input-group">
                                     <span class="input-group-addon">评价负责人</span>
-                                    <input type="text" class="form-control" :value="item.userName" placeholder="系主任/同行" readonly/>
+                                    <input type="text" class="form-control" :value="item.userName" @click="selectUser(index,item.deptId)" placeholder="系主任/同行" readonly/>
                                 </div>
                             </div>
                         </div>
@@ -298,7 +298,8 @@
             <textarea id="remark" class="form-control" v-model="subTaskItem.remark" rows="6"></textarea>
         </div>
     </div>
-</div>
+
+
 
 </div>
 
@@ -309,7 +310,50 @@
 
 <!-- 选择用户 -->
 <div id="userLayer" style="display: none;padding:10px;">
-    <ul id="deptTree1" class="ztree"></ul>
+    <div class="row">
+        <div class="col-sm-6">
+            选择部门
+        </div>
+        <div class="col-sm-6">
+            选择具体执行人
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <ul id="deptTree1" class="ztree"></ul>
+        </div>
+        <div class="col-sm-6">
+            <div class="row">
+                <div class="col-sm-9">
+                    <div class="input-group">
+                        <div class="input-group-addon">姓名</div>
+                        <input type="text" class="form-control" @change="findUser" v-model="layer.qName" placeholder="输入姓名"/>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <input type="button" class="btn btn-primary" @click="findUser" value="搜索"/>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>账号</th>
+                        <th>姓名</th>
+                    </tr>
+                    </thead>
+                    <tbody style="display: block;height: 200px;overflow-y: scroll;">
+                        <tr v-for="user in userList" @click="layerChooseUser(userId,username,name)">
+                            <td>{{user.username}}</td>
+                            <td>{{user.name}}</td>
+                        </tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 
 <script src="${request.contextPath}/statics/js/modules/eval/evaltask.js?_${.now?long}"></script>

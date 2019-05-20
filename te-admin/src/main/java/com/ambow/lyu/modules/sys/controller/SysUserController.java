@@ -45,6 +45,8 @@ public class SysUserController extends AbstractController {
         return Response.ok().put("page", page);
     }
 
+    
+
     /**
      * 获取登录的用户信息
      */

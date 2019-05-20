@@ -58,6 +58,8 @@ var setting = {
     }
 };
 var ztree;
+var ztree1;
+var depTreeData;
 
 var vm = new Vue({
 	el:'#rrapp',
@@ -89,8 +91,13 @@ var vm = new Vue({
         colleagueEvalBaseItems:null,
         inspectorEvalBaseItems:null,
 
-        subTaskItem: {}
-	},
+        subTaskItem: {},
+        userList: {},
+        layer:{
+            chooseUser:{},
+		    qName:null
+        }
+    },
 	methods: {
 
 	    switchList:function(){
@@ -124,6 +131,10 @@ var vm = new Vue({
             //加载部门树
             $.get(baseURL + "sys/dept/list", function(r){
                 ztree = $.fn.zTree.init($("#deptTree"), setting, r);
+                console.log(r);
+                //保存部门树
+                depTreeData = translateDeptDataToTree(r);
+                console.log(depTreeData);
                 var node = ztree.getNodeByParam("deptId", vm.evalTask.deptId);
                 if(node != null){
                     ztree.selectNode(node);
@@ -226,6 +237,43 @@ var vm = new Vue({
                 }
                 Vue.delete(vm.evalTask.inspectorEvalTaskItems,index);
             }
+        },
+        selectUser:function(index,deptId){
+	        //清空搜索框
+	        vm.layer.qName = null;
+	        vm.userList = {};
+	        //根据部门id将所有部门人员列出
+            let dept = findDeptFromTreeData(depTreeData,deptId);
+            console.log(dept);
+            let deptList = translateDeptTreeDataToList(dept);
+            console.log(deptList);
+            ztree1 = $.fn.zTree.init($("#deptTree1"), setting, deptList);
+
+            layer.open({
+                type: 1,
+                offset: '50px',
+                skin: 'layui-layer-molv',
+                title: "选择具体执行人",
+                area: ['800px', '420px'],
+                shade: 0,
+                shadeClose: false,
+                content: jQuery("#userLayer"),
+                btn: ['确定', '取消'],
+                btn1: function (index) {
+                }
+            });
+        },
+        findUser:function(){
+	        //搜索当前部门的员工
+            var node = ztree1.getSelectedNodes();
+            //搜索关键词
+            console.log(node);
+            console.log(vm.layer.qName);
+            //根据检索条件查询
+
+        },
+        layerChooseUser:function(userId,username,name){
+	        console.log(userId+"-"+username+"-"+name);
         },
         addInspectorTask:function(){
 
