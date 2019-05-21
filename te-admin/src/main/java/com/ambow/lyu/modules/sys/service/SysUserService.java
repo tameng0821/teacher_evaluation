@@ -40,4 +40,11 @@ public interface SysUserService extends IService<SysUserEntity> {
      * @param newPassword 新密码
      */
     boolean updatePassword(Long userId, String password, String newPassword);
+
+    /**
+     * 查询当前部门以及子部门的所有人员
+     * @param deptId 部门ID
+     * @return 人员列表
+     */
+    List<SysUserEntity> queryByDept(Long deptId);
 }

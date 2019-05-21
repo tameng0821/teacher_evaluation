@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +100,19 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUserEntity> i
         userEntity.setPassword(newPassword);
         return this.update(userEntity,
                 new QueryWrapper<SysUserEntity>().eq("user_id", userId).eq("password", password));
+    }
+
+    @Override
+    public List<SysUserEntity> queryByDept(Long deptId) {
+
+        List<SysUserEntity> result = new ArrayList<>(this.list(new QueryWrapper<SysUserEntity>().eq("dept_id", deptId)));
+
+        List<Long> deptIds = sysDeptService.getSubDeptIdList(deptId);
+
+        for (Long subDeptId : deptIds) {
+            result.addAll(this.list(new QueryWrapper<SysUserEntity>().eq("dept_id", subDeptId)));
+        }
+        return result;
     }
 
 }

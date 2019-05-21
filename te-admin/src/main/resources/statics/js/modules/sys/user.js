@@ -182,7 +182,7 @@ var vm = new Vue({
                 offset: '50px',
                 skin: 'layui-layer-molv',
                 title: "选择部门",
-                area: ['300px', '420px'],
+                area: ['300px', '360px'],
                 shade: 0,
                 shadeClose: false,
                 content: jQuery("#deptLayer"),

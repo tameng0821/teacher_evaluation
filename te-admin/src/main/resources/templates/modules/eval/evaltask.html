@@ -118,7 +118,7 @@
                     <div class="col-sm-10">
                         <div class="row">
                             <div class="col-sm-1"></div>
-                            <input type="button" class="btn btn-primary" @click="addSubTask('colleague')" value="添加同行评价项目"/>
+                            <input type="button" class="btn btn-primary" @click="showAddSubTaskItemLayer('colleague')" value="添加同行评价项目"/>
                         </div>
                         <div class="row" v-for="(item, index) in evalTask.colleagueEvalTaskItems">
                             <div class="col-sm-1">{{index + 1}}</div>
@@ -155,7 +155,7 @@
                             <div class="col-sm-5">
                                 <div class="input-group">
                                     <span class="input-group-addon">评价负责人</span>
-                                    <input type="text" class="form-control" :value="item.userName" @click="selectUser(index,item.deptId)" placeholder="系主任/同行" readonly/>
+                                    <input type="text" class="form-control" :value="item.userName" @click="showSelectUserLayer(index,item.deptId)" placeholder="系主任/同行" readonly/>
                                 </div>
                             </div>
                         </div>
@@ -191,7 +191,7 @@
                     <div class="col-sm-10">
                         <div class="row">
                             <div class="col-sm-1"></div>
-                            <input type="button" class="btn btn-primary" @click="addSubTask('inspector')" value="添加督导评价项目"/>
+                            <input type="button" class="btn btn-primary" @click="showAddSubTaskItemLayer('inspector')" value="添加督导评价项目"/>
                         </div>
                         <div class="row" v-for="(item, index) in evalTask.inspectorEvalTaskItems">
                             <div class="col-sm-1">{{index + 1}}</div>
@@ -310,49 +310,61 @@
 
 <!-- 选择用户 -->
 <div id="userLayer" style="display: none;padding:10px;">
-    <div class="row">
-        <div class="col-sm-6">
-            选择部门
+        <div class="row">
+            <div class="col-sm-4">
+                选择部门
+            </div>
+            <div class="col-sm-8">
+                选择具体执行人
+            </div>
         </div>
-        <div class="col-sm-6">
-            选择具体执行人
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-6">
-            <ul id="deptTree1" class="ztree"></ul>
-        </div>
-        <div class="col-sm-6">
-            <div class="row">
-                <div class="col-sm-9">
-                    <div class="input-group">
-                        <div class="input-group-addon">姓名</div>
-                        <input type="text" class="form-control" @change="findUser" v-model="layer.qName" placeholder="输入姓名"/>
+        <div class="row">
+            <div class="col-sm-4">
+                <ul id="deptTree1" class="ztree"></ul>
+            </div>
+            <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-sm-9">
+                        <div class="input-group">
+                            <div class="input-group-addon">姓名</div>
+                            <input type="text" class="form-control" @change="findUser" v-model="layer.qName" placeholder="输入姓名"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="button" class="btn btn-primary" @click="findUser" value="搜索"/>
                     </div>
                 </div>
-                <div class="col-sm-3">
-                    <input type="button" class="btn btn-primary" @click="findUser" value="搜索"/>
+                <div class="col-sm-12">
+                    <table class="table table-fixed">
+                        <thead>
+                            <tr>
+                                <th class="col-sm-6">账号</th>
+                                <th class="col-sm-6">姓名</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(user,index) in layer.userList" @click="layerChooseUser(index)">
+                                <td class="col-sm-6">{{ user.username }}</td>
+                                <td class="col-sm-6">{{ user.name }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="col-sm-12">
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>账号</th>
-                        <th>姓名</th>
-                    </tr>
-                    </thead>
-                    <tbody style="display: block;height: 200px;overflow-y: scroll;">
-                        <tr v-for="user in userList" @click="layerChooseUser(userId,username,name)">
-                            <td>{{user.username}}</td>
-                            <td>{{user.name}}</td>
-                        </tr>
-                    </tbody>
-
-                </table>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="form-inline">
+                    <div class="input-group">
+                        <div class="input-group-addon">选择结果：</div>
+                        <div class="input-group-addon">账号</div>
+                        <input type="text" class="form-control" v-model="layer.chooseUser.username" readonly/>
+                        <div class="input-group-addon">姓名</div>
+                        <input type="text" class="form-control" v-model="layer.chooseUser.name" readonly/>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 </div>
 </div>
 

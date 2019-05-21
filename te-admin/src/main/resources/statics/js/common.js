@@ -115,30 +115,39 @@ function translateDeptDataToTree(data) {
 	//返回最终的结果
 	return parents;
 }
-function translateDeptTreeDataToList(data) {
+function translateDeptTreeDataToList(treeData) {
 	let list = [];
-	let findTreeData = (data) => {
+	if(treeData) {
+		list.push(treeData);
+		//定义
+		let findTreeDate = (data) =>{
 			data.forEach( (current) => {
 				list.push(current);
 				if(typeof current.children !== 'undefined'){
-					findTreeData(current.children);
+					findTreeDate(current.children);
 				}
-			} );
-	};
-	findTreeData(data);
+			});
+		};
+		//调用
+		if(typeof treeData.children !== 'undefined'){
+			findTreeDate(treeData.children);
+		}
+	}
 	return list;
 }
 //从树状结构的部门列表中选择当前部门
 function findDeptFromTreeData(treeData,deptId) {
-	let findTreeData = (treeData)	=> {
+	let result=[];
+	let findTreeData = (treeData,deptId)	=> {
 		treeData.forEach( (current) => {
 			if(current.deptId === deptId){
-				return current;
-			}
-			if(typeof current.children !== 'undefined'){
-				findTreeData(current.children);
+				result = current;
+				return false;
+			}else if(typeof current.children !== 'undefined'){
+				findTreeData(current.children,deptId);
 			}
 		});
 	};
-	findTreeData(treeData);
+	findTreeData(treeData,deptId);
+	return result;
 }
