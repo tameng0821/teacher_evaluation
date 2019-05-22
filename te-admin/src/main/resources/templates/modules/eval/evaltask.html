@@ -83,12 +83,6 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <div class="col-sm-2 control-label">学生评价部门</div>
-                    <div class="col-sm-6">
-                        <input type="text" class="form-control" v-model="evalTask.deptName" readonly="readonly" placeholder="学生评价部门"/>
-                    </div>
-                </div>
-                <div class="form-group">
                     <div class="col-sm-4 control-label"></div>
                     <a class="btn btn-primary" @click="addStepPre"><i class="fa fa-arrow-left"></i>&nbsp;上一步</a>
                     &nbsp;&nbsp;
@@ -120,18 +114,18 @@
                             <div class="col-sm-1"></div>
                             <input type="button" class="btn btn-primary" @click="showAddSubTaskItemLayer('colleague')" value="添加同行评价项目"/>
                         </div>
-                        <div class="row" v-for="(item, index) in evalTask.colleagueEvalTaskItems">
+                        <div class="row" v-for="(item, index) in evalTask.colleagueEvalTaskItems" :key="index">
                             <div class="col-sm-1">{{index + 1}}</div>
                             <div class="col-sm-5">
                                 <div class="input-group">
                                     <span class="input-group-addon">项目名称</span>
-                                    <input type="text" class="form-control" :value="item.name" placeholder="项目名称"/>
+                                    <input type="text" class="form-control" :value="item.name" v-model="evalTask.colleagueEvalTaskItems[index].name" placeholder="项目名称"/>
                                 </div>
                             </div>
                             <div class="col-sm-4">
                                 <div class="input-group">
                                     <span class="input-group-addon">占比</span>
-                                    <input type="text" class="form-control" :value="item.percentage" placeholder="百分比"/>
+                                    <input type="text" class="form-control" :value="item.percentage" v-model="evalTask.colleagueEvalTaskItems[index].percentage" placeholder="百分比"/>
                                     <div class="input-group-addon">%</div>
                                 </div>
                             </div>
@@ -193,18 +187,18 @@
                             <div class="col-sm-1"></div>
                             <input type="button" class="btn btn-primary" @click="showAddSubTaskItemLayer('inspector')" value="添加督导评价项目"/>
                         </div>
-                        <div class="row" v-for="(item, index) in evalTask.inspectorEvalTaskItems">
+                        <div class="row" v-for="(item, index) in evalTask.inspectorEvalTaskItems"  :key="index">
                             <div class="col-sm-1">{{index + 1}}</div>
                             <div class="col-sm-5">
                                 <div class="input-group">
                                     <span class="input-group-addon">项目名称</span>
-                                    <input type="text" class="form-control" :value="item.name" placeholder="项目名称"/>
+                                    <input type="text" class="form-control" :value="item.name" v-model="evalTask.inspectorEvalTaskItems[index].name" placeholder="项目名称"/>
                                 </div>
                             </div>
                             <div class="col-sm-4">
                                 <div class="input-group">
                                     <span class="input-group-addon">占比</span>
-                                    <input type="text" class="form-control" :value="item.percentage" placeholder="百分比"/>
+                                    <input type="text" class="form-control" :value="item.percentage" v-model="evalTask.inspectorEvalTaskItems[index].percentage" placeholder="百分比"/>
                                     <div class="input-group-addon">%</div>
                                 </div>
                             </div>
@@ -222,6 +216,13 @@
                             <input type="button" class="btn btn-primary" @click="addInspectorTask" value="添加督导人员"/>
                         </div>
                         <div class="row" v-for="(item, index) in evalTask.inspectorEvalTasks">
+                            <div class="col-sm-1">{{index + 1}}</div>
+                            <div class="col-sm-5">
+                                <div class="input-group">
+                                    <span class="input-group-addon">督导姓名</span>
+                                    <input type="text" class="form-control" :value="item.userName" placeholder="督导姓名" readonly/>
+                                </div>
+                            </div>
                             <div class="col-sm-1">
                                 <a class="btn btn-primary" @click="deleteInspectorTask(index)"><i class="fa fa-trash"></i>&nbsp;删除</a>
                             </div>
@@ -241,7 +242,7 @@
                 <div class="form-group">
                     <div class="col-sm-2 control-label">提示</div>
                     <div class="col-sm-6">
-                        <textarea  class="form-control" rows="2" readonly placeholder="定义其他评价子任务。可修改其他评价占比，其他评价所属部门与评价任务部门一致。"></textarea>
+                        <textarea  class="form-control" rows="2" readonly placeholder="定义其他评价子任务。可修改其他评价占比，其他评价所属部门与评价任务部门一致（无法修改）。"></textarea>
                     </div>
                 </div>
                 <div class="form-group">
@@ -251,12 +252,6 @@
                             <input type="text" class="form-control" v-model="evalTask.otherPercentage" placeholder="百分比"/>
                             <div class="input-group-addon">%</div>
                         </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-2 control-label">其他评价部门</div>
-                    <div class="col-sm-6">
-                        <input type="text" class="form-control" v-model="evalTask.deptName" readonly="readonly" placeholder="其他评价部门"/>
                     </div>
                 </div>
                 <div class="form-group">

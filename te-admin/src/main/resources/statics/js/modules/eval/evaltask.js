@@ -80,10 +80,13 @@ var setting1 = {
 function zTree1OnClick(event, treeId, treeNode) {
     vm.getUser(treeNode.deptId);
 }
-
+//添加部门时部门ztree
 var ztree;
+//添加人员时部门ztree
 var ztree1;
+//保存获取的部门列表(树状结构数据)
 var depTreeData;
+//保存获取的用户列表
 var userListData;
 
 var vm = new Vue({
@@ -96,7 +99,7 @@ var vm = new Vue({
 
         title: null,
         evalTask: {
-            status: 1,
+            status: 0,
             deptId: null,
             deptName: null,
 
@@ -105,18 +108,16 @@ var vm = new Vue({
             inspectorPercentage: null,
             otherPercentage: null,
 
-            studentEvalTask: null,
+            studentEvalTask: {},
             colleagueEvalTasks: [],
             colleagueEvalTaskItems: [],
             inspectorEvalTasks: [],
             inspectorEvalTaskItems: [],
-            otherEvalTask: null
+            otherEvalTask: {}
         },
-        evalBaseItems: null,
-        colleagueEvalBaseItems: null,
-        inspectorEvalBaseItems: null,
-
+        //弹窗添加同行/督导评价子项目存储使用
         subTaskItem: {},
+        //弹窗添加人员时使用
         layer: {
             userList: [],
             chooseUser: {},
@@ -147,7 +148,7 @@ var vm = new Vue({
             }
         },
         addStepNext: function () {
-            if(vm.addStepDataCheck()){
+            if (vm.addStepDataCheck()) {
                 vm.addStep++;
             }
         },
@@ -167,41 +168,62 @@ var vm = new Vue({
                 }
             } else if (vm.addStep === 3) {
                 let sumPercent = 0;
-                vm.evalTask.colleagueEvalTaskItems.forEach( (current) =>{
-                    sumPercent += current.percentage;
-                } );
+                vm.evalTask.colleagueEvalTaskItems.forEach((current) => {
+                    if(current.percentage){
+                        sumPercent += parseInt(current.percentage);
+                    }
+                });
                 if (isBlank(vm.evalTask.colleaguePercentage)) {
                     layer.msg("同行评价占比不能为空！", {icon: 5});
                     return false;
-                } else if (sumPercent !== 100) {
+                }else if (vm.evalTask.colleagueEvalTaskItems.filter(value => isBlank(value.name)).length !== 0) {
+                    layer.msg("同行评价项目名称不能为空！", {icon: 5});
+                    return false;
+                }else if (sumPercent !== 100) {
                     layer.msg("同行评价项目占比总和需要为100！", {icon: 5});
                     return false;
-                }else if(vm.evalTask.colleagueEvalTasks.filter( value => isBlank(value.userId)).length !== 0){
+                } else if (vm.evalTask.colleagueEvalTasks.filter(value => isBlank(value.userId)).length !== 0) {
                     layer.msg("需要为同行评价详情内的每个部门指定评价负责人！", {icon: 5});
                     return false;
                 }
-            }else if (vm.addStep === 4) {
+            } else if (vm.addStep === 4) {
                 let sumPercent = 0;
-                vm.evalTask.inspectorEvalTaskItems.forEach( (current) =>{
-                    sumPercent += current.percentage;
-                } );
+                vm.evalTask.inspectorEvalTaskItems.forEach((current) => {
+                    if(current.percentage){
+                        sumPercent += parseInt(current.percentage);
+                    }
+                });
                 if (isBlank(vm.evalTask.inspectorPercentage)) {
                     layer.msg("督导评价占比不能为空！", {icon: 5});
                     return false;
-                } else if (sumPercent !== 100) {
+                }else if (vm.evalTask.inspectorEvalTaskItems.filter(value => isBlank(value.name)).length !== 0) {
+                    layer.msg("同行评价项目名称不能为空！", {icon: 5});
+                    return false;
+                }else if (sumPercent !== 100) {
                     layer.msg("督导评价项目占比总和需要为100！", {icon: 5});
                     return false;
-                }else if(vm.evalTask.inspectorEvalTasks.length === 0){
-                    layer.msg("需要为同行评价详情内的每个部门指定评价负责人！", {icon: 5});
+                } else if (vm.evalTask.inspectorEvalTasks.length === 0) {
+                    layer.msg("需要为督导评价详情指定至少一个评价负责人！", {icon: 5});
                     return false;
                 }
-            }else if(vm.addStep === 5){
-                let sumPercent = vm.evalTask.studentPercentage + vm.evalTask.colleaguePercentage
-                    + vm.evalTask.inspectorPercentage +vm.evalTask.otherPercentage;
+            } else if (vm.addStep === 5) {
+                let sumPercent = 0;
+                if(vm.evalTask.studentPercentage){
+                    sumPercent += parseInt(vm.evalTask.studentPercentage);
+                }
+                if(vm.evalTask.colleaguePercentage){
+                    sumPercent += parseInt(vm.evalTask.colleaguePercentage);
+                }
+                if(vm.evalTask.inspectorPercentage){
+                    sumPercent += parseInt(vm.evalTask.inspectorPercentage);
+                }
+                if(vm.evalTask.otherPercentage){
+                    sumPercent += parseInt(vm.evalTask.otherPercentage);
+                }
                 if (isBlank(vm.evalTask.otherPercentage)) {
                     layer.msg("其他评价占比不能为空！", {icon: 5});
                     return false;
-                }else if( sumPercent !== 100 ){
+                } else if (sumPercent !== 100) {
                     layer.msg("学生、同行、督导、其他评价占比总和需要为100！", {icon: 5});
                     return false;
                 }
@@ -215,9 +237,10 @@ var vm = new Vue({
             //加载部门树
             $.get(baseURL + "sys/dept/list", function (r) {
                 ztree = $.fn.zTree.init($("#deptTree"), setting, r);
+                ztree.expandAll(true);
                 //保存部门树
                 depTreeData = translateDeptDataToTree(r);
-                var node = ztree.getNodeByParam("deptId", vm.evalTask.deptId);
+                let node = ztree.getNodeByParam("deptId", vm.evalTask.deptId);
                 if (node != null) {
                     ztree.selectNode(node);
 
@@ -228,16 +251,15 @@ var vm = new Vue({
         getEvalBaseItems: function () {
             //加载评价基础标准
             $.get(baseURL + "eval/evalbaseitem/list", function (r) {
-                vm.evalBaseItems = r.page.list;
-                for (var i = 0; i < vm.evalBaseItems.length; ++i) {
-                    if (vm.evalBaseItems[i].name === '学生评价') {
-                        vm.evalTask.studentPercentage = vm.evalBaseItems[i].percentage;
-                    } else if (vm.evalBaseItems[i].name === '同行评价') {
-                        vm.evalTask.colleaguePercentage = vm.evalBaseItems[i].percentage;
-                    } else if (vm.evalBaseItems[i].name === '督导评价') {
-                        vm.evalTask.inspectorPercentage = vm.evalBaseItems[i].percentage;
-                    } else if (vm.evalBaseItems[i].name === '其他评价') {
-                        vm.evalTask.otherPercentage = vm.evalBaseItems[i].percentage;
+                for (let i = 0; i < r.page.list.length; ++i) {
+                    if (r.page.list[i].name === '学生评价') {
+                        vm.evalTask.studentPercentage = r.page.list[i].percentage;
+                    } else if (r.page.list[i].name === '同行评价') {
+                        vm.evalTask.colleaguePercentage = r.page.list[i].percentage;
+                    } else if (r.page.list[i].name === '督导评价') {
+                        vm.evalTask.inspectorPercentage = r.page.list[i].percentage;
+                    } else if (r.page.list[i].name === '其他评价') {
+                        vm.evalTask.otherPercentage = r.page.list[i].percentage;
                     }
                 }
             })
@@ -245,13 +267,11 @@ var vm = new Vue({
         getColleagueEvalBaseItems: function () {
             //加载同行评价基础标准
             $.get(baseURL + "eval/colleagueevalbaseitem/list", function (r) {
-                vm.colleagueEvalBaseItems = r.page.list;
-
-                for (var i = 0; i < vm.colleagueEvalBaseItems.length; ++i) {
+                for (let i = 0; i < r.page.list.length; ++i) {
                     vm.evalTask.colleagueEvalTaskItems[i] = {
-                        name: vm.colleagueEvalBaseItems[i].name,
-                        percentage: vm.colleagueEvalBaseItems[i].percentage,
-                        remark: vm.colleagueEvalBaseItems[i].remark
+                        name: r.page.list[i].name,
+                        percentage: r.page.list[i].percentage,
+                        remark: r.page.list[i].remark
                     };
                 }
             })
@@ -259,13 +279,11 @@ var vm = new Vue({
         getInspectorEvalBaseItems: function () {
             //加载督导评价基础标准
             $.get(baseURL + "eval/inspectorevalbaseitem/list", function (r) {
-                vm.inspectorEvalBaseItems = r.page.list;
-
-                for (var i = 0; i < vm.inspectorEvalBaseItems.length; ++i) {
+                for (let i = 0; i < r.page.list.length; ++i) {
                     vm.evalTask.inspectorEvalTaskItems[i] = {
-                        name: vm.inspectorEvalBaseItems[i].name,
-                        percentage: vm.inspectorEvalBaseItems[i].percentage,
-                        remark: vm.inspectorEvalBaseItems[i].remark
+                        name: r.page.list[i].name,
+                        percentage: r.page.list[i].percentage,
+                        remark: r.page.list[i].remark
                     };
                 }
             })
@@ -283,8 +301,8 @@ var vm = new Vue({
             };
             //初始化部门树
             let dept = findDeptFromTreeData(depTreeData, deptId);
-            let deptList = translateDeptTreeDataToList(dept);
-            ztree1 = $.fn.zTree.init($("#deptTree1"), setting1, deptList);
+            ztree1 = $.fn.zTree.init($("#deptTree1"), setting1, dept);
+            ztree1.expandAll(true);
             //初始化人员
             vm.getUser(deptId);
 
@@ -292,7 +310,7 @@ var vm = new Vue({
                 type: 1,
                 offset: '50px',
                 skin: 'layui-layer-molv',
-                title: "选择具体执行人",
+                title: "选择系主任/同事完成同行评价",
                 area: ['800px', '410px'],
                 shade: 0,
                 shadeClose: false,
@@ -304,7 +322,7 @@ var vm = new Vue({
                     } else {
                         vm.evalTask.colleagueEvalTasks[colleagueEvalTasksIndex].userId = vm.layer.chooseUser.userId;
                         vm.evalTask.colleagueEvalTasks[colleagueEvalTasksIndex].userName = vm.layer.chooseUser.name;
-                        Vue.set(vm.evalTask.colleagueEvalTasks);
+                        Vue.set(vm.evalTask.colleagueEvalTasks,colleagueEvalTasksIndex,vm.evalTask.colleagueEvalTasks[colleagueEvalTasksIndex]);
                         layer.close(index);
                     }
                 }
@@ -313,7 +331,7 @@ var vm = new Vue({
         //弹窗时时更新用户列表
         findUser: function () {
             if (!isBlank(vm.layer.qName)) {
-                vm.layer.userList = userListData.filter(value => value.name.indexOf(vm.layer.qName) !== -1);
+                vm.layer.userList = userListData.filter(value => value.name.indexOf(vm.layer.qName.trim()) !== -1);
                 Vue.set(vm.layer.userList);
             } else {
                 if (userListData.length !== vm.layer.userList.length) {
@@ -346,17 +364,55 @@ var vm = new Vue({
             Vue.set(vm.layer.chooseUser);
         },
         addInspectorTask: function () {
+            //清空搜索框
+            vm.layer = {
+                qName: null,
+                chooseUser: {},
+                userList: []
+            };
+            //初始化部门树
+            let dept = findDeptFromTreeData(depTreeData, vm.evalTask.deptId);
+            ztree1 = $.fn.zTree.init($("#deptTree1"), setting1, dept);
+            ztree1.expandAll(true);
+            //初始化人员
+            vm.getUser(vm.evalTask.deptId);
 
+            layer.open({
+                type: 1,
+                offset: '50px',
+                skin: 'layui-layer-molv',
+                title: "选择督导",
+                area: ['800px', '410px'],
+                shade: 0,
+                shadeClose: false,
+                content: jQuery("#userLayer"),
+                btn: ['确定', '取消'],
+                btn1: function (index) {
+                    if (isBlank(vm.layer.chooseUser.userId)) {
+                        layer.msg("请从表格中选择一个人员！", {icon: 5});
+                    } else {
+                        let inspectorEvalTask = {
+                            userId: vm.layer.chooseUser.userId,
+                            userName: vm.layer.chooseUser.name
+                        };
+                        Vue.set(vm.evalTask.inspectorEvalTasks,vm.evalTask.inspectorEvalTasks.length,inspectorEvalTask);
+                        layer.close(index);
+                    }
+                }
+            });
         },
-        deleteInspectorTask: function () {
-
+        deleteInspectorTask: function (index) {
+            if (vm.evalTask.inspectorEvalTasks.length === 1) {
+                layer.msg("最少需要一个同行评价项目！", {icon: 5});
+            }
+            Vue.delete(vm.evalTask.inspectorEvalTasks, index);
         },
         add: function () {
             vm.title = "新增";
             vm.switchAdd();
 
             vm.evalTask = {
-                status: 1,
+                status: 0,
                 deptId: null,
                 deptName: null,
 
@@ -365,12 +421,12 @@ var vm = new Vue({
                 inspectorPercentage: null,
                 otherPercentage: null,
 
-                studentEvalTask: null,
+                studentEvalTask: {},
                 colleagueEvalTasks: [],
                 colleagueEvalTaskItems: [],
                 inspectorEvalTasks: [],
                 inspectorEvalTaskItems: [],
-                otherEvalTask: null
+                otherEvalTask: {}
             };
 
             //获取部门
@@ -410,50 +466,30 @@ var vm = new Vue({
             }
         },
         turnOff: function (event) {
-            var id = getSelectedRow();
+            let id = getSelectedRow();
             if (id == null) {
                 return;
             }
 
-            var rowData = $("#jqGrid").getRowData(id);
+            let rowData = $("#jqGrid").getRowData(id);
             if (rowData.status.indexOf('发布') === -1) {
                 layer.msg("只有处于发布状态的任务才能关闭！", {icon: 2});
                 return;
             }
         },
         saveOrUpdate: function (event) {
-
-            if(!vm.addStepDataCheck()){
+            console.log(JSON.stringify(vm.evalTask));
+            if (!vm.addStepDataCheck()) {
                 return false;
             }
-            $('#btnSaveOrUpdate').button('loading').delay(1000).queue(function () {
-                var url = vm.evalTask.id == null ? "eval/evaltask/save" : "eval/evaltask/update";
-                $.ajax({
-                    type: "POST",
-                    url: baseURL + url,
-                    contentType: "application/json",
-                    data: JSON.stringify(vm.evalTask),
-                    success: function (r) {
-                        if (r.code === 0) {
-                            layer.msg("操作成功", {icon: 1});
-                            vm.reload();
-                            $('#btnSaveOrUpdate').button('reset');
-                            $('#btnSaveOrUpdate').dequeue();
-                        } else {
-                            layer.alert(r.msg);
-                            $('#btnSaveOrUpdate').button('reset');
-                            $('#btnSaveOrUpdate').dequeue();
-                        }
-                    }
-                });
-            });
+            console.log('发起请求');
         },
         del: function (event) {
-            var ids = getSelectedRows();
+            let ids = getSelectedRows();
             if (ids == null) {
                 return;
             }
-            var lock = false;
+            let lock = false;
             layer.confirm('确定要删除选中的记录？', {
                 btn: ['确定', '取消'] //按钮
             }, function () {
@@ -465,7 +501,7 @@ var vm = new Vue({
                         contentType: "application/json",
                         data: JSON.stringify(ids),
                         success: function (r) {
-                            if (r.code == 0) {
+                            if (r.code === 0) {
                                 layer.msg("操作成功", {icon: 1});
                                 $("#jqGrid").trigger("reloadGrid");
                             } else {
@@ -495,17 +531,18 @@ var vm = new Vue({
                 content: jQuery("#deptLayer"),
                 btn: ['确定', '取消'],
                 btn1: function (index) {
-                    var node = ztree.getSelectedNodes();
+                    let node = ztree.getSelectedNodes();
                     //选择上级部门
                     vm.evalTask.deptId = node[0].deptId;
                     vm.evalTask.deptName = node[0].name;
-                    //列出子部门，生成同行评价选项
+                    //列出子部门，生成同行评价详情
+                    vm.evalTask.colleagueEvalTasks = [];
                     if (node[0].children === undefined) {
                         vm.evalTask.colleagueEvalTasks[0] = {};
                         vm.evalTask.colleagueEvalTasks[0].deptId = node[0].deptId;
                         vm.evalTask.colleagueEvalTasks[0].deptName = node[0].name;
                     } else {
-                        for (var i = 0; i < node[0].children.length; ++i) {
+                        for (let i = 0; i < node[0].children.length; ++i) {
                             vm.evalTask.colleagueEvalTasks[i] = {};
                             vm.evalTask.colleagueEvalTasks[i].deptId = node[0].children[i].deptId;
                             vm.evalTask.colleagueEvalTasks[i].deptName = node[0].children[i].name;
@@ -518,7 +555,7 @@ var vm = new Vue({
         //展示子任务项目添加弹窗
         showAddSubTaskItemLayer: function (taskType) {
             vm.subTaskItem = {};
-            var subTaskAddTitle;
+            let subTaskAddTitle;
             if (taskType === 'colleague') {
                 subTaskAddTitle = "添加同行评级项目";
             } else if (taskType === 'inspector') {

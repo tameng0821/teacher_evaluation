@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -31,10 +33,12 @@ public class InspectorEvalTaskItemEntity implements Serializable {
 	/**
 	 * 评价项目名称
 	 */
+	@NotBlank(message = "督导评价项目名称不能为空")
 	private String name;
 	/**
 	 * 评价占比
 	 */
+	@NotNull(message = "督导评价项目占比不能为空")
 	private Integer percentage;
 	/**
 	 * 项目备注

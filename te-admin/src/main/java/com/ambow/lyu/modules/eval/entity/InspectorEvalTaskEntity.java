@@ -1,9 +1,11 @@
 package com.ambow.lyu.modules.eval.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -31,10 +33,16 @@ public class InspectorEvalTaskEntity implements Serializable {
 	/**
 	 * 督导ID
 	 */
+	@NotNull(message = "督导评价详情指定执行人不能为空")
 	private Long userId;
 	/**
 	 * 评价占比
 	 */
 	private Integer percentage;
+	/**
+	 * 督导姓名
+	 */
+	@TableField(exist = false)
+	private String userName;
 
 }

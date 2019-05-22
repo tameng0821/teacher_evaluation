@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -32,10 +34,12 @@ public class ColleagueEvalTaskEntity implements Serializable {
 	/**
 	 * 部门ID
 	 */
+	@NotNull(message = "同行评价所属部门不能为空")
 	private Long deptId;
 	/**
 	 * 系主任ID
 	 */
+	@NotNull(message = "同行评价指定评价人不能为空")
 	private Long userId;
 	/**
 	 * 评价占比
@@ -48,7 +52,7 @@ public class ColleagueEvalTaskEntity implements Serializable {
 	@TableField(exist = false)
 	private String deptName;
 	/**
-	 * 系主任名称
+	 * 系主任姓名
 	 */
 	@TableField(exist = false)
 	private String userName;

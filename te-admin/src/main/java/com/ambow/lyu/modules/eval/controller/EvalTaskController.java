@@ -1,10 +1,8 @@
 package com.ambow.lyu.modules.eval.controller;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Map;
 
-import com.ambow.lyu.common.utils.DateUtils;
 import com.ambow.lyu.common.validator.ValidatorUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +62,7 @@ public class EvalTaskController {
     @RequiresPermissions("eval:evaltask:save")
     public Response save(@RequestBody EvalTaskEntity evalTask){
 
-        evalTask.setCreateTime(new Date());
+        ValidatorUtils.validateEntity(evalTask);
 
         evalTaskService.save(evalTask);
 
@@ -78,6 +76,7 @@ public class EvalTaskController {
     @RequiresPermissions("eval:evaltask:update")
     public Response update(@RequestBody EvalTaskEntity evalTask){
         ValidatorUtils.validateEntity(evalTask);
+
         evalTaskService.updateById(evalTask);
         
         return Response.ok();

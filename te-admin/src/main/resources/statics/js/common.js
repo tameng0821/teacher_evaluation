@@ -115,26 +115,6 @@ function translateDeptDataToTree(data) {
 	//返回最终的结果
 	return parents;
 }
-function translateDeptTreeDataToList(treeData) {
-	let list = [];
-	if(treeData) {
-		list.push(treeData);
-		//定义
-		let findTreeDate = (data) =>{
-			data.forEach( (current) => {
-				list.push(current);
-				if(typeof current.children !== 'undefined'){
-					findTreeDate(current.children);
-				}
-			});
-		};
-		//调用
-		if(typeof treeData.children !== 'undefined'){
-			findTreeDate(treeData.children);
-		}
-	}
-	return list;
-}
 //从树状结构的部门列表中选择当前部门
 function findDeptFromTreeData(treeData,deptId) {
 	let result=[];
