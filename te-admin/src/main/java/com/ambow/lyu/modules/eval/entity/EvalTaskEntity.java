@@ -3,6 +3,7 @@ package com.ambow.lyu.modules.eval.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import lombok.Data;
 
 import javax.validation.Valid;
@@ -40,7 +41,7 @@ public class EvalTaskEntity implements Serializable {
      */
     private Date createTime;
     /**
-     * 状态，0：新建；1：发布；1：关闭；
+     * 状态，0：新建；1：发布；2：关闭；
      */
     private Integer status;
     /**
@@ -131,18 +132,35 @@ public class EvalTaskEntity implements Serializable {
     /**
      * 评价任务状态常量
      */
-    public static class Status{
+    public enum Status{
         /**
-         * 新建
+         * NEW =新建
+         * RELEASE =发布
+         * CLOSE =关闭
          */
-        public static final Integer NEW = 0;
-        /**
-         * 发布
-         */
-        public static final Integer RELEASE = 0;
-        /**
-         * 关闭
-         */
-        public static final Integer CLOSE = 0;
-    }
+        NEW (0),RELEASE(1),CLOSE(2);
+
+        private int value = 0;
+
+        private Status(int value) {     //必须是private的，否则编译错误
+            this.value = value;
+        }
+
+        public static Status valueOf(int value) {    //手写的从int到enum的转换函数
+            switch (value) {
+                case 0:
+                    return NEW;
+                case 1:
+                    return RELEASE;
+                case 2:
+                    return CLOSE;
+                default:
+                    return null;
+            }
+        }
+
+        public int value() {
+            return this.value;
+        }
+        }
 }

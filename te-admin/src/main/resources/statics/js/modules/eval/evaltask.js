@@ -289,7 +289,15 @@ var vm = new Vue({
             })
         },
         detail: function () {
+            let id = getSelectedRow();
+            if (id == null) {
+                return;
+            }
+
             vm.switchDetail();
+            vm.title = "查看详情";
+
+            vm.getInfo(id);
         },
         //展示选择用户弹窗
         showSelectUserLayer: function (colleagueEvalTasksIndex, deptId) {
@@ -390,6 +398,8 @@ var vm = new Vue({
                 btn1: function (index) {
                     if (isBlank(vm.layer.chooseUser.userId)) {
                         layer.msg("请从表格中选择一个人员！", {icon: 5});
+                    } else if(vm.evalTask.inspectorEvalTasks.filter( value => value.userId===vm.layer.chooseUser.userId ).length > 0){
+                        layer.msg("切勿选择重复的人员！", {icon: 5});
                     } else {
                         let inspectorEvalTask = {
                             userId: vm.layer.chooseUser.userId,
@@ -437,35 +447,56 @@ var vm = new Vue({
             vm.getInspectorEvalBaseItems();
         },
         update: function (event) {
-            var id = getSelectedRow();
+            let id = getSelectedRow();
             if (id == null) {
                 return;
             }
 
-            var rowData = $("#jqGrid").getRowData(id);
+            let rowData = $("#jqGrid").getRowData(id);
             if (rowData.status.indexOf('新建') === -1) {
                 layer.msg("只有处于新建状态的任务才能修改！", {icon: 2});
                 return;
             }
 
-            // vm.showAdd();
-            // vm.title = "修改";
+            //获取部门
+            vm.getDept();
 
-            // vm.getInfo(id)
+            vm.switchAdd();
+            vm.title = "修改";
+
+            vm.getInfo(id);
         },
-        turnOn: function (event) {
-            var id = getSelectedRow();
+        release: function (event) {
+            let id = getSelectedRow();
             if (id == null) {
                 return;
             }
 
-            var rowData = $("#jqGrid").getRowData(id);
+            let rowData = $("#jqGrid").getRowData(id);
             if (rowData.status.indexOf('新建') === -1) {
                 layer.msg("只有处于新建状态的任务才能发布！", {icon: 2});
                 return;
             }
+
+            let lock = false;
+            layer.confirm('评价任务将公开给评价人使用，确定要发布？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                if (!lock) {
+                    lock = true;
+                    $.get(baseURL + "eval/evaltask/release/" + id, function (r) {
+                        if (r.code === 0) {
+                            layer.msg("评价任务发布成功", {icon: 1});
+                            vm.reload();
+                        } else {
+                            layer.alert(r.msg);
+                        }
+                    });
+                }
+            }, function () {
+            });
         },
-        turnOff: function (event) {
+        close: function (event) {
             let id = getSelectedRow();
             if (id == null) {
                 return;
@@ -476,13 +507,49 @@ var vm = new Vue({
                 layer.msg("只有处于发布状态的任务才能关闭！", {icon: 2});
                 return;
             }
+
+            let lock = false;
+            layer.confirm('评价任务将不再发布，即其他人将不再能评价，确定要关闭？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                if (!lock) {
+                    lock = true;
+                    $.get(baseURL + "eval/evaltask/close/" + id, function (r) {
+                        if (r.code === 0) {
+                            layer.msg("评价任务关闭成功", {icon: 1});
+                            vm.reload();
+                        } else {
+                            layer.alert(r.msg);
+                        }
+                    });
+                }
+            }, function () {
+            });
         },
         saveOrUpdate: function (event) {
             console.log(JSON.stringify(vm.evalTask));
             if (!vm.addStepDataCheck()) {
                 return false;
             }
-            console.log('发起请求');
+            $('#btnSaveOrUpdate').button('loading').delay(1000).queue(function () {
+                let url = vm.evalTask.id == null ? "eval/evaltask/save" : "eval/evaltask/update";
+                $.ajax({
+                    type: "POST",
+                    url: baseURL + url,
+                    contentType: "application/json",
+                    data: JSON.stringify(vm.evalTask),
+                    success: function (r) {
+                        if (r.code === 0) {
+                            layer.msg("操作成功", {icon: 1});
+                            vm.reload();
+                        } else {
+                            layer.alert(r.msg);
+                        }
+                        $('#btnSaveOrUpdate').button('reset');
+                        $('#btnSaveOrUpdate').dequeue();
+                    }
+                });
+            });
         },
         del: function (event) {
             let ids = getSelectedRows();
@@ -490,7 +557,7 @@ var vm = new Vue({
                 return;
             }
             let lock = false;
-            layer.confirm('确定要删除选中的记录？', {
+            layer.confirm('评价记录将会级联删除，确定要删除选中的记录？', {
                 btn: ['确定', '取消'] //按钮
             }, function () {
                 if (!lock) {

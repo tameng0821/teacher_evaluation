@@ -229,7 +229,7 @@ create table tb_eval_task
    id                   bigint not null AUTO_INCREMENT,
    name                 varchar(100) not null COMMENT '名称',
    create_time          datetime COMMENT '创建时间',
-   status               tinyint COMMENT '状态，0：新建；1：发布；1：关闭；',
+   status               tinyint COMMENT '状态，0：新建；1：发布；2：关闭；',
    dept_id              bigint COMMENT '评价部门ID',
    remark               varchar(500) COMMENT '备注',
    primary key (id)

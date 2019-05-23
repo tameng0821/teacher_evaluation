@@ -18,10 +18,10 @@
             <a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
 			</#if>
             <#if shiro.hasPermission("eval:evaltask:update")>
-            <a class="btn btn-primary" @click="turnOn"><i class="fa fa-pencil-square-o"></i>&nbsp;发布</a>
+            <a class="btn btn-primary" @click="release"><i class="fa fa-pencil-square-o"></i>&nbsp;发布</a>
             </#if>
             <#if shiro.hasPermission("eval:evaltask:update")>
-            <a class="btn btn-primary" @click="turnOff"><i class="fa fa-pencil-square-o"></i>&nbsp;关闭</a>
+            <a class="btn btn-primary" @click="close"><i class="fa fa-pencil-square-o"></i>&nbsp;关闭</a>
             </#if>
 			<#if shiro.hasPermission("eval:evaltask:delete")>
             <a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
@@ -268,6 +268,149 @@
 
     <div v-show="showDetail" class="panel panel-default">
         <div class="panel-heading">{{title}}</div>
+        <div  class="form-horizontal" style="width: 1000px;">
+            <div class="form-group">
+                <div class="col-sm-2 control-label">名称</div>
+                <div class="col-sm-4">
+                    <span class="label label-info">{{evalTask.name}}</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-2 control-label">所属部门</div>
+                <div class="col-sm-4">
+                    <span class="label label-info">{{evalTask.deptName}}</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-2 control-label">创建时间</div>
+                <div class="col-sm-4">
+                    <span class="label label-info">{{evalTask.createTime}}</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-2 control-label">状态</div>
+                <div class="col-sm-4">
+                    <span v-if='evalTask.status==0' class="label label-default">新建</span>
+                    <span v-else-if="evalTask.status==0" class="label label-success">发布</span>
+                    <span v-else class="label label-danger">关闭</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-2 control-label">评价标准</div>
+                <div class="col-sm-8">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>评价项目</th>
+                            <th>评价比例</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="active">
+                            <td>学生评价</td>
+                            <td>{{evalTask.studentPercentage}}%</td>
+                        </tr>
+                        <tr class="success">
+                            <td>同行评价</td>
+                            <td>{{evalTask.colleaguePercentage}}%</td>
+                        <tr class="warning">
+                            <td>督导评价</td>
+                            <td>{{evalTask.inspectorPercentage}}%</td>
+                        <tr class="danger">
+                            <td>其他评价</td>
+                            <td>{{evalTask.otherPercentage}}%</td>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-2 control-label">同行评价项目</div>
+                <div class="col-sm-8">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>项目名称</th>
+                            <th>比例</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(item, index) in evalTask.colleagueEvalTaskItems" :key="index">
+                            <td>{{index+1}}</td>
+                            <td>{{item.name}}</td>
+                            <td>{{item.percentage}}%</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-2 control-label">同行评价详情</div>
+                <div class="col-sm-8">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>评价部门</th>
+                            <th>评价执行人</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(item, index) in evalTask.colleagueEvalTasks" :key="index">
+                            <td>{{index+1}}</td>
+                            <td>{{item.deptName}}</td>
+                            <td>{{item.userName}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-2 control-label">督导评价项目</div>
+                <div class="col-sm-8">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>项目名称</th>
+                            <th>比例</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(item, index) in evalTask.inspectorEvalTaskItems" :key="index">
+                            <td>{{index+1}}</td>
+                            <td>{{item.name}}</td>
+                            <td>{{item.percentage}}%</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-2 control-label">督导评价详情</div>
+                <div class="col-sm-8">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>评价执行人</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(item, index) in evalTask.inspectorEvalTasks" :key="index">
+                            <td>{{index+1}}</td>
+                            <td>{{item.userName}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-4 control-label"></div>
+                &nbsp;&nbsp;
+                <input type="button" class="btn btn-warning" @click="reload" value="返回"/>
+            </div>
+        </div>
     </div>
 
 <!-- 添加子任务选项 -->

@@ -43,7 +43,7 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
-        IPage<EvalTaskEntity> page = this.page(
+        IPage<EvalTaskEntity> page = super.page(
                 new Query<EvalTaskEntity>().getPage(params),
                 new QueryWrapper<EvalTaskEntity>()
         );
@@ -54,6 +54,51 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
         }
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public EvalTaskEntity.Status getTaskStatus(Long taskId) {
+        EvalTaskEntity evalTask = super.getOne(
+                new QueryWrapper<EvalTaskEntity>().select("status").eq("id", taskId));
+        if(evalTask != null){
+            return EvalTaskEntity.Status.valueOf(evalTask.getStatus());
+        }
+        return null;
+    }
+
+    @Override
+    public boolean updateTaskStatus(Long taskId, EvalTaskEntity.Status status) {
+        EvalTaskEntity evalTask = super.getById(taskId);
+        evalTask.setStatus(status.value());
+        return super.updateById(evalTask);
+    }
+
+    @Override
+    public void deleteById(Collection<? extends Serializable> idList) {
+
+        //删除学生任务
+        studentEvalTaskService.remove(new QueryWrapper<StudentEvalTaskEntity>().in("task_id", idList));
+
+        //删除同行评价项目
+        colleagueEvalTaskItemService.remove(new QueryWrapper<ColleagueEvalTaskItemEntity>().in("task_id", idList));
+
+        //删除同行评价详情
+        colleagueEvalTaskService.remove(new QueryWrapper<ColleagueEvalTaskEntity>().in("task_id", idList));
+
+        //删除督导评价项目
+        inspectorEvalTaskItemService.remove(new QueryWrapper<InspectorEvalTaskItemEntity>().in("task_id", idList));
+
+        //删除督导评价详情
+        inspectorEvalTaskService.remove(new QueryWrapper<InspectorEvalTaskEntity>().in("task_id", idList));
+
+        //删除其他评价详情
+        otherEvalTaskService.remove(new QueryWrapper<OtherEvalTaskEntity>().in("task_id", idList));
+
+        //TODO 删除评价记录
+
+        //删除评价任务
+        super.removeByIds(idList);
+
     }
 
     @Override
@@ -104,6 +149,7 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
                 inspectorEvalTask.setUserName(taskUser.getName());
             }
             evalTask.setInspectorPercentage(inspectorEvalTasks.get(0).getPercentage());
+            evalTask.setInspectorEvalTasks(inspectorEvalTasks);
 
             //其他评价
             OtherEvalTaskEntity otherEvalTaskEntity = otherEvalTaskService.getOne(
@@ -121,7 +167,7 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
     public boolean save(EvalTaskEntity entity) {
         //保存评价任务
         entity.setCreateTime(new Date());
-        entity.setStatus(EvalTaskEntity.Status.NEW);
+        entity.setStatus(EvalTaskEntity.Status.NEW.value());
         super.save(entity);
 
         //保存学生评价任务
@@ -174,7 +220,7 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateById(EvalTaskEntity viewTask) {
-        EvalTaskEntity dataTask = this.getById(viewTask.getId());
+        EvalTaskEntity dataTask = super.getById(viewTask.getId());
 
         //学生评价
         StudentEvalTaskEntity dataStudentEvalTask = dataTask.getStudentEvalTask();
@@ -229,7 +275,9 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
                 removeInspectorTaskIds.add(dataSubTask.getId());
             }
         }
-        inspectorEvalTaskService.removeByIds(removeInspectorTaskIds);
+        if(removeInspectorTaskIds.size() > 0){
+            inspectorEvalTaskService.removeByIds(removeInspectorTaskIds);
+        }
     }
 
     private void updateInspectorSubTaskItems(EvalTaskEntity viewTask, EvalTaskEntity dataTask) {
@@ -251,7 +299,9 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
                 removeInspectorTaskItemIds.add(dataTaskItem.getId());
             }
         }
-        inspectorEvalTaskItemService.removeByIds(removeInspectorTaskItemIds);
+        if(removeInspectorTaskItemIds.size() > 0){
+            inspectorEvalTaskItemService.removeByIds(removeInspectorTaskItemIds);
+        }
     }
 
     private void updateColleagueSubTasks(EvalTaskEntity viewTask, EvalTaskEntity dataTask) {
@@ -275,7 +325,9 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
                 removeColleagueTaskIds.add(dataSubTask.getId());
             }
         }
-        colleagueEvalTaskService.removeByIds(removeColleagueTaskIds);
+        if(removeColleagueTaskIds.size() > 0){
+            colleagueEvalTaskService.removeByIds(removeColleagueTaskIds);
+        }
     }
 
     private void updateColleagueSubTaskItems(EvalTaskEntity viewTask, EvalTaskEntity dataTask) {
@@ -297,6 +349,8 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
                 removeColleagueTaskItemIds.add(dataTaskItem.getId());
             }
         }
-        colleagueEvalTaskItemService.removeByIds(removeColleagueTaskItemIds);
+        if(removeColleagueTaskItemIds.size() > 0){
+            colleagueEvalTaskItemService.removeByIds(removeColleagueTaskItemIds);
+        }
     }
 }

@@ -3,7 +3,9 @@ package com.ambow.lyu.modules.eval.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.common.validator.ValidatorUtils;
+import io.swagger.models.auth.In;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -77,8 +79,47 @@ public class EvalTaskController {
     public Response update(@RequestBody EvalTaskEntity evalTask){
         ValidatorUtils.validateEntity(evalTask);
 
+        EvalTaskEntity.Status status = evalTaskService.getTaskStatus(evalTask.getId());
+        if(!EvalTaskEntity.Status.NEW.equals(status)){
+            throw new TeException("只有处于新建状态的评价任务才能修改！");
+        }
+
         evalTaskService.updateById(evalTask);
         
+        return Response.ok();
+    }
+
+    /**
+     * 发布评价任务
+     */
+    @RequestMapping("/release/{id}")
+    @RequiresPermissions("eval:evaltask:update")
+    public Response release(@PathVariable("id") Long id){
+
+        EvalTaskEntity.Status status = evalTaskService.getTaskStatus(id);
+        if(!EvalTaskEntity.Status.NEW.equals(status)){
+            throw new TeException("只有处于新建状态的评价任务才能发布！");
+        }
+
+        evalTaskService.updateTaskStatus(id,EvalTaskEntity.Status.RELEASE);
+
+        return Response.ok();
+    }
+
+    /**
+     * 关闭评价任务
+     */
+    @RequestMapping("/close/{id}")
+    @RequiresPermissions("eval:evaltask:update")
+    public Response close(@PathVariable("id") Long id){
+
+        EvalTaskEntity.Status status = evalTaskService.getTaskStatus(id);
+        if(!EvalTaskEntity.Status.RELEASE.equals(status)){
+            throw new TeException("只有处于发布状态的评价任务才能关闭！");
+        }
+
+        evalTaskService.updateTaskStatus(id,EvalTaskEntity.Status.CLOSE);
+
         return Response.ok();
     }
 
@@ -88,7 +129,7 @@ public class EvalTaskController {
     @RequestMapping("/delete")
     @RequiresPermissions("eval:evaltask:delete")
     public Response delete(@RequestBody Long[] ids){
-        evalTaskService.removeByIds(Arrays.asList(ids));
+        evalTaskService.deleteById(Arrays.asList(ids));
 
         return Response.ok();
     }
