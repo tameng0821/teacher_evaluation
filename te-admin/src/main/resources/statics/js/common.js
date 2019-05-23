@@ -86,10 +86,16 @@ function isBlank(value) {
  * 返回一个树形结构的数组
  */
 function translateDeptDataToTree(data) {
+	let parentId = data[0].parentId;
+	data.forEach( (current)=>{
+		if(current.parentId < parentId){
+			parentId = current.parentId;
+		}
+	} );
 	//没有父节点的数据
-	let parents = data.filter(value => value.parentId === 0);
+	let parents = data.filter(value => value.parentId === parentId);
 	//有父节点的数据
-	let children = data.filter(value => value.parentId !== 0);
+	let children = data.filter(value => value.parentId !== parentId);
 	//定义转换方法的具体实现
 	let translator = (parents, children) => {
 		//遍历父节点数据
@@ -130,4 +136,9 @@ function findDeptFromTreeData(treeData,deptId) {
 	};
 	findTreeData(treeData,deptId);
 	return result;
+}
+
+//子页面内更改父页面地址
+function contentFrameLoad(url) {
+	$('#contentFrame',window.parent.document)[0].src = url;
 }

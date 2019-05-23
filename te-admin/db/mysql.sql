@@ -196,18 +196,18 @@ INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, 
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('111', '100', '同行评价项目', 'modules/eval/colleagueevalbaseitem.html', NULL, '1', 'fa fa-bandcamp', '1');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('112', '100', '督导评价项目', 'modules/eval/inspectorevalbaseitem.html', NULL, '1', 'fa fa-bandcamp', '1');
 
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('130', '110', '查看', null, 'eval:evalbaseitem:list,eval:evalbaseitem:info', '2', null, '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('132', '110', '修改', null, 'eval:evalbaseitem:update', '2', null, '3');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('120', '110', '查看', null, 'eval:evalbaseitem:list,eval:evalbaseitem:info', '2', null, '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('121', '110', '修改', null, 'eval:evalbaseitem:update', '2', null, '3');
 
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('134', '111', '查看', null, 'eval:colleagueevalbaseitem:list,eval:colleagueevalbaseitem:info', '2', null, '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('135', '111', '新增', null, 'eval:colleagueevalbaseitem:save', '2', null, '2');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('136', '111', '修改', null, 'eval:colleagueevalbaseitem:update', '2', null, '3');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('137', '111', '删除', null, 'eval:colleagueevalbaseitem:delete', '2', null, '4');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('125', '111', '查看', null, 'eval:colleagueevalbaseitem:list,eval:colleagueevalbaseitem:info', '2', null, '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('126', '111', '新增', null, 'eval:colleagueevalbaseitem:save', '2', null, '2');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('127', '111', '修改', null, 'eval:colleagueevalbaseitem:update', '2', null, '3');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('128', '111', '删除', null, 'eval:colleagueevalbaseitem:delete', '2', null, '4');
 
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('138', '112', '查看', null, 'eval:inspectorevalbaseitem:list,eval:inspectorevalbaseitem:info', '2', null, '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('139', '112', '新增', null, 'eval:inspectorevalbaseitem:save', '2', null, '2');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('140', '112', '修改', null, 'eval:inspectorevalbaseitem:update', '2', null, '3');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('141', '112', '删除', null, 'eval:inspectorevalbaseitem:delete', '2', null, '4');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('131', '112', '查看', null, 'eval:inspectorevalbaseitem:list,eval:inspectorevalbaseitem:info', '2', null, '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('132', '112', '新增', null, 'eval:inspectorevalbaseitem:save', '2', null, '2');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('133', '112', '修改', null, 'eval:inspectorevalbaseitem:update', '2', null, '3');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('134', '112', '删除', null, 'eval:inspectorevalbaseitem:delete', '2', null, '4');
 
 INSERT INTO `tb_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (1,'学生评价',30,'学生评价由学生对任课教师进行网上评价，给出评价结果。无法通过网上评教的教学环节，可以通过发放学生问卷方式进行评价，后续结果由管理员录入。对于承担多项教学任务的教师，其学生评教得分取多次评教的平均分。 ');
 INSERT INTO `tb_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (2,'同行评价',30,'同行评价以系（教研室）为单位，分别组织系主任或同行教师对每位教师进行评价。');
@@ -291,10 +291,16 @@ create table tb_other_eval_task
 )ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='其他评价子任务';
 
 
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('113', '100', '评价任务', 'modules/eval/evaltask.html', NULL, '1', 'fa fa-tasks', '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('142', '113', '查看', null, 'eval:evaltask:list,eval:evaltask:info', '2', null, '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('143', '113', '创建', null, 'eval:evaltask:save', '2', null, '2');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('144', '113', '修改', null, 'eval:evaltask:update', '2', null, '3');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('145', '113', '删除', null, 'eval:evaltask:delete', '2', null, '4');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('146', '113', '开关', null, 'eval:evaltask:switch', '2', null, '5');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('147', '113', '生成结果', null, 'eval:evaltask:result', '2', null, '6');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('140', '100', '评价任务', 'modules/eval/evaltask.html', NULL, '1', 'fa fa-tasks', '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('141', '140', '查看', null, 'eval:evaltask:list,eval:evaltask:info', '2', null, '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('142', '140', '创建', null, 'eval:evaltask:save', '2', null, '2');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('143', '140', '修改', null, 'eval:evaltask:update', '2', null, '3');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('144', '140', '发布', null, 'eval:evaltask:release', '2', null, '3');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('145', '140', '关闭', null, 'eval:evaltask:close', '2', null, '4');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('146', '140', '删除', null, 'eval:evaltask:delete', '2', null, '5');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('147', '140', '生成结果', null, 'eval:evaltask:result', '2', null, '6');
+
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('150', '100', '学生评价', 'modules/eval/studentevaltask.html', NULL, '1', 'fa fa-graduation-cap', '3');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('151', '150', '查看', null, 'eval:studentevaltask:list,eval:studentevaltask:info', '2', null, '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('152', '150', '修改', null, 'eval:studentevaltask:update', '2', null, '3');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('153', '150', '删除', null, 'eval:studentevaltask:delete', '2', null, '4');

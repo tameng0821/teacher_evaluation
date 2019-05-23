@@ -1,22 +1,16 @@
 package com.ambow.lyu.modules.eval.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
+import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.common.validator.ValidatorUtils;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.ambow.lyu.common.vo.Response;
 import com.ambow.lyu.modules.eval.entity.ColleagueEvalTaskItemEntity;
 import com.ambow.lyu.modules.eval.service.ColleagueEvalTaskItemService;
-import com.ambow.lyu.common.utils.PageUtils;
-import com.ambow.lyu.common.vo.Response;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.Map;
 
 
 /**
@@ -37,7 +31,7 @@ public class ColleagueEvalTaskItemController {
      */
     @RequestMapping("/list")
     @RequiresPermissions("eval:colleagueevaltaskitem:list")
-    public Response list(@RequestParam Map<String, Object> params){
+    public Response list(@RequestParam Map<String, Object> params) {
         PageUtils page = colleagueEvalTaskItemService.queryPage(params);
 
         return Response.ok().put("page", page);
@@ -49,7 +43,7 @@ public class ColleagueEvalTaskItemController {
      */
     @RequestMapping("/info/{id}")
     @RequiresPermissions("eval:colleagueevaltaskitem:info")
-    public Response info(@PathVariable("id") Long id){
+    public Response info(@PathVariable("id") Long id) {
         ColleagueEvalTaskItemEntity colleagueEvalTaskItem = colleagueEvalTaskItemService.getById(id);
 
         return Response.ok().put("colleagueEvalTaskItem", colleagueEvalTaskItem);
@@ -60,7 +54,7 @@ public class ColleagueEvalTaskItemController {
      */
     @RequestMapping("/save")
     @RequiresPermissions("eval:colleagueevaltaskitem:save")
-    public Response save(@RequestBody ColleagueEvalTaskItemEntity colleagueEvalTaskItem){
+    public Response save(@RequestBody ColleagueEvalTaskItemEntity colleagueEvalTaskItem) {
         colleagueEvalTaskItemService.save(colleagueEvalTaskItem);
 
         return Response.ok();
@@ -71,10 +65,10 @@ public class ColleagueEvalTaskItemController {
      */
     @RequestMapping("/update")
     @RequiresPermissions("eval:colleagueevaltaskitem:update")
-    public Response update(@RequestBody ColleagueEvalTaskItemEntity colleagueEvalTaskItem){
+    public Response update(@RequestBody ColleagueEvalTaskItemEntity colleagueEvalTaskItem) {
         ValidatorUtils.validateEntity(colleagueEvalTaskItem);
         colleagueEvalTaskItemService.updateById(colleagueEvalTaskItem);
-        
+
         return Response.ok();
     }
 
@@ -83,7 +77,7 @@ public class ColleagueEvalTaskItemController {
      */
     @RequestMapping("/delete")
     @RequiresPermissions("eval:colleagueevaltaskitem:delete")
-    public Response delete(@RequestBody Long[] ids){
+    public Response delete(@RequestBody Long[] ids) {
         colleagueEvalTaskItemService.removeByIds(Arrays.asList(ids));
 
         return Response.ok();

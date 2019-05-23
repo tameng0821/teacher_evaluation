@@ -1,8 +1,8 @@
 package com.ambow.lyu.modules.eval.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.modules.eval.entity.EvalTaskEntity;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -21,6 +21,7 @@ public interface EvalTaskService extends IService<EvalTaskEntity> {
 
     /**
      * 获取评价任务状态
+     *
      * @param taskId 评价任务ID
      * @return 评价任务状态
      */
@@ -28,15 +29,17 @@ public interface EvalTaskService extends IService<EvalTaskEntity> {
 
     /**
      * 修改评价任务状态
+     *
      * @param taskId 任务ID
      * @param status 任务状态
      * @return 执行结果
      */
-    boolean updateTaskStatus(Long taskId,EvalTaskEntity.Status status);
+    boolean updateTaskStatus(Long taskId, EvalTaskEntity.Status status);
 
     /**
      * 删除评价任务
      * 级联删除学生、同行、督导、其他
+     *
      * @param idList 评价任务IDs
      */
     void deleteById(Collection<? extends Serializable> idList);

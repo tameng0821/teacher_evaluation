@@ -3,7 +3,6 @@ package com.ambow.lyu.modules.eval.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.sun.org.apache.bcel.internal.generic.NEW;
 import lombok.Data;
 
 import javax.validation.Valid;
@@ -132,13 +131,13 @@ public class EvalTaskEntity implements Serializable {
     /**
      * 评价任务状态常量
      */
-    public enum Status{
+    public enum Status {
         /**
          * NEW =新建
          * RELEASE =发布
          * CLOSE =关闭
          */
-        NEW (0),RELEASE(1),CLOSE(2);
+        NEW(0), RELEASE(1), CLOSE(2);
 
         private int value = 0;
 
@@ -162,5 +161,5 @@ public class EvalTaskEntity implements Serializable {
         public int value() {
             return this.value;
         }
-        }
+    }
 }

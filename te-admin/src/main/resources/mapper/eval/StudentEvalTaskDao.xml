@@ -10,5 +10,9 @@
         <result property="percentage" column="percentage"/>
     </resultMap>
 
+    <select id="pageGetStudentList" resultType="com.ambow.lyu.modules.eval.vo.StudentEvalTaskVo">
+        SELECT st.id,t.name,t.create_time as createTime,st.percentage,t.dept_id as deptId FROM tb_student_eval_task st left join tb_eval_task t on st.task_id = t.id where t.status = #{evalTaskStatus,jdbcType=TINYINT}
+    </select>
+
 
 </mapper>

@@ -12,15 +12,15 @@
             <a class="btn btn-primary" @click="detail"><i class="fa fa-info"></i>&nbsp;查看</a>
             </#if>
 			<#if shiro.hasPermission("eval:evaltask:save")>
-            <a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+            <a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;创建</a>
 			</#if>
 			<#if shiro.hasPermission("eval:evaltask:update")>
             <a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
 			</#if>
-            <#if shiro.hasPermission("eval:evaltask:update")>
+            <#if shiro.hasPermission("eval:evaltask:release")>
             <a class="btn btn-primary" @click="release"><i class="fa fa-pencil-square-o"></i>&nbsp;发布</a>
             </#if>
-            <#if shiro.hasPermission("eval:evaltask:update")>
+            <#if shiro.hasPermission("eval:evaltask:close")>
             <a class="btn btn-primary" @click="close"><i class="fa fa-pencil-square-o"></i>&nbsp;关闭</a>
             </#if>
 			<#if shiro.hasPermission("eval:evaltask:delete")>

@@ -45,7 +45,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUserEntity> i
     }
 
     @Override
-    @DataFilter(roleDept = true, userDept = true, user = false)
+    @DataFilter(roleDept = true, userDept = false, user = false)
     public PageUtils queryPage(Map<String, Object> params) {
         String username = (String) params.get("username");
 

@@ -3,9 +3,10 @@ $(function () {
         url: baseURL + 'eval/studentevaltask/list',
         datatype: "json",
         colModel: [			
-			{ label: 'id', name: 'id', index: 'id', width: 50, key: true },
-			{ label: '任务ID', name: 'taskId', index: 'task_id', width: 80 }, 			
-			{ label: '评价占比', name: 'percentage', index: 'percentage', width: 80 }			
+			{ label: 'id', name: 'id', index: 'id', width: 50, key: true,hidden:true},
+			{ label: '任务名称', name: 'name', sortable: false, width: 80 },
+			{ label: '评价部门', name: 'deptName', sortable: false, width: 80 },
+			{ label: '创建时间', name: 'createTime', sortable: false, width: 80 }
         ],
 		viewrecords: true,
         height: 385,
@@ -45,73 +46,13 @@ var vm = new Vue({
 		query: function () {
 			vm.reload();
 		},
-		add: function(){
-			vm.showList = false;
-			vm.title = "新增";
-			vm.studentEvalTask = {};
-		},
-		update: function (event) {
-			var id = getSelectedRow();
-			if(id == null){
-				return ;
-			}
-			vm.showList = false;
-            vm.title = "修改";
-            
-            vm.getInfo(id)
-		},
-		saveOrUpdate: function (event) {
-		    $('#btnSaveOrUpdate').button('loading').delay(1000).queue(function() {
-                var url = vm.studentEvalTask.id == null ? "eval/studentevaltask/save" : "eval/studentevaltask/update";
-                $.ajax({
-                    type: "POST",
-                    url: baseURL + url,
-                    contentType: "application/json",
-                    data: JSON.stringify(vm.studentEvalTask),
-                    success: function(r){
-                        if(r.code === 0){
-                             layer.msg("操作成功", {icon: 1});
-                             vm.reload();
-                             $('#btnSaveOrUpdate').button('reset');
-                             $('#btnSaveOrUpdate').dequeue();
-                        }else{
-                            layer.alert(r.msg);
-                            $('#btnSaveOrUpdate').button('reset');
-                            $('#btnSaveOrUpdate').dequeue();
-                        }
-                    }
-                });
-			});
-		},
-		del: function (event) {
-			var ids = getSelectedRows();
-			if(ids == null){
-				return ;
-			}
-			var lock = false;
-            layer.confirm('确定要删除选中的记录？', {
-                btn: ['确定','取消'] //按钮
-            }, function(){
-               if(!lock) {
-                    lock = true;
-		            $.ajax({
-                        type: "POST",
-                        url: baseURL + "eval/studentevaltask/delete",
-                        contentType: "application/json",
-                        data: JSON.stringify(ids),
-                        success: function(r){
-                            if(r.code == 0){
-                                layer.msg("操作成功", {icon: 1});
-                                $("#jqGrid").trigger("reloadGrid");
-                            }else{
-                                layer.alert(r.msg);
-                            }
-                        }
-				    });
-			    }
-             }, function(){
-             });
-		},
+        selectTask:function() {
+            // let id = getSelectedRow();
+            // if (id == null) {
+            //     return;
+            // }
+		    contentFrameLoad('main.html');
+        },
 		getInfo: function(id){
 			$.get(baseURL + "eval/studentevaltask/info/"+id, function(r){
                 vm.studentEvalTask = r.studentEvalTask;

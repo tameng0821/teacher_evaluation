@@ -16,7 +16,7 @@ import java.util.Map;
 public class SysDeptServiceImpl extends ServiceImpl<SysDeptDao, SysDeptEntity> implements SysDeptService {
 
     @Override
-    @DataFilter(roleDept = true, userDept = true, user = false, tableAlias = "t1")
+    @DataFilter(roleDept = true, userDept = false, user = false, tableAlias = "t1")
     public List<SysDeptEntity> queryList(Map<String, Object> params) {
         return baseMapper.queryList(params);
     }

@@ -3,7 +3,7 @@ $(function () {
         url: baseURL + 'eval/evaltask/list',
         datatype: "json",
         colModel: [
-            {label: '序号', name: 'id', index: 'id', width: 40, key: true},
+            {label: '序号', name: 'id', index: 'id', width: 40, key: true,hidden:true},
             {label: '名称', name: 'name', index: 'name', width: 100},
             {label: '所属部门', name: 'deptName', sortable: false, width: 100},
             {label: '创建时间', name: 'createTime', index: 'create_time', width: 100},
@@ -240,6 +240,7 @@ var vm = new Vue({
                 ztree.expandAll(true);
                 //保存部门树
                 depTreeData = translateDeptDataToTree(r);
+                console.log(depTreeData);
                 let node = ztree.getNodeByParam("deptId", vm.evalTask.deptId);
                 if (node != null) {
                     ztree.selectNode(node);

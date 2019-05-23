@@ -60,7 +60,7 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
     public EvalTaskEntity.Status getTaskStatus(Long taskId) {
         EvalTaskEntity evalTask = super.getOne(
                 new QueryWrapper<EvalTaskEntity>().select("status").eq("id", taskId));
-        if(evalTask != null){
+        if (evalTask != null) {
             return EvalTaskEntity.Status.valueOf(evalTask.getStatus());
         }
         return null;
@@ -236,14 +236,14 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
         updateColleagueSubTasks(viewTask, dataTask);
 
         //督导评价项目
-        updateInspectorSubTaskItems(viewTask,dataTask);
+        updateInspectorSubTaskItems(viewTask, dataTask);
 
         //督导评价详情
-        updateInspectorSubTasks(viewTask,dataTask);
+        updateInspectorSubTasks(viewTask, dataTask);
 
         //其他评价
         OtherEvalTaskEntity otherEvalTaskEntity = dataTask.getOtherEvalTask();
-        if(!otherEvalTaskEntity.getPercentage().equals(viewTask.getOtherPercentage())){
+        if (!otherEvalTaskEntity.getPercentage().equals(viewTask.getOtherPercentage())) {
             otherEvalTaskEntity.setPercentage(viewTask.getOtherPercentage());
             otherEvalTaskService.updateById(otherEvalTaskEntity);
         }
@@ -257,25 +257,25 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
     private void updateInspectorSubTasks(EvalTaskEntity viewTask, EvalTaskEntity dataTask) {
         List<Long> removeInspectorTaskIds = new ArrayList<>();
         Map<Long, InspectorEvalTaskEntity> colleagueEvalTaskMap = new HashMap<>();
-        for(InspectorEvalTaskEntity viewSubTask : viewTask.getInspectorEvalTasks()){
-            if(viewSubTask.getId() == null){
+        for (InspectorEvalTaskEntity viewSubTask : viewTask.getInspectorEvalTasks()) {
+            if (viewSubTask.getId() == null) {
                 viewSubTask.setTaskId(viewTask.getId());
                 viewSubTask.setPercentage(viewTask.getInspectorPercentage());
                 inspectorEvalTaskService.save(viewSubTask);
-            }else {
-                colleagueEvalTaskMap.put(viewSubTask.getId(),viewSubTask);
+            } else {
+                colleagueEvalTaskMap.put(viewSubTask.getId(), viewSubTask);
             }
         }
-        for(InspectorEvalTaskEntity dataSubTask : dataTask.getInspectorEvalTasks()){
+        for (InspectorEvalTaskEntity dataSubTask : dataTask.getInspectorEvalTasks()) {
             InspectorEvalTaskEntity viewSubTask = colleagueEvalTaskMap.get(dataSubTask.getId());
-            if(viewSubTask != null){
+            if (viewSubTask != null) {
                 viewSubTask.setPercentage(viewTask.getInspectorPercentage());
                 inspectorEvalTaskService.updateById(viewSubTask);
-            }else {
+            } else {
                 removeInspectorTaskIds.add(dataSubTask.getId());
             }
         }
-        if(removeInspectorTaskIds.size() > 0){
+        if (removeInspectorTaskIds.size() > 0) {
             inspectorEvalTaskService.removeByIds(removeInspectorTaskIds);
         }
     }
@@ -283,23 +283,23 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
     private void updateInspectorSubTaskItems(EvalTaskEntity viewTask, EvalTaskEntity dataTask) {
         List<Long> removeInspectorTaskItemIds = new ArrayList<>();
         Map<Long, InspectorEvalTaskItemEntity> colleagueEvalTaskItemMap = new HashMap<>();
-        for(InspectorEvalTaskItemEntity viewTaskItem : viewTask.getInspectorEvalTaskItems()){
-            if(viewTaskItem.getId() == null){
+        for (InspectorEvalTaskItemEntity viewTaskItem : viewTask.getInspectorEvalTaskItems()) {
+            if (viewTaskItem.getId() == null) {
                 viewTaskItem.setTaskId(viewTask.getId());
                 inspectorEvalTaskItemService.save(viewTaskItem);
-            }else {
-                colleagueEvalTaskItemMap.put(viewTaskItem.getId(),viewTaskItem);
+            } else {
+                colleagueEvalTaskItemMap.put(viewTaskItem.getId(), viewTaskItem);
             }
         }
-        for(InspectorEvalTaskItemEntity dataTaskItem : dataTask.getInspectorEvalTaskItems()){
+        for (InspectorEvalTaskItemEntity dataTaskItem : dataTask.getInspectorEvalTaskItems()) {
             InspectorEvalTaskItemEntity viewTaskItem = colleagueEvalTaskItemMap.get(dataTaskItem.getId());
-            if(viewTaskItem != null){
+            if (viewTaskItem != null) {
                 inspectorEvalTaskItemService.updateById(viewTaskItem);
-            }else {
+            } else {
                 removeInspectorTaskItemIds.add(dataTaskItem.getId());
             }
         }
-        if(removeInspectorTaskItemIds.size() > 0){
+        if (removeInspectorTaskItemIds.size() > 0) {
             inspectorEvalTaskItemService.removeByIds(removeInspectorTaskItemIds);
         }
     }
@@ -307,25 +307,25 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
     private void updateColleagueSubTasks(EvalTaskEntity viewTask, EvalTaskEntity dataTask) {
         List<Long> removeColleagueTaskIds = new ArrayList<>();
         Map<Long, ColleagueEvalTaskEntity> colleagueEvalTaskMap = new HashMap<>();
-        for(ColleagueEvalTaskEntity viewSubTask : viewTask.getColleagueEvalTasks()){
-            if(viewSubTask.getId() == null){
+        for (ColleagueEvalTaskEntity viewSubTask : viewTask.getColleagueEvalTasks()) {
+            if (viewSubTask.getId() == null) {
                 viewSubTask.setTaskId(viewTask.getId());
                 viewSubTask.setPercentage(viewTask.getColleaguePercentage());
                 colleagueEvalTaskService.save(viewSubTask);
-            }else {
-                colleagueEvalTaskMap.put(viewSubTask.getId(),viewSubTask);
+            } else {
+                colleagueEvalTaskMap.put(viewSubTask.getId(), viewSubTask);
             }
         }
-        for(ColleagueEvalTaskEntity dataSubTask : dataTask.getColleagueEvalTasks()){
+        for (ColleagueEvalTaskEntity dataSubTask : dataTask.getColleagueEvalTasks()) {
             ColleagueEvalTaskEntity viewSubTask = colleagueEvalTaskMap.get(dataSubTask.getId());
-            if(viewSubTask != null){
+            if (viewSubTask != null) {
                 viewSubTask.setPercentage(viewTask.getColleaguePercentage());
                 colleagueEvalTaskService.updateById(viewSubTask);
-            }else {
+            } else {
                 removeColleagueTaskIds.add(dataSubTask.getId());
             }
         }
-        if(removeColleagueTaskIds.size() > 0){
+        if (removeColleagueTaskIds.size() > 0) {
             colleagueEvalTaskService.removeByIds(removeColleagueTaskIds);
         }
     }
@@ -333,23 +333,23 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
     private void updateColleagueSubTaskItems(EvalTaskEntity viewTask, EvalTaskEntity dataTask) {
         List<Long> removeColleagueTaskItemIds = new ArrayList<>();
         Map<Long, ColleagueEvalTaskItemEntity> colleagueEvalTaskItemMap = new HashMap<>();
-        for(ColleagueEvalTaskItemEntity viewTaskItem : viewTask.getColleagueEvalTaskItems()){
-            if(viewTaskItem.getId() == null){
+        for (ColleagueEvalTaskItemEntity viewTaskItem : viewTask.getColleagueEvalTaskItems()) {
+            if (viewTaskItem.getId() == null) {
                 viewTaskItem.setTaskId(viewTask.getId());
                 colleagueEvalTaskItemService.save(viewTaskItem);
-            }else {
-                colleagueEvalTaskItemMap.put(viewTaskItem.getId(),viewTaskItem);
+            } else {
+                colleagueEvalTaskItemMap.put(viewTaskItem.getId(), viewTaskItem);
             }
         }
-        for(ColleagueEvalTaskItemEntity dataTaskItem : dataTask.getColleagueEvalTaskItems()){
+        for (ColleagueEvalTaskItemEntity dataTaskItem : dataTask.getColleagueEvalTaskItems()) {
             ColleagueEvalTaskItemEntity viewTaskItem = colleagueEvalTaskItemMap.get(dataTaskItem.getId());
-            if(viewTaskItem != null){
+            if (viewTaskItem != null) {
                 colleagueEvalTaskItemService.updateById(viewTaskItem);
-            }else {
+            } else {
                 removeColleagueTaskItemIds.add(dataTaskItem.getId());
             }
         }
-        if(removeColleagueTaskItemIds.size() > 0){
+        if (removeColleagueTaskItemIds.size() > 0) {
             colleagueEvalTaskItemService.removeByIds(removeColleagueTaskItemIds);
         }
     }

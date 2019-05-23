@@ -54,7 +54,7 @@ public class SysUserController extends AbstractController {
         List<SysUserEntity> list = sysUserService.queryByDept(deptId);
         return Response.ok().put("list", list);
     }
-    
+
 
     /**
      * 获取登录的用户信息

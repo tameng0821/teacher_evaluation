@@ -3,7 +3,7 @@ $(function () {
         url: baseURL + 'eval/colleagueevalbaseitem/list',
         datatype: "json",
         colModel: [			
-			{ label: '序号', name: 'id', index: 'id', width: 50, key: true },
+			{ label: '序号', name: 'id', index: 'id', width: 50, key: true,hidden:true },
 			{ label: '名称', name: 'name', index: 'name', width: 80 }, 			
 			{ label: '占比', name: 'percentage', index: 'percentage', width: 80 ,
                 formatter: function (value, options, row) {

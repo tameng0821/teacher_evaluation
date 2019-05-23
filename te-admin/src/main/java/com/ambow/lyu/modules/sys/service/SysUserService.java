@@ -43,6 +43,7 @@ public interface SysUserService extends IService<SysUserEntity> {
 
     /**
      * 查询当前部门以及子部门的所有人员
+     *
      * @param deptId 部门ID
      * @return 人员列表
      */

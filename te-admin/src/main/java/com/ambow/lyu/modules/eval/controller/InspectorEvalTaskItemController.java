@@ -1,22 +1,16 @@
 package com.ambow.lyu.modules.eval.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
+import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.common.validator.ValidatorUtils;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.ambow.lyu.common.vo.Response;
 import com.ambow.lyu.modules.eval.entity.InspectorEvalTaskItemEntity;
 import com.ambow.lyu.modules.eval.service.InspectorEvalTaskItemService;
-import com.ambow.lyu.common.utils.PageUtils;
-import com.ambow.lyu.common.vo.Response;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.Map;
 
 
 /**
@@ -37,7 +31,7 @@ public class InspectorEvalTaskItemController {
      */
     @RequestMapping("/list")
     @RequiresPermissions("eval:inspectorevaltaskitem:list")
-    public Response list(@RequestParam Map<String, Object> params){
+    public Response list(@RequestParam Map<String, Object> params) {
         PageUtils page = inspectorEvalTaskItemService.queryPage(params);
 
         return Response.ok().put("page", page);
@@ -49,7 +43,7 @@ public class InspectorEvalTaskItemController {
      */
     @RequestMapping("/info/{id}")
     @RequiresPermissions("eval:inspectorevaltaskitem:info")
-    public Response info(@PathVariable("id") Long id){
+    public Response info(@PathVariable("id") Long id) {
         InspectorEvalTaskItemEntity inspectorEvalTaskItem = inspectorEvalTaskItemService.getById(id);
 
         return Response.ok().put("inspectorEvalTaskItem", inspectorEvalTaskItem);
@@ -60,7 +54,7 @@ public class InspectorEvalTaskItemController {
      */
     @RequestMapping("/save")
     @RequiresPermissions("eval:inspectorevaltaskitem:save")
-    public Response save(@RequestBody InspectorEvalTaskItemEntity inspectorEvalTaskItem){
+    public Response save(@RequestBody InspectorEvalTaskItemEntity inspectorEvalTaskItem) {
         inspectorEvalTaskItemService.save(inspectorEvalTaskItem);
 
         return Response.ok();
@@ -71,10 +65,10 @@ public class InspectorEvalTaskItemController {
      */
     @RequestMapping("/update")
     @RequiresPermissions("eval:inspectorevaltaskitem:update")
-    public Response update(@RequestBody InspectorEvalTaskItemEntity inspectorEvalTaskItem){
+    public Response update(@RequestBody InspectorEvalTaskItemEntity inspectorEvalTaskItem) {
         ValidatorUtils.validateEntity(inspectorEvalTaskItem);
         inspectorEvalTaskItemService.updateById(inspectorEvalTaskItem);
-        
+
         return Response.ok();
     }
 
@@ -83,7 +77,7 @@ public class InspectorEvalTaskItemController {
      */
     @RequestMapping("/delete")
     @RequiresPermissions("eval:inspectorevaltaskitem:delete")
-    public Response delete(@RequestBody Long[] ids){
+    public Response delete(@RequestBody Long[] ids) {
         inspectorEvalTaskItemService.removeByIds(Arrays.asList(ids));
 
         return Response.ok();

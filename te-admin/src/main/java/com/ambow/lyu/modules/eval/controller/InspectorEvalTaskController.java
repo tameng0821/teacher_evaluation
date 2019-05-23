@@ -1,22 +1,16 @@
 package com.ambow.lyu.modules.eval.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
+import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.common.validator.ValidatorUtils;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.ambow.lyu.common.vo.Response;
 import com.ambow.lyu.modules.eval.entity.InspectorEvalTaskEntity;
 import com.ambow.lyu.modules.eval.service.InspectorEvalTaskService;
-import com.ambow.lyu.common.utils.PageUtils;
-import com.ambow.lyu.common.vo.Response;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.Map;
 
 
 /**
@@ -37,7 +31,7 @@ public class InspectorEvalTaskController {
      */
     @RequestMapping("/list")
     @RequiresPermissions("eval:inspectorevaltask:list")
-    public Response list(@RequestParam Map<String, Object> params){
+    public Response list(@RequestParam Map<String, Object> params) {
         PageUtils page = inspectorEvalTaskService.queryPage(params);
 
         return Response.ok().put("page", page);
@@ -49,7 +43,7 @@ public class InspectorEvalTaskController {
      */
     @RequestMapping("/info/{id}")
     @RequiresPermissions("eval:inspectorevaltask:info")
-    public Response info(@PathVariable("id") Long id){
+    public Response info(@PathVariable("id") Long id) {
         InspectorEvalTaskEntity inspectorEvalTask = inspectorEvalTaskService.getById(id);
 
         return Response.ok().put("inspectorEvalTask", inspectorEvalTask);
@@ -60,7 +54,7 @@ public class InspectorEvalTaskController {
      */
     @RequestMapping("/save")
     @RequiresPermissions("eval:inspectorevaltask:save")
-    public Response save(@RequestBody InspectorEvalTaskEntity inspectorEvalTask){
+    public Response save(@RequestBody InspectorEvalTaskEntity inspectorEvalTask) {
         inspectorEvalTaskService.save(inspectorEvalTask);
 
         return Response.ok();
@@ -71,10 +65,10 @@ public class InspectorEvalTaskController {
      */
     @RequestMapping("/update")
     @RequiresPermissions("eval:inspectorevaltask:update")
-    public Response update(@RequestBody InspectorEvalTaskEntity inspectorEvalTask){
+    public Response update(@RequestBody InspectorEvalTaskEntity inspectorEvalTask) {
         ValidatorUtils.validateEntity(inspectorEvalTask);
         inspectorEvalTaskService.updateById(inspectorEvalTask);
-        
+
         return Response.ok();
     }
 
@@ -83,7 +77,7 @@ public class InspectorEvalTaskController {
      */
     @RequestMapping("/delete")
     @RequiresPermissions("eval:inspectorevaltask:delete")
-    public Response delete(@RequestBody Long[] ids){
+    public Response delete(@RequestBody Long[] ids) {
         inspectorEvalTaskService.removeByIds(Arrays.asList(ids));
 
         return Response.ok();
