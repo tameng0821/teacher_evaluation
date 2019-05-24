@@ -11,6 +11,10 @@ public class Constant {
      */
     public static final int SUPER_ADMIN = 1;
     /**
+     * 子任务（学生/同行/督导/其他）ID数据库列名
+     */
+    public static final String SUB_TASK_ID = "sub_task_id";
+    /**
      * 数据权限过滤
      */
     public static final String SQL_FILTER = "sql_filter";

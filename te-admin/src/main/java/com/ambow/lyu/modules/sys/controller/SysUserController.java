@@ -49,7 +49,6 @@ public class SysUserController extends AbstractController {
      * 查询当前部门以及子部门人员根据姓名模糊查找
      */
     @RequestMapping("/list/{deptId}")
-    @RequiresPermissions("sys:user:list")
     public Response listByDept(@PathVariable("deptId") Long deptId) {
         List<SysUserEntity> list = sysUserService.queryByDept(deptId);
         return Response.ok().put("list", list);

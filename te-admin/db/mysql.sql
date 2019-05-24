@@ -295,12 +295,22 @@ INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, 
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('141', '140', '查看', null, 'eval:evaltask:list,eval:evaltask:info', '2', null, '1');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('142', '140', '创建', null, 'eval:evaltask:save', '2', null, '2');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('143', '140', '修改', null, 'eval:evaltask:update', '2', null, '3');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('144', '140', '发布', null, 'eval:evaltask:release', '2', null, '3');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('145', '140', '关闭', null, 'eval:evaltask:close', '2', null, '4');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('146', '140', '删除', null, 'eval:evaltask:delete', '2', null, '5');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('147', '140', '生成结果', null, 'eval:evaltask:result', '2', null, '6');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('144', '140', '发布', null, 'eval:evaltask:release', '2', null, '4');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('145', '140', '关闭', null, 'eval:evaltask:close', '2', null, '5');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('146', '140', '删除', null, 'eval:evaltask:delete', '2', null, '6');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('147', '140', '生成结果', null, 'eval:evaltask:result', '2', null, '7');
 
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('150', '100', '学生评价', 'modules/eval/studentevaltask.html', NULL, '1', 'fa fa-graduation-cap', '3');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('151', '150', '查看', null, 'eval:studentevaltask:list,eval:studentevaltask:info', '2', null, '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('152', '150', '修改', null, 'eval:studentevaltask:update', '2', null, '3');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('153', '150', '删除', null, 'eval:studentevaltask:delete', '2', null, '4');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('152', '150', '评价', null, 'eval:studentevaltask:eval', '2', null, '2');
+
+create table tb_student_eval_record
+(
+   id                   bigint not null AUTO_INCREMENT,
+   sub_task_id          bigint COMMENT '学生评级ID',
+   user_id              bigint COMMENT '用户ID',
+   score                double COMMENT '分数',
+   update_time          datetime COMMENT '修改时间',
+   remark               varchar(500) COMMENT '备注',
+   primary key (id)
+)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='学生评价记录';

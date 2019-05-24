@@ -6,15 +6,26 @@
 </head>
 <body>
 <div id="rrapp" v-cloak>
-    <div v-show="showList">
-        <div class="grid-btn">
-			<#if shiro.hasPermission("eval:studentevaltask:update")>
-            <a class="btn btn-primary" @click="selectTask"><i class="fa fa-pencil-square-o"></i>&nbsp;进行学生评价任务</a>
-			</#if>
+    <div>
+        <div v-show="showList" id="container_grid">
+            <div class="grid-btn">
+                <#if shiro.hasPermission("eval:studentevaltask:info")>
+                    <a class="btn btn-primary" @click="queryRecordList"><i class="fa fa-pencil-square-o"></i>&nbsp;选择评价任务进行学生评价</a>
+                </#if>
+            </div>
+            <table id="jqGrid"></table>
+            <div id="jqGridPager"></div>
         </div>
-        <table id="jqGrid"></table>
-        <div id="jqGridPager"></div>
+        <div v-show="showRecordList">
+            <div class="grid-btn">
+                <a class="btn btn-warning" @click="reload"><i class="fa fa-chevron-circle-left"></i>&nbsp;返回</a>
+            </div>
+            <table id="recordListJqGrid"></table>
+            <div id="recordListJqGridPager"></div>
+        </div>
     </div>
+
+
 </div>
 
 <script src="${request.contextPath}/statics/js/modules/eval/studentevaltask.js?_${.now?long}"></script>
