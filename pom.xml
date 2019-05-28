@@ -164,6 +164,12 @@
             <version>${poi.version}</version>
         </dependency>
         <!--Java API To Access Microsoft Format Files end-->
+
+        <dependency>
+            <groupId>com.belerweb</groupId>
+            <artifactId>pinyin4j</artifactId>
+            <version>2.5.1</version>
+        </dependency>
     </dependencies>
 
     <!-- 阿里云maven仓库 -->

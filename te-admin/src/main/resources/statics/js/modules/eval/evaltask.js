@@ -240,7 +240,6 @@ var vm = new Vue({
                 ztree.expandAll(true);
                 //保存部门树
                 depTreeData = translateDeptDataToTree(r);
-                console.log(depTreeData);
                 let node = ztree.getNodeByParam("deptId", vm.evalTask.deptId);
                 if (node != null) {
                     ztree.selectNode(node);
@@ -528,7 +527,6 @@ var vm = new Vue({
             });
         },
         saveOrUpdate: function (event) {
-            console.log(JSON.stringify(vm.evalTask));
             if (!vm.addStepDataCheck()) {
                 return false;
             }

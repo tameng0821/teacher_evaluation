@@ -75,9 +75,13 @@ let vm = new Vue({
 	data:{
 		showList: true,
         showRecordList: false,
+        showRecordAdd:false,
+        showRecordImport:false,
+        showRecordUpdate:false,
 
 		title: null,
-		studentEvalTask: {}
+		studentEvalTask: {},
+        studentEvalRecord:{}
 	},
 	methods: {
 		query: function () {
@@ -111,13 +115,116 @@ let vm = new Vue({
                 page:page
             }).trigger("reloadGrid");
         },
+        addRecord: function(){
+            vm.switchRecordAdd();
+            vm.title = "新增";
+            vm.studentEvalRecord = {};
+        },
+        importRecord:function(){
+            vm.switchRecordImport();
+            vm.title = "批量导入";
+        },
+        updateRecord: function (event) {
+            let id = getRecordListSelectedRow();
+            if(id == null){
+                return ;
+            }
+            vm.switchRecordUpdate();
+            vm.title = "修改";
+
+            vm.getRecordInfo(id)
+        },
+        saveOrUpdateRecord: function (event) {
+            $('#btnSaveOrUpdate').button('loading').delay(1000).queue(function() {
+                let url = vm.studentEvalRecord.id == null ? "eval/studentevalrecord/save" : "eval/studentevalrecord/update";
+                $.ajax({
+                    type: "POST",
+                    url: baseURL + url,
+                    contentType: "application/json",
+                    data: JSON.stringify(vm.studentEvalRecord),
+                    success: function(r){
+                        if(r.code === 0){
+                            layer.msg("操作成功", {icon: 1});
+                            vm.reload();
+                            $('#btnSaveOrUpdate').button('reset');
+                            $('#btnSaveOrUpdate').dequeue();
+                        }else{
+                            layer.alert(r.msg);
+                            $('#btnSaveOrUpdate').button('reset');
+                            $('#btnSaveOrUpdate').dequeue();
+                        }
+                    }
+                });
+            });
+        },
+        delRecord: function (event) {
+            let ids = getRecordListSelectedRows();
+            if(ids == null){
+                return ;
+            }
+            let lock = false;
+            layer.confirm('确定要删除选中的记录？', {
+                btn: ['确定','取消'] //按钮
+            }, function(){
+                if(!lock) {
+                    lock = true;
+                    $.ajax({
+                        type: "POST",
+                        url: baseURL + "eval/studentevalrecord/delete",
+                        contentType: "application/json",
+                        data: JSON.stringify(ids),
+                        success: function(r){
+                            if(r.code == 0){
+                                layer.msg("操作成功", {icon: 1});
+                                $("#jqGrid").trigger("reloadGrid");
+                            }else{
+                                layer.alert(r.msg);
+                            }
+                        }
+                    });
+                }
+            }, function(){
+            });
+        },
+        getRecordInfo: function(id){
+            $.get(baseURL + "eval/studentevalrecord/info/"+id, function(r){
+                vm.studentEvalRecord = r.studentEvalRecord;
+            });
+        },
         switchList: function () {
             vm.showList = true;
             vm.showRecordList = false;
+            vm.showRecordAdd = false;
+            vm.showRecordImport = false;
+            vm.showRecordUpdate = false;
         },
         switchTaskList: function () {
             vm.showList = false;
             vm.showRecordList = true;
+            vm.showRecordAdd = false;
+            vm.showRecordImport = false;
+            vm.showRecordUpdate = false;
+        },
+        switchRecordAdd: function () {
+            vm.showList = false;
+            vm.showRecordList = false;
+            vm.showRecordAdd = true;
+            vm.showRecordImport = false;
+            vm.showRecordUpdate = false;
+        },
+        switchRecordImport: function () {
+            vm.showList = false;
+            vm.showRecordList = false;
+            vm.showRecordAdd = false;
+            vm.showRecordImport = true;
+            vm.showRecordUpdate = false;
+        },
+        switchRecordUpdate: function () {
+            vm.showList = false;
+            vm.showRecordList = false;
+            vm.showRecordAdd = false;
+            vm.showRecordImport = false;
+            vm.showRecordUpdate = true;
         }
 	}
 });

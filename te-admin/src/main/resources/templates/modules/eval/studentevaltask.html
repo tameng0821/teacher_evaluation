@@ -6,25 +6,64 @@
 </head>
 <body>
 <div id="rrapp" v-cloak>
-    <div>
-        <div v-show="showList" id="container_grid">
-            <div class="grid-btn">
-                <#if shiro.hasPermission("eval:studentevaltask:info")>
-                    <a class="btn btn-primary" @click="queryRecordList"><i class="fa fa-pencil-square-o"></i>&nbsp;选择评价任务进行学生评价</a>
-                </#if>
-            </div>
-            <table id="jqGrid"></table>
-            <div id="jqGridPager"></div>
+    <div v-show="showList" id="container_grid">
+        <div class="grid-btn">
+            <#if shiro.hasPermission("eval:studentevaltask:info")>
+                <a class="btn btn-primary" @click="queryRecordList"><i class="fa fa-pencil-square-o"></i>&nbsp;选择评价任务进行学生评价</a>
+            </#if>
         </div>
-        <div v-show="showRecordList">
+        <table id="jqGrid"></table>
+        <div id="jqGridPager"></div>
+    </div>
+
+    <div v-show="showRecordList">
             <div class="grid-btn">
                 <a class="btn btn-warning" @click="reload"><i class="fa fa-chevron-circle-left"></i>&nbsp;返回</a>
+                <#if shiro.hasPermission("eval:studentevaltask:eval")>
+                    <a class="btn btn-primary" @click="addRecord"><i class="fa fa-plus"></i>&nbsp;新增</a>
+                </#if>
+                <#if shiro.hasPermission("eval:studentevaltask:eval")>
+                    <a class="btn btn-primary" @click="importRecord"><i class="fa fa-plus"></i>&nbsp;导入</a>
+                </#if>
+                <#if shiro.hasPermission("eval:studentevaltask:eval")>
+                    <a class="btn btn-primary" @click="updateRecord"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+                </#if>
+                <#if shiro.hasPermission("eval:studentevaltask:eval")>
+                    <a class="btn btn-primary" @click="delRecord"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+                </#if>
             </div>
             <table id="recordListJqGrid"></table>
             <div id="recordListJqGridPager"></div>
-        </div>
     </div>
 
+<div v-show="showRecordAdd" class="panel panel-default">
+    <div class="panel-heading">{{title}}</div>
+    <form class="form-horizontal">
+        <div class="form-group">
+            <div class="col-sm-2 control-label">分数</div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" v-model="studentEvalRecord.score" placeholder="分数"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2 control-label">备注</div>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" v-model="studentEvalRecord.remark" placeholder="备注"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2 control-label"></div>
+            <input type="button" class="btn btn-primary" id="btnSaveOrUpdate" data-loading-text="保存中..." @click="saveOrUpdateRecord" value="确定"/>
+            &nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="recordListReload" value="返回"/>
+        </div>
+    </form>
+</div>
+<div v-show="showRecordImport" class="panel panel-default">
+    <div class="panel-heading">{{title}}</div>
+</div>
+<div v-show="showRecordUpdate" class="panel panel-default">
+    <div class="panel-heading">{{title}}</div>
+</div>
 
 </div>
 

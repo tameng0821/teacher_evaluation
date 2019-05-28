@@ -148,12 +148,7 @@ INSERT INTO `sys_dept` (`dept_id`, `parent_id`, `name`, `order_num`, `del_flag`)
 
 INSERT INTO `sys_dept` (`dept_id`, `parent_id`, `name`, `order_num`, `del_flag`) VALUES ('2', '0', '临沂大学', '0', '0');
 INSERT INTO `sys_dept` (`dept_id`, `parent_id`, `name`, `order_num`, `del_flag`) VALUES ('3', '2', '信息科学与工程学院', '0', '0');
-INSERT INTO `sys_dept` (`dept_id`, `parent_id`, `name`, `order_num`, `del_flag`) VALUES ('4', '3', '计算机工程系', '1', '0');
-INSERT INTO `sys_dept` (`dept_id`, `parent_id`, `name`, `order_num`, `del_flag`) VALUES ('5', '3', '软件工程系', '2', '0');
-INSERT INTO `sys_dept` (`dept_id`, `parent_id`, `name`, `order_num`, `del_flag`) VALUES ('6', '3', '通信工程系', '3', '0');
-INSERT INTO `sys_dept` (`dept_id`, `parent_id`, `name`, `order_num`, `del_flag`) VALUES ('7', '3', '网络与信息工程系', '4', '0');
-INSERT INTO `sys_dept` (`dept_id`, `parent_id`, `name`, `order_num`, `del_flag`) VALUES ('8', '3', '公共教学部', '5', '0');
-INSERT INTO `sys_dept` (`dept_id`, `parent_id`, `name`, `order_num`, `del_flag`) VALUES ('9', '3', '信息技术试验中心', '6', '0');
+
 
 INSERT INTO `sys_dict`(`id`, `name`, `type`, `code`, `value`, `order_num`, `remark`, `del_flag`) VALUES (1, '性别', 'sex', '0', '女', 0, NULL, 0);
 INSERT INTO `sys_dict`(`id`, `name`, `type`, `code`, `value`, `order_num`, `remark`, `del_flag`) VALUES (2, '性别', 'sex', '1', '男', 1, NULL, 0);
@@ -208,20 +203,6 @@ INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, 
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('132', '112', '新增', null, 'eval:inspectorevalbaseitem:save', '2', null, '2');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('133', '112', '修改', null, 'eval:inspectorevalbaseitem:update', '2', null, '3');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('134', '112', '删除', null, 'eval:inspectorevalbaseitem:delete', '2', null, '4');
-
-INSERT INTO `tb_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (1,'学生评价',30,'学生评价由学生对任课教师进行网上评价，给出评价结果。无法通过网上评教的教学环节，可以通过发放学生问卷方式进行评价，后续结果由管理员录入。对于承担多项教学任务的教师，其学生评教得分取多次评教的平均分。 ');
-INSERT INTO `tb_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (2,'同行评价',30,'同行评价以系（教研室）为单位，分别组织系主任或同行教师对每位教师进行评价。');
-INSERT INTO `tb_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (3,'督导评价',20,'学院教学督导和教学工作指导委员会评价根据教师教学态度、教学过程、教学水平、教学档案质量、教学成效等进行综合评价，给出评价结果。');
-INSERT INTO `tb_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (4,'其他评价',20,'其他教学工作由教学研究与改革、产教融合、教师参加其他教学工作情况等给出评价结果，后续结果由管理员录入。');
-
-INSERT INTO `tb_colleague_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (1,'教学工作量',50,NULL);
-INSERT INTO `tb_colleague_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (2,'教学结果',50,NULL);
-
-INSERT INTO `tb_inspector_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (1,'教学态度',20,NULL);
-INSERT INTO `tb_inspector_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (2,'教学过程',20,NULL);
-INSERT INTO `tb_inspector_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (3,'教学水平',20,NULL);
-INSERT INTO `tb_inspector_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (4,'教学档案质量',20,NULL);
-INSERT INTO `tb_inspector_eval_base_item` (`id`,`name`,`percentage`,`remark`) VALUES (5,'教学成效',20,NULL);
 
 
 create table tb_eval_task
@@ -314,3 +295,15 @@ create table tb_student_eval_record
    remark               varchar(500) COMMENT '备注',
    primary key (id)
 )ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='学生评价记录';
+
+create table tb_colleague_eval_record
+(
+   id                   bigint not null AUTO_INCREMENT,
+   sub_task_id          bigint COMMENT '同行评级ID',
+   user_id              bigint COMMENT '用户ID',
+   detail               varchar(500) comment '记录每个评价选项以及分数，格式：taskItemID:taskItemScore,taskItemID1:taskItemScore1',
+   score                double comment '汇总分数',
+   update_time          datetime COMMENT '更新时间',
+   remark               varchar(500) COMMENT '备注',
+   primary key (id)
+)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='同行评价记录';
