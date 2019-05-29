@@ -289,3 +289,8 @@ function getRecordListSelectedRows() {
 
 	return grid.getGridParam("selarrrow");
 }
+
+//初始化fileinput
+let fileInputInit = function () {
+
+};

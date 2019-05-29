@@ -1,15 +1,23 @@
 package com.ambow.lyu.modules.eval.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.common.utils.Constant;
+import com.ambow.lyu.common.utils.ExcelUtils;
 import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.common.validator.ValidatorUtils;
 import com.ambow.lyu.common.vo.Response;
 import com.ambow.lyu.modules.eval.entity.StudentEvalRecordEntity;
 import com.ambow.lyu.modules.eval.service.StudentEvalRecordService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
@@ -25,6 +33,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("eval/studentevalrecord")
 public class StudentEvalRecordController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StudentEvalRecordController.class);
+
     @Autowired
     private StudentEvalRecordService studentEvalRecordService;
 
@@ -66,6 +77,23 @@ public class StudentEvalRecordController {
 
         studentEvalRecordService.save(studentEvalRecord);
 
+        return Response.ok();
+    }
+
+    /**
+     * 文件上传导入
+     */
+    @RequestMapping(value = "/import/{subTaskId}",method=RequestMethod.GET,consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequiresPermissions("eval:studentevaltask:eval")
+    public Response fileImport(@RequestParam("file") MultipartFile file) {
+        LOGGER.info(file.getName());
+        Map<String,Double> score;
+        try {
+            score = ExcelUtils.readStudentEvalScore(file.getInputStream(),file.getName());
+        } catch (IOException e) {
+            throw new TeException("excel文件异常");
+        }
+        LOGGER.info("上传成绩:"+ JSON.toJSONString(score));
         return Response.ok();
     }
 

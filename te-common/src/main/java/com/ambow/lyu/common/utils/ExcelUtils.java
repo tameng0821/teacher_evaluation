@@ -27,19 +27,19 @@ public class ExcelUtils {
     public static final String OFFICE_EXCEL_XLS = "xls";
     public static final String OFFICE_EXCEL_XLSX = "xlsx";
 
-    public static void main(String [] args) throws IOException {
+    public static void main(String[] args) throws IOException {
         File file = new File("C:\\Users\\w\\Documents\\项目文档\\教师评价系统_项目文档目录\\01产品需求文档\\学生评价导入样例表（教务处导出）.xls");
-        Map<String,Double> resultScore = readStudentEvalScore(file);
+        Map<String, Double> resultScore = readStudentEvalScore(file);
         int i = 10;
         int j = 10;
         int n = 0;
-        for(String name : resultScore.keySet()){
+        for (String name : resultScore.keySet()) {
 
             String pinyin = HanyuPinyinUtils.toHanyuPinyin(name);
-            System.out.println("INSERT INTO `sys_user` (`user_id`, `username`, `password`, `salt`,`name`,`email`, `mobile`, `status`, `dept_id`, `create_time`) VALUES ("+i+"," +
-                    " '"+pinyin+"', 'f854a071e5d3747cbfb8495c0666c75636fc53c57428c6e3df7d5ffb3904ea77', 'LBmXDCbL20S0aGwCAuJa'," +
-                    " '"+name+"', NULL, NULL, 1, "+(n%5 + 4)+", '2019-05-23 10:21:28');");
-            System.out.println("INSERT INTO `sys_user_role` (`id`, `user_id`, `role_id`) VALUES ("+j+", "+i+", 1);");
+            System.out.println("INSERT INTO `sys_user` (`user_id`, `username`, `password`, `salt`,`name`,`email`, `mobile`, `status`, `dept_id`, `create_time`) VALUES (" + i + "," +
+                    " '" + pinyin + "', 'f854a071e5d3747cbfb8495c0666c75636fc53c57428c6e3df7d5ffb3904ea77', 'LBmXDCbL20S0aGwCAuJa'," +
+                    " '" + name + "', NULL, NULL, 1, " + (n % 5 + 4) + ", '2019-05-23 10:21:28');");
+            System.out.println("INSERT INTO `sys_user_role` (`id`, `user_id`, `role_id`) VALUES (" + j + ", " + i + ", 1);");
             i++;
             j++;
             n++;
@@ -53,7 +53,18 @@ public class ExcelUtils {
      * @return Map<教师, 分数>
      */
     public static Map<String, Double> readStudentEvalScore(File file) throws IOException {
-        List<Map<Integer, String>> result = readExcel(file, 0);
+        return readStudentEvalScore(new FileInputStream(file),file.getName());
+    }
+
+    /**
+     * 读取学生评价分数
+     *
+     * @param is       文件流
+     * @param fileName 文件名
+     * @return Map<教师, 分数>
+     */
+    public static Map<String, Double> readStudentEvalScore(InputStream is, String fileName) throws IOException {
+        List<Map<Integer, String>> result = readExcel(is,fileName, 0);
 
         Map<String, Double> score = new HashMap<>();
         boolean isStart = false;
@@ -89,9 +100,23 @@ public class ExcelUtils {
         if (file == null || sheetNo == null) {
             throw new IllegalArgumentException("文件不能为空");
         }
+        return readExcel(new FileInputStream(file), file.getName(), sheetNo);
+    }
+
+    /**
+     * 读取指定Sheet也的内容
+     *
+     * @param is       文件流
+     * @param fileName 文件名
+     * @param sheetNo  sheet序号,从0开始
+     */
+    public static List<Map<Integer, String>> readExcel(InputStream is, String fileName, Integer sheetNo) throws IOException {
+        if (is == null || fileName == null || sheetNo == null) {
+            throw new IllegalArgumentException("文件不能为空");
+        }
 
         List<Map<Integer, String>> result = new ArrayList<>();
-        Workbook workbook = getWorkbook(file);
+        Workbook workbook = getWorkbook(is, fileName);
         if (workbook != null) {
             Sheet sheet = workbook.getSheetAt(sheetNo);
             if (sheet != null) {
@@ -127,18 +152,27 @@ public class ExcelUtils {
      */
     public static Workbook getWorkbook(File file)
             throws EncryptedDocumentException, IOException {
-        InputStream is = null;
+        return getWorkbook(new FileInputStream(file), file.getName());
+    }
+
+    /**
+     * 根据文件获取Workbook对象
+     *
+     * @param is       文件流
+     * @param fileName 文件名
+     */
+    public static Workbook getWorkbook(InputStream is, String fileName)
+            throws EncryptedDocumentException, IOException {
         Workbook wb = null;
-        if (file == null) {
+        if (is == null || fileName == null) {
             throw new IllegalArgumentException("文件不能为空");
         }
-        String suffix = getSuffix(file.getName());
+        String suffix = getSuffix(fileName);
         if (StringUtils.isBlank(suffix)) {
             throw new IllegalArgumentException("文件后缀不能为空");
         }
         if (OFFICE_EXCEL_XLS.equals(suffix) || OFFICE_EXCEL_XLSX.equals(suffix)) {
             try {
-                is = new FileInputStream(file);
                 wb = WorkbookFactory.create(is);
             } finally {
                 if (is != null) {

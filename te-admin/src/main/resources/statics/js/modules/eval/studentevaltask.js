@@ -146,6 +146,15 @@ let vm = new Vue({
         gotoImportRecord:function(){
             vm.switchRecordImport();
             vm.title = "批量导入";
+
+            let uploadUrl = baseURL + "eval/studentevalrecord/import/"+vm.subTaskId;
+            //0.初始化fileinput
+            $("#xlsRecordFileInput").fileinput({
+                language: 'zh', //设置语言
+                uploadUrl: uploadUrl, //上传的地址
+                allowedFileExtensions: ['xls', 'xlsx'],//接收的文件后缀
+                uploadExtraData: {kvId: '10'}
+            });
         },
         gotoUpdateRecord: function (event) {
             let id = getRecordListSelectedRow();
