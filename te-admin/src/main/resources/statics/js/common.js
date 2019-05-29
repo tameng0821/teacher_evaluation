@@ -126,7 +126,7 @@ function findDeptFromTreeData(treeData,deptId) {
 	let result=[];
 	let findTreeData = (treeData,deptId)	=> {
 		treeData.forEach( (current) => {
-			if(current.deptId === deptId){
+			if(current.deptId == deptId){
 				result = current;
 				return false;
 			}else if(typeof current.children !== 'undefined'){
@@ -136,6 +136,123 @@ function findDeptFromTreeData(treeData,deptId) {
 	};
 	findTreeData(treeData,deptId);
 	return result;
+}
+//选择部门时部门树设置
+let deptZtreeSetting = {
+	data: {
+		simpleData: {
+			enable: true,
+			idKey: "deptId",
+			pIdKey: "parentId",
+			rootPId: -1
+		},
+		key: {
+			url: "nourl"
+		}
+	}
+};
+//从后台获取部门数据
+function getDeptTreeData(callback) {
+	$.get(baseURL + "sys/dept/list", function (r) {
+		callback(r);
+	});
+}
+//从后台获取当前部门所有用户数据
+function getUserListData(deptId,callback) {
+	$.get(baseURL + "sys/user/list/" + deptId, function (r) {
+		if (r.code === 0) {
+			callback(r.list);
+		} else {
+			console.log(r.msg);
+		}
+	})
+}
+
+/**
+ *
+ * 初始化部门ztree
+ * @param element  html元素 比如$("#deptTree")
+ * @param setting 配置
+ * @param deptData 部门数据，不能是从ajax获取的因为有延迟
+ * @returns ztree
+ */
+function initDeptTree(element,setting,deptData) {
+	let deptTree =  $.fn.zTree.init(element, setting, deptData);
+	deptTree.expandAll(true);
+	return deptTree;
+}
+/**
+ *
+ * 初始化部门选择功能时的部门ztree
+ * @param element  html元素 比如$("#deptTree")
+ * @param deptData 部门数据，不能是从ajax获取的因为有延迟
+ * @returns ztree
+ */
+function initDeptSelectDeptTree(element,deptData) {
+	return initDeptTree(element,deptZtreeSetting,deptData);
+}
+
+/**
+ *  初始化添加用户功能时的部门ztree
+ * @param element html元素 比如$("#deptTree")
+ * @param deptData 部门数据，不能是从ajax获取的因为有延迟
+ * @param callback 树状图节点点击触发事件
+ * @returns ztree
+ */
+function initUserSelectDeptTree(element,deptData,callback) {
+	//选择人员时部门树设置
+	let treeSetting = {
+		data: {
+			simpleData: {
+				enable: true,
+				idKey: "deptId",
+				pIdKey: "parentId",
+				rootPId: -1
+			},
+			key: {
+				url: "nourl"
+			}
+		},
+		callback: {
+			// 单击事件
+			onClick: function (event, treeId, treeNode) {
+				callback(treeNode.deptId);
+			}
+		}
+	};
+	return initDeptTree(element,treeSetting,deptData);
+}
+
+/**
+ *  显示用户选择弹窗
+ * @param element html元素 比如$("#deptTree")
+ * @param deptData 部门数据，不能是从ajax获取的因为有延迟
+ * @param deptId 部门ID
+ * @param title layer标题
+ * @param content layer内容，比如 jQuery("#userLayer")
+ * @param getUserCallback 树状图节点点击回调函数
+ * @param confirmCallback layer点击确认回调函数
+ */
+function showSelectUserLayer(element,deptData,deptId,title,content,getUserCallback,confirmCallback) {
+
+	initUserSelectDeptTree(element,deptData,getUserCallback);
+
+	getUserCallback(deptId);
+
+	layer.open({
+		type: 1,
+		offset: '50px',
+		skin: 'layui-layer-molv',
+		title: title,
+		area: ['800px', '410px'],
+		shade: 0,
+		shadeClose: false,
+		content: content,
+		btn: ['确定', '取消'],
+		btn1: function (index) {
+			confirmCallback(index);
+		}
+	});
 }
 
 //子页面内更改父页面地址

@@ -4,6 +4,7 @@ $(function () {
         datatype: "json",
         colModel: [			
 			{ label: 'id', name: 'id', index: 'id', width: 50, key: true,hidden:true},
+            { label: 'deptId', name: 'deptId', sortable: false, width: 50,hidden:true},
 			{ label: '任务名称', name: 'name', sortable: false, width: 80 },
 			{ label: '评价部门', name: 'deptName', sortable: false, width: 80 },
 			{ label: '创建时间', name: 'createTime', sortable: false, width: 80 }
@@ -70,6 +71,11 @@ let recordJqGrid =  {
     }
 };
 
+//保存获取的部门列表(树状结构数据)
+let depTreeData;
+//保存获取的用户列表
+var userListData;
+
 let vm = new Vue({
 	el:'#rrapp',
 	data:{
@@ -80,8 +86,19 @@ let vm = new Vue({
         showRecordUpdate:false,
 
 		title: null,
-		studentEvalTask: {},
-        studentEvalRecord:{}
+
+        subTaskId:null,
+        evalTaskDeptId:null,
+
+        studentEvalTask: {},
+        studentEvalRecord:{},
+
+        //弹窗添加人员时使用
+        layer: {
+            userList: [],
+            chooseUser: {},
+            qName: null
+        }
 	},
 	methods: {
 		query: function () {
@@ -102,6 +119,8 @@ let vm = new Vue({
 
             let rowData = $("#jqGrid").getRowData(id);
             vm.title = '评价任务 >> '+rowData.name;
+            vm.subTaskId = rowData.id;
+            vm.evalTaskDeptId = rowData.deptId;
 
             vm.switchTaskList();
             recordJqGrid.url = baseURL + 'eval/studentevalrecord/list/'+id;
@@ -115,16 +134,20 @@ let vm = new Vue({
                 page:page
             }).trigger("reloadGrid");
         },
-        addRecord: function(){
+        gotoAddRecord: function(){
+
+		    vm.getDept();
+
             vm.switchRecordAdd();
             vm.title = "新增";
             vm.studentEvalRecord = {};
+            vm.studentEvalRecord.subTaskId = vm.subTaskId;
         },
-        importRecord:function(){
+        gotoImportRecord:function(){
             vm.switchRecordImport();
             vm.title = "批量导入";
         },
-        updateRecord: function (event) {
+        gotoUpdateRecord: function (event) {
             let id = getRecordListSelectedRow();
             if(id == null){
                 return ;
@@ -134,27 +157,54 @@ let vm = new Vue({
 
             vm.getRecordInfo(id)
         },
-        saveOrUpdateRecord: function (event) {
-            $('#btnSaveOrUpdate').button('loading').delay(1000).queue(function() {
-                let url = vm.studentEvalRecord.id == null ? "eval/studentevalrecord/save" : "eval/studentevalrecord/update";
+        saveRecord: function (event) {
+            $('#btnSave').button('loading').delay(1000).queue(function() {
                 $.ajax({
                     type: "POST",
-                    url: baseURL + url,
+                    url: baseURL + "eval/studentevalrecord/save",
                     contentType: "application/json",
                     data: JSON.stringify(vm.studentEvalRecord),
                     success: function(r){
                         if(r.code === 0){
                             layer.msg("操作成功", {icon: 1});
                             vm.reload();
-                            $('#btnSaveOrUpdate').button('reset');
-                            $('#btnSaveOrUpdate').dequeue();
+                            $('#btnSave').button('reset');
+                            $('#btnSave').dequeue();
                         }else{
                             layer.alert(r.msg);
-                            $('#btnSaveOrUpdate').button('reset');
-                            $('#btnSaveOrUpdate').dequeue();
+                            $('#btnSave').button('reset');
+                            $('#btnSave').dequeue();
                         }
                     }
                 });
+            });
+        },
+        updateRecord: function (event) {
+            $('#btnUpdate').button('loading').delay(1000).queue(function() {
+                $.ajax({
+                    type: "POST",
+                    url: baseURL + "eval/studentevalrecord/update",
+                    contentType: "application/json",
+                    data: JSON.stringify(vm.studentEvalRecord),
+                    success: function(r){
+                        if(r.code === 0){
+                            layer.msg("操作成功", {icon: 1});
+                            vm.reload();
+                            $('#btnUpdate').button('reset');
+                            $('#btnUpdate').dequeue();
+                        }else{
+                            layer.alert(r.msg);
+                            $('#btnUpdate').button('reset');
+                            $('#btnUpdate').dequeue();
+                        }
+                    }
+                });
+            });
+        },
+        importRecord:  function (event) {
+            $('#btnImport').button('loading').delay(1000).queue(function() {
+                $('#btnImport').button('reset');
+                $('#btnImport').dequeue();
             });
         },
         delRecord: function (event) {
@@ -190,6 +240,60 @@ let vm = new Vue({
             $.get(baseURL + "eval/studentevalrecord/info/"+id, function(r){
                 vm.studentEvalRecord = r.studentEvalRecord;
             });
+        },
+        //从后台获取当前部门部门数据
+        getDept: function () {
+            //获取并保存部门数据
+            getDeptTreeData(function (deptList) {
+                depTreeData = translateDeptDataToTree(deptList);
+            });
+        },
+        //从后台获取当前部门所有用户数据
+        getUser: function (deptId) {
+            //清空搜索
+            vm.layer = {
+                qName: null,
+                chooseUser: {},
+                userList: []
+            };
+            //从后台获取用户列表
+            getUserListData(deptId,function (userList) {
+                userListData = userList;
+                vm.layer.userList = userListData;
+                Vue.set(vm.layer.userList);
+            });
+        },
+        //弹窗时时更新用户列表
+        findUser: function () {
+            if (!isBlank(vm.layer.qName)) {
+                vm.layer.userList = userListData.filter(value => value.name.indexOf(vm.layer.qName.trim()) !== -1);
+                Vue.set(vm.layer.userList);
+            } else {
+                if (userListData.length !== vm.layer.userList.length) {
+                    vm.layer.userList = userListData;
+                    Vue.set(vm.layer.userList);
+                }
+            }
+        },
+        //弹窗选择用户结果
+        layerChooseUser: function (index) {
+            vm.layer.chooseUser = vm.layer.userList[index];
+            Vue.set(vm.layer.chooseUser);
+        },
+        addUser:function(){
+            //获取部门数据
+            let deptData = findDeptFromTreeData(depTreeData, vm.evalTaskDeptId);
+            //显示选择用户弹窗
+            showSelectUserLayer($("#deptTree1"), deptData,  vm.evalTaskDeptId, "选择用户"
+                , jQuery("#userLayer"), vm.getUser, function (index) {
+                    if (isBlank(vm.layer.chooseUser.userId)) {
+                        layer.msg("请从表格中选择一个人员！", {icon: 5});
+                    } else {
+                        vm.studentEvalRecord.userId = vm.layer.chooseUser.userId;
+                        vm.studentEvalRecord.userName = vm.layer.chooseUser.name;
+                        layer.close(index);
+                    }
+                });
         },
         switchList: function () {
             vm.showList = true;

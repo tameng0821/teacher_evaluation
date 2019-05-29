@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 
 
@@ -59,6 +60,10 @@ public class StudentEvalRecordController {
     @RequestMapping("/save")
     @RequiresPermissions("eval:studentevaltask:eval")
     public Response save(@RequestBody StudentEvalRecordEntity studentEvalRecord) {
+        ValidatorUtils.validateEntity(studentEvalRecord);
+
+        studentEvalRecord.setUpdateTime(new Date());
+
         studentEvalRecordService.save(studentEvalRecord);
 
         return Response.ok();
@@ -71,6 +76,9 @@ public class StudentEvalRecordController {
     @RequiresPermissions("eval:studentevaltask:eval")
     public Response update(@RequestBody StudentEvalRecordEntity studentEvalRecord) {
         ValidatorUtils.validateEntity(studentEvalRecord);
+
+        studentEvalRecord.setUpdateTime(new Date());
+
         studentEvalRecordService.updateById(studentEvalRecord);
 
         return Response.ok();

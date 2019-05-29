@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -28,14 +30,18 @@ public class StudentEvalRecordEntity implements Serializable {
     /**
      * 学生评级ID
      */
+    @NotNull(message = "学生评级ID不能为空")
     private Long subTaskId;
     /**
      * 用户ID
      */
+    @NotNull(message = "用户ID不能为空")
     private Long userId;
     /**
      * 分数
      */
+    @NotNull(message = "成绩不能为空")
+    @Pattern(regexp = "^(100|([1-9]?\\d))([.]\\d*)?$",message = "成绩只能是0-100的正浮点数")
     private Double score;
     /**
      * 修改时间

@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.Map;
 
 
@@ -41,4 +42,11 @@ public class StudentEvalRecordServiceImpl extends ServiceImpl<StudentEvalRecordD
         return new PageUtils(page);
     }
 
+    @Override
+    public StudentEvalRecordEntity getById(Serializable id) {
+        StudentEvalRecordEntity result = super.getById(id);
+        SysUserEntity userEntity = sysUserService.getById(result.getUserId());
+        result.setUserName(userEntity.getName());
+        return result;
+    }
 }
