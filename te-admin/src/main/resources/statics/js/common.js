@@ -291,6 +291,21 @@ function getRecordListSelectedRows() {
 }
 
 //初始化fileinput
-let fileInputInit = function () {
+function fileInputInit(element,uploadUrl,uploadedCallback) {
 
-};
+	element.fileinput({
+		language: 'zh', //设置语言
+		uploadUrl: uploadUrl, //上传的地址
+		enctype : 'multipart/form-data',
+		maxFileCount:1,//只允许上传一个文件
+		autoReplace: true,//是否自动替换
+		uploadAsync: true,//异步上传
+		showRemove : false,//是否显示移除按钮
+		showCancel: false,//是否显示取消按钮
+		showClose: false,//是否显示关闭按钮
+		allowedFileExtensions: ['xls', 'xlsx'],//支持的文件拓展名
+		errorCloseButton: ''//隐藏错误提示关闭按钮
+	}).on("fileuploaded", function(event, data, previewId, index) {
+		uploadedCallback(data);
+	});
+}

@@ -1,12 +1,12 @@
 package com.ambow.lyu.modules.eval.service.impl;
 
+import com.ambow.lyu.common.utils.Constant;
 import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.common.utils.Query;
 import com.ambow.lyu.modules.eval.dao.StudentEvalTaskDao;
 import com.ambow.lyu.modules.eval.entity.EvalTaskEntity;
 import com.ambow.lyu.modules.eval.entity.StudentEvalTaskEntity;
 import com.ambow.lyu.modules.eval.service.StudentEvalTaskService;
-import com.ambow.lyu.modules.eval.vo.StudentEvalTaskVo;
 import com.ambow.lyu.modules.sys.entity.SysDeptEntity;
 import com.ambow.lyu.modules.sys.service.SysDeptService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -27,10 +27,10 @@ public class StudentEvalTaskServiceImpl extends ServiceImpl<StudentEvalTaskDao, 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
 
-        IPage<StudentEvalTaskVo> page = new Query<StudentEvalTaskVo>().getPage(params);
-        List<StudentEvalTaskVo> list = baseMapper.pageGetStudentList(page, EvalTaskEntity.Status.RELEASE.value());
+        IPage<StudentEvalTaskEntity> page = new Query<StudentEvalTaskEntity>().getPage(params);
+        List<StudentEvalTaskEntity> list = baseMapper.pageGetList(page, EvalTaskEntity.Status.RELEASE.value(), (String) params.get(Constant.SQL_FILTER));
 
-        for (StudentEvalTaskVo vo : list) {
+        for (StudentEvalTaskEntity vo : list) {
             SysDeptEntity sysDeptEntity = sysDeptService.getById(vo.getDeptId());
             vo.setDeptName(sysDeptEntity.getName());
         }

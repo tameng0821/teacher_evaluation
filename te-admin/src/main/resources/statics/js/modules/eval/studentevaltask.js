@@ -4,10 +4,11 @@ $(function () {
         datatype: "json",
         colModel: [			
 			{ label: 'id', name: 'id', index: 'id', width: 50, key: true,hidden:true},
-            { label: 'deptId', name: 'deptId', sortable: false, width: 50,hidden:true},
-			{ label: '任务名称', name: 'name', sortable: false, width: 80 },
-			{ label: '评价部门', name: 'deptName', sortable: false, width: 80 },
-			{ label: '创建时间', name: 'createTime', sortable: false, width: 80 }
+            { label: '任务ID', name: 'taskId', index: 'task_id', width: 80 ,hidden:true},
+            { label: '部门Id', name: 'deptId', sortable: false, width: 50,hidden:true},
+            { label: '任务名称', name: 'taskName', sortable: false, width: 80 },
+            { label: '评价部门', name: 'deptName', sortable: false, width: 80 },
+            { label: '创建时间', name: 'taskCreateTime', sortable: false, width: 80 }
         ],
 		viewrecords: true,
         height: 385,
@@ -150,31 +151,22 @@ let vm = new Vue({
         gotoImportRecord:function(){
             //学生评价批量导入记录
             let uploadUrl = baseURL + "eval/studentevalrecord/import/"+vm.subTaskId;
-            $("#xlsRecordFile").fileinput({
-                language: 'zh', //设置语言
-                uploadUrl: uploadUrl, //上传的地址
-                enctype : 'multipart/form-data',
-                maxFileCount:1,//只允许上传一个文件
-                autoReplace: true,//是否自动替换
-                uploadAsync: true,//异步上传
-                showRemove : false,//是否显示移除按钮
-                showCancel: false,//是否显示取消按钮
-                showClose: false,//是否显示关闭按钮
-                allowedFileExtensions: ['xls', 'xlsx'],//支持的文件拓展名
-                errorCloseButton: ''//隐藏错误提示关闭按钮
-            });
-            $("#xlsRecordFile").on("fileuploaded", function(event, data, previewId, index) {
-                console.log(data.response);
-               vm.importRecordSuccessList=data.response.successList;
-               vm.importRecordErrorList=data.response.errorList;
-               Vue.set(vm.importRecordSuccessList);
-               Vue.set(vm.importRecordErrorList);
+            fileInputInit($("#xlsRecordFile"),uploadUrl,function (data) {
+                vm.importRecordSuccessList=data.response.successList;
+                vm.importRecordErrorList=data.response.errorList;
+                Vue.set(vm.importRecordSuccessList);
+                Vue.set(vm.importRecordErrorList);
                 vm.showRecordImportResult = true;
             });
 
             vm.switchRecordImport();
             vm.title = "批量导入";
 
+        },
+        getRecordInfo: function(id){
+            $.get(baseURL + "eval/studentevalrecord/info/"+id, function(r){
+                vm.studentEvalRecord = r.studentEvalRecord;
+            });
         },
         gotoUpdateRecord: function (event) {
             let id = getRecordListSelectedRow();
@@ -265,11 +257,7 @@ let vm = new Vue({
             }, function(){
             });
         },
-        getRecordInfo: function(id){
-            $.get(baseURL + "eval/studentevalrecord/info/"+id, function(r){
-                vm.studentEvalRecord = r.studentEvalRecord;
-            });
-        },
+
         //从后台获取当前部门部门数据
         getDept: function () {
             //获取并保存部门数据

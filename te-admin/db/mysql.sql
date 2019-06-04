@@ -188,8 +188,8 @@ create table tb_inspector_eval_base_item
 
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('100', '0', '评价管理', NULL, NULL, '0', 'fa fa-cog', '0');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('110', '100', '评价标准', 'modules/eval/evalbaseitem.html', NULL, '1', 'fa fa-bandcamp', '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('111', '100', '同行评价项目', 'modules/eval/colleagueevalbaseitem.html', NULL, '1', 'fa fa-bandcamp', '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('112', '100', '督导评价项目', 'modules/eval/inspectorevalbaseitem.html', NULL, '1', 'fa fa-bandcamp', '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('111', '100', '同行评价项目', 'modules/eval/colleagueevalbaseitem.html', NULL, '1', 'fa fa-bandcamp', '2');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('112', '100', '督导评价项目', 'modules/eval/inspectorevalbaseitem.html', NULL, '1', 'fa fa-bandcamp', '3');
 
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('120', '110', '查看', null, 'eval:evalbaseitem:list,eval:evalbaseitem:info', '2', null, '1');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('121', '110', '修改', null, 'eval:evalbaseitem:update', '2', null, '3');
@@ -272,7 +272,7 @@ create table tb_other_eval_task
 )ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='其他评价子任务';
 
 
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('140', '100', '评价任务', 'modules/eval/evaltask.html', NULL, '1', 'fa fa-tasks', '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('140', '100', '评价任务', 'modules/eval/evaltask.html', NULL, '1', 'fa fa-tasks', '4');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('141', '140', '查看', null, 'eval:evaltask:list,eval:evaltask:info', '2', null, '1');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('142', '140', '创建', null, 'eval:evaltask:save', '2', null, '2');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('143', '140', '修改', null, 'eval:evaltask:update', '2', null, '3');
@@ -281,14 +281,15 @@ INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, 
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('146', '140', '删除', null, 'eval:evaltask:delete', '2', null, '6');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('147', '140', '生成结果', null, 'eval:evaltask:result', '2', null, '7');
 
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('150', '100', '学生评价', 'modules/eval/studentevaltask.html', NULL, '1', 'fa fa-graduation-cap', '3');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('151', '150', '查看', null, 'eval:studentevaltask:list,eval:studentevaltask:info', '2', null, '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('152', '150', '评价', null, 'eval:studentevaltask:eval', '2', null, '2');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('150', '100', '学生评价', 'modules/eval/studentevaltask.html', 'eval:studentevaltask:eval', '1', 'fa fa-graduation-cap', '5');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('155', '100', '同行评价', 'modules/eval/colleagueevaltask.html', 'eval:colleagueevaltask:eval', '1', 'fa fa-user-o', '6');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('160', '100', '督导评价', 'modules/eval/inspectorevaltask.html', 'eval:inspectorevaltask:eval', '1', 'fa fa-eye', '7');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('165', '100', '其他评价', 'modules/eval/otherevaltask.html', 'eval:otherevaltask:eval', '1', 'fa fa-check-circle', '8');
 
 create table tb_student_eval_record
 (
    id                   bigint not null AUTO_INCREMENT,
-   sub_task_id          bigint COMMENT '学生评级ID',
+   sub_task_id          bigint COMMENT '学生评价ID',
    user_id              bigint COMMENT '用户ID',
    score                double COMMENT '分数',
    update_time          datetime COMMENT '修改时间',
@@ -299,11 +300,34 @@ create table tb_student_eval_record
 create table tb_colleague_eval_record
 (
    id                   bigint not null AUTO_INCREMENT,
-   sub_task_id          bigint COMMENT '同行评级ID',
+   sub_task_id          bigint COMMENT '同行评价ID',
    user_id              bigint COMMENT '用户ID',
-   detail               varchar(500) comment '记录每个评价选项以及分数，格式：taskItemID:taskItemScore,taskItemID1:taskItemScore1',
-   score                double comment '汇总分数',
+   detail               varchar(500) COMMENT '记录每个评价选项以及分数，格式：taskItemID:taskItemScore,taskItemID1:taskItemScore1',
+   score                double COMMENT '汇总分数',
    update_time          datetime COMMENT '更新时间',
    remark               varchar(500) COMMENT '备注',
    primary key (id)
 )ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='同行评价记录';
+
+create table tb_inspector_eval_record
+(
+   id                   bigint not null AUTO_INCREMENT,
+   sub_task_id          bigint  COMMENT '督导评价ID',
+   user_id              bigint COMMENT '用户ID',
+   detail               varchar(500) COMMENT '记录每个评价选项以及分数，格式：taskItemID:taskItemScore,taskItemID1:taskItemScore1',
+   score                double COMMENT '汇总分数',
+   update_time          datetime COMMENT '更新时间',
+   remark               varchar(500) COMMENT '备注',
+   primary key (id)
+)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='督导评价记录';
+
+create table tb_other_eval_record
+(
+   id                   bigint not null AUTO_INCREMENT,
+   sub_task_id          bigint COMMENT '其他评价ID',
+   user_id              bigint COMMENT '用户ID',
+   score                double COMMENT '汇总分数',
+   update_time          datetime COMMENT '更新时间',
+   remark               varchar(500) COMMENT '备注',
+   primary key (id)
+)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='其他评价记录';

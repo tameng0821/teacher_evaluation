@@ -44,4 +44,25 @@ public class InspectorEvalTaskEntity implements Serializable {
     @TableField(exist = false)
     private String userName;
 
+    /**
+     * 任务所属部门ID
+     */
+    @TableField(exist = false)
+    private Long deptId;
+    /**
+     * 部门名称
+     */
+    @TableField(exist = false)
+    private String deptName;
+    /**
+     * 评价任务名称
+     */
+    @TableField(exist = false)
+    private String taskName;
+    /**
+     * 评价任务创建时间
+     */
+    @TableField(exist = false)
+    private String taskCreateTime;
+
 }

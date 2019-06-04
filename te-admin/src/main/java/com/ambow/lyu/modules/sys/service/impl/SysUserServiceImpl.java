@@ -110,7 +110,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUserEntity> i
         List<Long> deptIds = sysDeptService.getSubDeptIdList(deptId);
 
         for (Long subDeptId : deptIds) {
-            result.addAll(this.list(new QueryWrapper<SysUserEntity>().eq("dept_id", subDeptId)));
+            result.addAll(this.list(new QueryWrapper<SysUserEntity>().select("user_id","username","name").eq("dept_id", subDeptId)));
         }
         return result;
     }

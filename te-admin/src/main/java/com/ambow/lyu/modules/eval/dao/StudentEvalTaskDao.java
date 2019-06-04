@@ -1,7 +1,6 @@
 package com.ambow.lyu.modules.eval.dao;
 
 import com.ambow.lyu.modules.eval.entity.StudentEvalTaskEntity;
-import com.ambow.lyu.modules.eval.vo.StudentEvalTaskVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;
@@ -23,8 +22,9 @@ public interface StudentEvalTaskDao extends BaseMapper<StudentEvalTaskEntity> {
      *
      * @param page           page 翻页对象，可以作为 xml 参数直接使用，传递参数 Page 即自动分页
      * @param evalTaskStatus 评价任务状态
+     * @param sql_filter 拼接SQL
      * @return 查询结果
      */
-    List<StudentEvalTaskVo> pageGetStudentList(IPage<StudentEvalTaskVo> page, Integer evalTaskStatus);
+    List<StudentEvalTaskEntity> pageGetList(IPage<StudentEvalTaskEntity> page, Integer evalTaskStatus, String sql_filter);
 
 }

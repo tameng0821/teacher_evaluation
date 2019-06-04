@@ -6,44 +6,159 @@
 </head>
 <body>
 <div id="rrapp" v-cloak>
-    <div v-show="showList">
+    <div v-show="showList" id="container_grid">
         <div class="grid-btn">
-			<#if shiro.hasPermission("eval:otherevaltask:save")>
-            <a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
-			</#if>
-			<#if shiro.hasPermission("eval:otherevaltask:update")>
-            <a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
-			</#if>
-			<#if shiro.hasPermission("eval:otherevaltask:delete")>
-            <a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+			<#if shiro.hasPermission("eval:otherevaltask:info")>
+            <a class="btn btn-primary" @click="queryRecordList"><i class="fa fa-pencil-square-o"></i>&nbsp;选择评价任务进行学生评价</a>
 			</#if>
         </div>
         <table id="jqGrid"></table>
         <div id="jqGridPager"></div>
     </div>
 
-    <div v-show="!showList" class="panel panel-default">
-        <div class="panel-heading">{{title}}</div>
-        <form class="form-horizontal">
-														                    <div class="form-group">
-                        <div class="col-sm-2 control-label">任务ID</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="otherEvalTask.taskId" placeholder="任务ID"/>
-                        </div>
-                    </div>
-											                    <div class="form-group">
-                        <div class="col-sm-2 control-label">评价占比</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="otherEvalTask.percentage" placeholder="评价占比"/>
-                        </div>
-                    </div>
-							            <div class="form-group">
-                <div class="col-sm-2 control-label"></div>
-                <input type="button" class="btn btn-primary" id="btnSaveOrUpdate" data-loading-text="保存中..." @click="saveOrUpdate" value="确定"/>
-                &nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="reload" value="返回"/>
-            </div>
-        </form>
+<div v-show="showRecordList">
+    <div class="grid-btn">
     </div>
+    <table id="recordListJqGrid"></table>
+    <div id="recordListJqGridPager"></div>
+</div>
+
+<div v-show="showRecordAdd" class="panel panel-default">
+    <div class="panel-heading">{{title}}</div>
+    <form class="form-horizontal">
+        <div class="form-group">
+            <div class="col-sm-2 control-label"></div>
+            <input type="button" class="btn btn-primary" id="btnSave" data-loading-text="保存中..." @click="saveRecord" value="确定"/>
+            &nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="recordListReload" value="返回"/>
+        </div>
+    </form>
+</div>
+
+<div v-show="showRecordImport" class="panel panel-default">
+    <div class="panel-heading">{{title}}</div>
+    <form class="form-horizontal" style="width: 800px;">
+        <div class="form-group">
+            <div class="col-sm-2 control-label">Excel文件</div>
+            <div class="col-sm-10">
+                <input type="file" name="xlsRecordFile" id="xlsRecordFile" class="file-loading">
+            </div>
+        </div>
+        <div class="form-group" v-show="showRecordImportResult">
+            <div class="col-sm-2 control-label">异常结果</div>
+            <div class="col-sm-10">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>姓名</th>
+                        <th>成绩</th>
+                        <th>原因</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="warning" v-for="(item, index) in importRecordErrorList" :key="index">
+                        <td>{{item.name}}</td>
+                        <td>{{item.score}}</td>
+                        <td>{{item.reason}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="form-group" v-show="showRecordImportResult">
+            <div class="col-sm-2 control-label">成功结果</div>
+            <div class="col-sm-10">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>姓名</th>
+                        <th>成绩</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="success"v-for="(item, index) in importRecordSuccessList" :key="index">
+                        <td>{{item.name}}</td>
+                        <td>{{item.score}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-2 control-label"></div>
+            <input type="button" class="btn btn-warning" @click="recordListReload" value="返回"/>
+        </div>
+    </form>
+</div>
+
+<div v-show="showRecordUpdate" class="panel panel-default">
+    <div class="panel-heading">{{title}}</div>
+    <form class="form-horizontal">
+        <div class="form-group">
+            <div class="col-sm-2 control-label"></div>
+            <input type="button" class="btn btn-primary" id="btnUpdate" data-loading-text="保存中..." @click="updateRecord" value="确定"/>
+            &nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="recordListReload" value="返回"/>
+        </div>
+    </form>
+</div>
+
+<!-- 选择用户 -->
+<div id="userLayer" style="display: none;padding:10px;">
+    <div class="row">
+        <div class="col-sm-4">
+            选择部门
+        </div>
+        <div class="col-sm-8">
+            选择具体执行人
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+            <ul id="deptTree1" class="ztree"></ul>
+        </div>
+        <div class="col-sm-8">
+            <div class="row">
+                <div class="col-sm-9">
+                    <div class="input-group">
+                        <div class="input-group-addon">姓名</div>
+                        <input type="text" class="form-control" @change="findUser" v-model="layer.qName" placeholder="输入姓名"/>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <input type="button" class="btn btn-primary" @click="findUser" value="搜索"/>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <table class="table table-fixed">
+                    <thead>
+                    <tr>
+                        <th class="col-sm-6">账号</th>
+                        <th class="col-sm-6">姓名</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(user,index) in layer.userList" @click="layerChooseUser(index)">
+                        <td class="col-sm-6">{{ user.username }}</td>
+                        <td class="col-sm-6">{{ user.name }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="form-inline">
+                <div class="input-group">
+                    <div class="input-group-addon">选择结果：</div>
+                    <div class="input-group-addon">账号</div>
+                    <input type="text" class="form-control" v-model="layer.chooseUser.username" readonly/>
+                    <div class="input-group-addon">姓名</div>
+                    <input type="text" class="form-control" v-model="layer.chooseUser.name" readonly/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 
 <script src="${request.contextPath}/statics/js/modules/eval/otherevaltask.js?_${.now?long}"></script>

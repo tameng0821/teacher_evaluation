@@ -10,7 +10,18 @@
         <result property="deptId" column="dept_id"/>
         <result property="userId" column="user_id"/>
         <result property="percentage" column="percentage"/>
+        <result property="taskName" column="taskName"/>
+        <result property="taskCreateTime" column="taskCreateTime"/>
     </resultMap>
+
+    <select id="pageGetList" resultMap="colleagueEvalTaskMap">
+        SELECT st.*,t.name as taskName ,t.create_time as taskCreateTime
+        FROM tb_colleague_eval_task st left join tb_eval_task t on st.task_id = t.id
+        where t.status = #{evalTaskStatus,jdbcType=TINYINT}
+        <if test="sql_filter != null">
+            and ${sql_filter}
+        </if>
+    </select>
 
 
 </mapper>

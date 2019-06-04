@@ -8,7 +8,18 @@
         <result property="id" column="id"/>
         <result property="taskId" column="task_id"/>
         <result property="percentage" column="percentage"/>
+        <result property="deptId" column="deptId"/>
+        <result property="taskName" column="taskName"/>
+        <result property="taskCreateTime" column="taskCreateTime"/>
     </resultMap>
+    <select id="pageGetList" resultMap="otherEvalTaskMap">
+        SELECT st.*,t.name as taskName ,t.create_time as taskCreateTime,t.dept_id as deptId
+        FROM tb_other_eval_task st left join tb_eval_task t on st.task_id = t.id
+        where t.status = #{evalTaskStatus,jdbcType=TINYINT}
+        <if test="sql_filter != null">
+            and ${sql_filter}
+        </if>
+    </select>
 
 
 </mapper>

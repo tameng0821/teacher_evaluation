@@ -55,5 +55,16 @@ public class ColleagueEvalTaskEntity implements Serializable {
     @TableField(exist = false)
     private String userName;
 
+    /**
+     * 评价任务名称
+     */
+    @TableField(exist = false)
+    private String taskName;
+    /**
+     * 评价任务创建时间
+     */
+    @TableField(exist = false)
+    private String taskCreateTime;
+
 
 }
