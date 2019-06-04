@@ -29,7 +29,7 @@ public class ExcelUtils {
 
     public static void main(String[] args) throws IOException {
         File file = new File("C:\\Users\\w\\Documents\\项目文档\\教师评价系统_项目文档目录\\01产品需求文档\\学生评价导入样例表（教务处导出）.xls");
-        Map<String, Double> resultScore = readStudentEvalScore(file);
+        Map<String, String> resultScore = readStudentEvalScore(file);
         int i = 10;
         int j = 10;
         int n = 0;
@@ -52,7 +52,7 @@ public class ExcelUtils {
      * @param file 学生评价导入样例表（教务处导出）.xls
      * @return Map<教师, 分数>
      */
-    public static Map<String, Double> readStudentEvalScore(File file) throws IOException {
+    public static Map<String, String> readStudentEvalScore(File file) throws IOException {
         return readStudentEvalScore(new FileInputStream(file),file.getName());
     }
 
@@ -63,16 +63,16 @@ public class ExcelUtils {
      * @param fileName 文件名
      * @return Map<教师, 分数>
      */
-    public static Map<String, Double> readStudentEvalScore(InputStream is, String fileName) throws IOException {
+    public static Map<String, String> readStudentEvalScore(InputStream is, String fileName) throws IOException {
         List<Map<Integer, String>> result = readExcel(is,fileName, 0);
 
-        Map<String, Double> score = new HashMap<>();
+        Map<String, String> score = new HashMap<>();
         boolean isStart = false;
         int nameIndex = 1;
         int scoreIndex = 6;
         for (Map<Integer, String> row : result) {
             if (isStart) {
-                score.put(row.get(nameIndex), Double.valueOf(row.get(scoreIndex)));
+                score.put(row.get(nameIndex).trim(), row.get(scoreIndex).trim());
             }
 
             if (row.values().contains("教师姓名") && row.values().contains("平均分")) {

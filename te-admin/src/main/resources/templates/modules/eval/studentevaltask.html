@@ -66,16 +66,56 @@
 </div>
 <div v-show="showRecordImport" class="panel panel-default">
     <div class="panel-heading">{{title}}</div>
-    <form class="form-horizontal">
+    <form class="form-horizontal" style="width: 800px;">
         <div class="form-group">
-            <div class="file-loading">
-                <input id="xlsRecordFileInput" type="file" class="file loading" data-theme="fas">
+            <div class="col-sm-2 control-label">Excel文件</div>
+            <div class="col-sm-10">
+                <input type="file" name="xlsRecordFile" id="xlsRecordFile" class="file-loading">
+            </div>
+        </div>
+        <div class="form-group" v-show="showRecordImportResult">
+            <div class="col-sm-2 control-label">异常结果</div>
+            <div class="col-sm-10">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>姓名</th>
+                        <th>成绩</th>
+                        <th>原因</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="warning" v-for="(item, index) in importRecordErrorList" :key="index">
+                        <td>{{item.name}}</td>
+                        <td>{{item.score}}</td>
+                        <td>{{item.reason}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="form-group" v-show="showRecordImportResult">
+            <div class="col-sm-2 control-label">成功结果</div>
+            <div class="col-sm-10">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>姓名</th>
+                        <th>成绩</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="success"v-for="(item, index) in importRecordSuccessList" :key="index">
+                        <td>{{item.name}}</td>
+                        <td>{{item.score}}</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
         <div class="form-group">
             <div class="col-sm-2 control-label"></div>
-            <input type="button" class="btn btn-primary" id="btnImport" data-loading-text="提交中..." @click="importRecord" value="确定"/>
-            &nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="recordListReload" value="返回"/>
+            <input type="button" class="btn btn-warning" @click="recordListReload" value="返回"/>
         </div>
     </form>
 </div>

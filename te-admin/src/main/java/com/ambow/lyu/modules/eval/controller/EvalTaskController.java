@@ -45,7 +45,7 @@ public class EvalTaskController {
     @RequestMapping("/info/{id}")
     @RequiresPermissions("eval:evaltask:info")
     public Response info(@PathVariable("id") Long id) {
-        EvalTaskEntity evalTask = evalTaskService.getById(id);
+        EvalTaskEntity evalTask = evalTaskService.findById(id);
 
         return Response.ok().put("evalTask", evalTask);
     }
@@ -59,7 +59,7 @@ public class EvalTaskController {
 
         ValidatorUtils.validateEntity(evalTask);
 
-        evalTaskService.save(evalTask);
+        evalTaskService.add(evalTask);
 
         return Response.ok();
     }
@@ -77,7 +77,7 @@ public class EvalTaskController {
             throw new TeException("只有处于新建状态的评价任务才能修改！");
         }
 
-        evalTaskService.updateById(evalTask);
+        evalTaskService.modifyById(evalTask);
 
         return Response.ok();
     }

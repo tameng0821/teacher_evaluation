@@ -102,7 +102,7 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
     }
 
     @Override
-    public EvalTaskEntity getById(Serializable id) {
+    public EvalTaskEntity findById(Serializable id) {
 
         EvalTaskEntity evalTask = super.getById(id);
 
@@ -164,7 +164,7 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean save(EvalTaskEntity entity) {
+    public boolean add(EvalTaskEntity entity) {
         //保存评价任务
         entity.setCreateTime(new Date());
         entity.setStatus(EvalTaskEntity.Status.NEW.value());
@@ -219,7 +219,7 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateById(EvalTaskEntity viewTask) {
+    public boolean modifyById(EvalTaskEntity viewTask) {
         EvalTaskEntity dataTask = super.getById(viewTask.getId());
 
         //学生评价

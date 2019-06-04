@@ -74,7 +74,7 @@ let recordJqGrid =  {
 //保存获取的部门列表(树状结构数据)
 let depTreeData;
 //保存获取的用户列表
-var userListData;
+let userListData;
 
 let vm = new Vue({
 	el:'#rrapp',
@@ -83,6 +83,7 @@ let vm = new Vue({
         showRecordList: false,
         showRecordAdd:false,
         showRecordImport:false,
+        showRecordImportResult:false,
         showRecordUpdate:false,
 
 		title: null,
@@ -92,6 +93,9 @@ let vm = new Vue({
 
         studentEvalTask: {},
         studentEvalRecord:{},
+
+        importRecordSuccessList:{},
+        importRecordErrorList:{},
 
         //弹窗添加人员时使用
         layer: {
@@ -144,17 +148,33 @@ let vm = new Vue({
             vm.studentEvalRecord.subTaskId = vm.subTaskId;
         },
         gotoImportRecord:function(){
+            //学生评价批量导入记录
+            let uploadUrl = baseURL + "eval/studentevalrecord/import/"+vm.subTaskId;
+            $("#xlsRecordFile").fileinput({
+                language: 'zh', //设置语言
+                uploadUrl: uploadUrl, //上传的地址
+                enctype : 'multipart/form-data',
+                maxFileCount:1,//只允许上传一个文件
+                autoReplace: true,//是否自动替换
+                uploadAsync: true,//异步上传
+                showRemove : false,//是否显示移除按钮
+                showCancel: false,//是否显示取消按钮
+                showClose: false,//是否显示关闭按钮
+                allowedFileExtensions: ['xls', 'xlsx'],//支持的文件拓展名
+                errorCloseButton: ''//隐藏错误提示关闭按钮
+            });
+            $("#xlsRecordFile").on("fileuploaded", function(event, data, previewId, index) {
+                console.log(data.response);
+               vm.importRecordSuccessList=data.response.successList;
+               vm.importRecordErrorList=data.response.errorList;
+               Vue.set(vm.importRecordSuccessList);
+               Vue.set(vm.importRecordErrorList);
+                vm.showRecordImportResult = true;
+            });
+
             vm.switchRecordImport();
             vm.title = "批量导入";
 
-            let uploadUrl = baseURL + "eval/studentevalrecord/import/"+vm.subTaskId;
-            //0.初始化fileinput
-            $("#xlsRecordFileInput").fileinput({
-                language: 'zh', //设置语言
-                uploadUrl: uploadUrl, //上传的地址
-                allowedFileExtensions: ['xls', 'xlsx'],//接收的文件后缀
-                uploadExtraData: {kvId: '10'}
-            });
         },
         gotoUpdateRecord: function (event) {
             let id = getRecordListSelectedRow();
@@ -309,6 +329,7 @@ let vm = new Vue({
             vm.showRecordList = false;
             vm.showRecordAdd = false;
             vm.showRecordImport = false;
+            vm.showRecordImportResult = false;
             vm.showRecordUpdate = false;
         },
         switchTaskList: function () {
@@ -316,6 +337,7 @@ let vm = new Vue({
             vm.showRecordList = true;
             vm.showRecordAdd = false;
             vm.showRecordImport = false;
+            vm.showRecordImportResult = false;
             vm.showRecordUpdate = false;
         },
         switchRecordAdd: function () {
@@ -323,6 +345,7 @@ let vm = new Vue({
             vm.showRecordList = false;
             vm.showRecordAdd = true;
             vm.showRecordImport = false;
+            vm.showRecordImportResult = false;
             vm.showRecordUpdate = false;
         },
         switchRecordImport: function () {
@@ -330,6 +353,7 @@ let vm = new Vue({
             vm.showRecordList = false;
             vm.showRecordAdd = false;
             vm.showRecordImport = true;
+            vm.showRecordImportResult = false;
             vm.showRecordUpdate = false;
         },
         switchRecordUpdate: function () {
@@ -337,6 +361,7 @@ let vm = new Vue({
             vm.showRecordList = false;
             vm.showRecordAdd = false;
             vm.showRecordImport = false;
+            vm.showRecordImportResult = false;
             vm.showRecordUpdate = true;
         }
 	}

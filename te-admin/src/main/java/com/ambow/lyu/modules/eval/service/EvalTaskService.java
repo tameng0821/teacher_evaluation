@@ -44,5 +44,24 @@ public interface EvalTaskService extends IService<EvalTaskEntity> {
      */
     void deleteById(Collection<? extends Serializable> idList);
 
+    /**
+     * 根据ID查询评价任务，包含评价子任务详情
+     * @param id 评价任务ID
+     * @return 评价任务
+     */
+    EvalTaskEntity findById(Serializable id);
+    /**
+     * 添加评价任务，包含评价子任务详情
+     * @param entity 评价任务ID
+     * @return 是否成功
+     */
+    boolean add(EvalTaskEntity entity);
+    /**
+     * 修改评价任务，包含评价子任务详情
+     * @param viewTask 评价任务ID
+     * @return 是否成功
+     */
+    boolean modifyById(EvalTaskEntity viewTask);
+
 }
 

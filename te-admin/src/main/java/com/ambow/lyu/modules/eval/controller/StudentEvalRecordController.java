@@ -9,6 +9,7 @@ import com.ambow.lyu.common.validator.ValidatorUtils;
 import com.ambow.lyu.common.vo.Response;
 import com.ambow.lyu.modules.eval.entity.StudentEvalRecordEntity;
 import com.ambow.lyu.modules.eval.service.StudentEvalRecordService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Pattern;
 
 
 /**
@@ -60,7 +59,7 @@ public class StudentEvalRecordController {
     @RequestMapping("/info/{id}")
     @RequiresPermissions("eval:studentevaltask:eval")
     public Response info(@PathVariable("id") Long id) {
-        StudentEvalRecordEntity studentEvalRecord = studentEvalRecordService.getById(id);
+        StudentEvalRecordEntity studentEvalRecord = studentEvalRecordService.findById(id);
 
         return Response.ok().put("studentEvalRecord", studentEvalRecord);
     }
@@ -71,7 +70,14 @@ public class StudentEvalRecordController {
     @RequestMapping("/save")
     @RequiresPermissions("eval:studentevaltask:eval")
     public Response save(@RequestBody StudentEvalRecordEntity studentEvalRecord) {
+        //数据校验
         ValidatorUtils.validateEntity(studentEvalRecord);
+        //数据是否存在校验
+        int sum = studentEvalRecordService.count( new QueryWrapper<StudentEvalRecordEntity>()
+                .eq("sub_task_id",studentEvalRecord.getSubTaskId()).eq("user_id",studentEvalRecord.getUserId()));
+        if(sum != 0){
+            throw new TeException("该教师学生记录已被添加！！！");
+        }
 
         studentEvalRecord.setUpdateTime(new Date());
 
@@ -83,18 +89,50 @@ public class StudentEvalRecordController {
     /**
      * 文件上传导入
      */
-    @RequestMapping(value = "/import/{subTaskId}",method=RequestMethod.GET,consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/import/{subTaskId}",method=RequestMethod.POST
+            ,consumes = MediaType.MULTIPART_FORM_DATA_VALUE,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @RequiresPermissions("eval:studentevaltask:eval")
-    public Response fileImport(@RequestParam("file") MultipartFile file) {
-        LOGGER.info(file.getName());
-        Map<String,Double> score;
+    public Response fileImport(@PathVariable("subTaskId") Long subTaskId,@RequestParam("xlsRecordFile") MultipartFile xlsRecordFile) {
+        LOGGER.info("学生评价任务ID:"+subTaskId+"\t文件名:"+xlsRecordFile.getOriginalFilename());
         try {
-            score = ExcelUtils.readStudentEvalScore(file.getInputStream(),file.getName());
-        } catch (IOException e) {
-            throw new TeException("excel文件异常");
+            Map<String,String> score;
+            score = ExcelUtils.readStudentEvalScore(xlsRecordFile.getInputStream(),xlsRecordFile.getOriginalFilename());
+            LOGGER.info("上传成绩:"+ JSON.toJSONString(score));
+            Response response = Response.ok();
+            List<Map<String,String>> successList = new ArrayList<>();
+            List<Map<String,String>> errorList = new ArrayList<>();
+            for(String name : score.keySet()){
+                Map<String,String> itemResult = new HashMap<>(3);
+                itemResult.put("name",name);
+                itemResult.put("score",score.get(name));
+                try{
+                    if(!Pattern.matches("^(100|([1-9]?\\d))([.]\\d*)?$",score.get(name))){
+                        throw new TeException("成绩只能为浮点数或者正整数");
+                    }
+                    Double s = Double.valueOf(score.get(name));
+                    boolean result = studentEvalRecordService.add(subTaskId,name,s);
+                    if(result){
+                        successList.add(itemResult);
+                    }else {
+                        throw new TeException("数据库异常，添加失败");
+                    }
+                }catch (NumberFormatException e){
+                    itemResult.put("reason","成绩只能为浮点数或者正整数");
+                    errorList.add(itemResult);
+                }catch (Exception ex){
+                    itemResult.put("reason",ex.getMessage());
+                    errorList.add(itemResult);
+                }
+            }
+            response.put("successList",successList);
+            response.put("errorList",errorList);
+            return response;
+        } catch (Exception e) {
+            //捕获所有的异常，使用bootstrap-fileinput需要返回error字段
+            String error = e.getMessage();
+            return Response.error().put("error",error);
         }
-        LOGGER.info("上传成绩:"+ JSON.toJSONString(score));
-        return Response.ok();
+
     }
 
     /**
