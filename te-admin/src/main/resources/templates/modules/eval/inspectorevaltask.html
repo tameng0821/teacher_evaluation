@@ -8,7 +8,7 @@
 <div id="rrapp" v-cloak>
     <div v-show="showList" id="container_grid">
         <div class="grid-btn">
-			<#if shiro.hasPermission("eval:inspectorevaltask:info")>
+			<#if shiro.hasPermission("eval:inspectorevaltask:eval")>
             <a class="btn btn-primary" @click="queryRecordList"><i class="fa fa-pencil-square-o"></i>&nbsp;选择评价任务进行学生评价</a>
 			</#if>
         </div>

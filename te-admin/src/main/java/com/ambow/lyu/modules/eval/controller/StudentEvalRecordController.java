@@ -1,6 +1,5 @@
 package com.ambow.lyu.modules.eval.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.common.utils.Constant;
 import com.ambow.lyu.common.utils.ExcelUtils;
@@ -93,11 +92,9 @@ public class StudentEvalRecordController {
             ,consumes = MediaType.MULTIPART_FORM_DATA_VALUE,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @RequiresPermissions("eval:studentevaltask:eval")
     public Response fileImport(@PathVariable("subTaskId") Long subTaskId,@RequestParam("xlsRecordFile") MultipartFile xlsRecordFile) {
-        LOGGER.info("学生评价任务ID:"+subTaskId+"\t文件名:"+xlsRecordFile.getOriginalFilename());
         try {
             Map<String,String> score;
             score = ExcelUtils.readStudentEvalScore(xlsRecordFile.getInputStream(),xlsRecordFile.getOriginalFilename());
-            LOGGER.info("上传成绩:"+ JSON.toJSONString(score));
             Response response = Response.ok();
             List<Map<String,String>> successList = new ArrayList<>();
             List<Map<String,String>> errorList = new ArrayList<>();
