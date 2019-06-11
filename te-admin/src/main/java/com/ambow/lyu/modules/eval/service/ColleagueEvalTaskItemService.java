@@ -4,6 +4,7 @@ import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.modules.eval.entity.ColleagueEvalTaskItemEntity;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,5 +17,7 @@ import java.util.Map;
 public interface ColleagueEvalTaskItemService extends IService<ColleagueEvalTaskItemEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    List<ColleagueEvalTaskItemEntity> selectByTaskId(Long taskId);
 }
 

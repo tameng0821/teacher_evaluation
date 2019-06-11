@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 
@@ -25,5 +26,11 @@ public class InspectorEvalTaskItemServiceImpl extends ServiceImpl<InspectorEvalT
 
         return new PageUtils(page);
     }
+
+    @Override
+    public List<InspectorEvalTaskItemEntity> selectByTaskId(Long taskId) {
+        return super.list(new QueryWrapper<InspectorEvalTaskItemEntity>().eq("task_id",taskId));
+    }
+
 
 }

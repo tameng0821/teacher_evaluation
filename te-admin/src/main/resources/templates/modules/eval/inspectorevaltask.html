@@ -40,7 +40,17 @@
         <div class="form-group">
             <div class="col-sm-2 control-label">Excel文件</div>
             <div class="col-sm-10">
-                <input type="file" name="xlsRecordFile" id="xlsRecordFile" class="file-loading">
+                <div class="row">
+                    <div style="text-align:right;padding:5px">
+                        <a :href="'${request.contextPath}/template/inspector/'+taskId" target="_blank">
+                            <img style="width: 20px" alt="督导评价导入-模板" src="${request.contextPath}/statics/img/ico_excel.jpg" />
+                            <span style="font-size:larger;font-weight:200;color:red">督导评价导入-模板.xls</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <input type="file" name="xlsRecordFile" id="xlsRecordFile" class="file-loading">
+                </div>
             </div>
         </div>
         <div class="form-group" v-show="showRecordImportResult">

@@ -89,6 +89,7 @@ let vm = new Vue({
 
 		title: null,
 
+        taskId:null,
         subTaskId:null,
         evalTaskDeptId:null,
 
@@ -124,6 +125,7 @@ let vm = new Vue({
 
             let rowData = $("#jqGrid").getRowData(id);
             vm.title = '评价任务 >> '+rowData.name;
+            vm.taskId = rowData.taskId;
             vm.subTaskId = rowData.id;
             vm.evalTaskDeptId = rowData.deptId;
 

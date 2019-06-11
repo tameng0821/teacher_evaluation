@@ -28,22 +28,25 @@ public class ExcelUtils {
     public static final String OFFICE_EXCEL_XLSX = "xlsx";
 
     public static void main(String[] args) throws IOException {
-        File file = new File("C:\\Users\\w\\Documents\\项目文档\\教师评价系统_项目文档目录\\01产品需求文档\\学生评价导入样例表（教务处导出）.xls");
-        Map<String, String> resultScore = readStudentEvalScore(file);
-        int i = 10;
-        int j = 10;
-        int n = 0;
-        for (String name : resultScore.keySet()) {
 
-            String pinyin = HanyuPinyinUtils.toHanyuPinyin(name);
-            System.out.println("INSERT INTO `sys_user` (`user_id`, `username`, `password`, `salt`,`name`,`email`, `mobile`, `status`, `dept_id`, `create_time`) VALUES (" + i + "," +
-                    " '" + pinyin + "', 'f854a071e5d3747cbfb8495c0666c75636fc53c57428c6e3df7d5ffb3904ea77', 'LBmXDCbL20S0aGwCAuJa'," +
-                    " '" + name + "', NULL, NULL, 1, " + (n % 5 + 4) + ", '2019-05-23 10:21:28');");
-            System.out.println("INSERT INTO `sys_user_role` (`id`, `user_id`, `role_id`) VALUES (" + j + ", " + i + ", 1);");
-            i++;
-            j++;
-            n++;
-        }
+        System.out.println("姓名".getBytes().length);
+
+//        File file = new File("C:\\Users\\w\\Documents\\项目文档\\教师评价系统_项目文档目录\\01产品需求文档\\学生评价导入样例表（教务处导出）.xls");
+//        Map<String, String> resultScore = readStudentEvalScore(file);
+//        int i = 10;
+//        int j = 10;
+//        int n = 0;
+//        for (String name : resultScore.keySet()) {
+//
+//            String pinyin = HanyuPinyinUtils.toHanyuPinyin(name);
+//            System.out.println("INSERT INTO `sys_user` (`user_id`, `username`, `password`, `salt`,`name`,`email`, `mobile`, `status`, `dept_id`, `create_time`) VALUES (" + i + "," +
+//                    " '" + pinyin + "', 'f854a071e5d3747cbfb8495c0666c75636fc53c57428c6e3df7d5ffb3904ea77', 'LBmXDCbL20S0aGwCAuJa'," +
+//                    " '" + name + "', NULL, NULL, 1, " + (n % 5 + 4) + ", '2019-05-23 10:21:28');");
+//            System.out.println("INSERT INTO `sys_user_role` (`id`, `user_id`, `role_id`) VALUES (" + j + ", " + i + ", 1);");
+//            i++;
+//            j++;
+//            n++;
+//        }
     }
 
     /**
