@@ -25,12 +25,13 @@ public interface StudentEvalRecordService extends IService<StudentEvalRecordEnti
 
     /**
      * 添加一条记录
+     * @param taskId 评价任务ID
      * @param subTaskId  学生评价任务ID
      * @param name user姓名
      * @param score 分数
      * @return 是否成功
      */
-    boolean add(Long subTaskId,String name,Double score);
+    boolean add(Long taskId,Long subTaskId,String name,Double score);
 
     /**
      * 根据ID查找学生评价记录

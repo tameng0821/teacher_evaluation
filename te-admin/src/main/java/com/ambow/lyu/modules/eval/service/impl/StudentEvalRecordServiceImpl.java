@@ -7,10 +7,8 @@ import com.ambow.lyu.common.utils.Query;
 import com.ambow.lyu.modules.eval.dao.StudentEvalRecordDao;
 import com.ambow.lyu.modules.eval.entity.EvalTaskEntity;
 import com.ambow.lyu.modules.eval.entity.StudentEvalRecordEntity;
-import com.ambow.lyu.modules.eval.entity.StudentEvalTaskEntity;
 import com.ambow.lyu.modules.eval.service.EvalTaskService;
 import com.ambow.lyu.modules.eval.service.StudentEvalRecordService;
-import com.ambow.lyu.modules.eval.service.StudentEvalTaskService;
 import com.ambow.lyu.modules.sys.entity.SysUserEntity;
 import com.ambow.lyu.modules.sys.service.SysDeptService;
 import com.ambow.lyu.modules.sys.service.SysUserService;
@@ -32,8 +30,6 @@ public class StudentEvalRecordServiceImpl extends ServiceImpl<StudentEvalRecordD
     @Autowired
     private EvalTaskService evalTaskService;
     @Autowired
-    private StudentEvalTaskService studentEvalTaskService;
-    @Autowired
     private SysUserService sysUserService;
     @Autowired
     private SysDeptService sysDeptService;
@@ -41,23 +37,19 @@ public class StudentEvalRecordServiceImpl extends ServiceImpl<StudentEvalRecordD
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         Long subTaskId = (Long) params.get(Constant.SUB_TASK_ID);
+        String name = (String) params.get("name");
 
-        IPage<StudentEvalRecordEntity> page = this.page(
-                new Query<StudentEvalRecordEntity>().getPage(params),
-                new QueryWrapper<StudentEvalRecordEntity>()
-                        .eq(subTaskId != null, Constant.SUB_TASK_ID, subTaskId)
-        );
+        IPage<StudentEvalRecordEntity> page = new Query<StudentEvalRecordEntity>().getPage(params);
 
-        for (StudentEvalRecordEntity record : page.getRecords()) {
-            SysUserEntity userEntity = sysUserService.getById(record.getUserId());
-            record.setUserName(userEntity.getName());
-        }
+        List<StudentEvalRecordEntity> list = baseMapper.pageGetList(page,
+                subTaskId,name, (String) params.get(Constant.SQL_FILTER));
 
+        page.setRecords(list);
         return new PageUtils(page);
     }
 
     @Override
-    public boolean add(Long subTaskId,String name, Double score) {
+    public boolean add(Long taskId,Long subTaskId,String name, Double score) {
 
         if(subTaskId == null){
             throw new TeException("评价任务异常，未找到正确的评价任务！");
@@ -70,11 +62,10 @@ public class StudentEvalRecordServiceImpl extends ServiceImpl<StudentEvalRecordD
         }
 
         //根据subTask获得任务所属部门
-        StudentEvalTaskEntity studentEvalTaskEntity = studentEvalTaskService.getById(subTaskId);
-        if(studentEvalTaskEntity == null){
+        EvalTaskEntity evalTaskEntity = evalTaskService.getById(taskId);
+        if(evalTaskEntity == null){
             throw new TeException("无效的评价任务，请正确的使用系统！");
         }
-        EvalTaskEntity evalTaskEntity = evalTaskService.getById(studentEvalTaskEntity.getTaskId());
         List<Long> deptIds = sysDeptService.getSubDeptIdList(evalTaskEntity.getDeptId());
         deptIds.add(evalTaskEntity.getDeptId());
 

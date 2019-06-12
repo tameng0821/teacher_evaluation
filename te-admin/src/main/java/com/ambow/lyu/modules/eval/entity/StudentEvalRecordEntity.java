@@ -52,7 +52,7 @@ public class StudentEvalRecordEntity implements Serializable {
      */
     private String remark;
     /**
-     * 用户名
+     * 姓名
      */
     @TableField(exist = false)
     private String userName;

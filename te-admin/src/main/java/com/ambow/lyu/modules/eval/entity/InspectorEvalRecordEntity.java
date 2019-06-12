@@ -1,11 +1,14 @@
 package com.ambow.lyu.modules.eval.entity;
 
+import com.ambow.lyu.modules.eval.dto.EvalTaskItemScoreDto;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 督导评价记录
@@ -48,5 +51,17 @@ public class InspectorEvalRecordEntity implements Serializable {
 	 * 备注
 	 */
 	private String remark;
+
+	/**
+	 * 姓名
+	 */
+	@TableField(exist = false)
+	private String userName;
+
+	/**
+	 * 得分详情
+	 */
+	@TableField(exist = false)
+	private List<EvalTaskItemScoreDto> evalItemResults;
 
 }

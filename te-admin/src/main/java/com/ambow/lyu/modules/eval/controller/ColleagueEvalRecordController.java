@@ -1,15 +1,20 @@
 package com.ambow.lyu.modules.eval.controller;
 
+import com.ambow.lyu.common.utils.Constant;
 import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.common.validator.ValidatorUtils;
 import com.ambow.lyu.common.vo.Response;
+import com.ambow.lyu.modules.eval.dto.EvalTaskItemScoreDto;
 import com.ambow.lyu.modules.eval.entity.ColleagueEvalRecordEntity;
 import com.ambow.lyu.modules.eval.service.ColleagueEvalRecordService;
+import com.ambow.lyu.modules.sys.service.SysUserService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 
@@ -26,13 +31,18 @@ import java.util.Map;
 public class ColleagueEvalRecordController {
     @Autowired
     private ColleagueEvalRecordService colleagueEvalRecordService;
+    @Autowired
+    private SysUserService sysUserService;
 
     /**
      * 列表
      */
-    @RequestMapping("/list")
+    @RequestMapping("/list/{subTaskId}")
     @RequiresPermissions("eval:colleagueevaltask:eval")
-    public Response list(@RequestParam Map<String, Object> params){
+    public Response list(@PathVariable("subTaskId") Long subTaskId,@RequestParam Map<String, Object> params){
+
+        params.put(Constant.SUB_TASK_ID, subTaskId);
+
         PageUtils page = colleagueEvalRecordService.queryPage(params);
 
         return Response.ok().put("page", page);
@@ -47,6 +57,14 @@ public class ColleagueEvalRecordController {
     public Response info(@PathVariable("id") Long id){
         ColleagueEvalRecordEntity colleagueEvalRecord = colleagueEvalRecordService.getById(id);
 
+        //姓名
+        String name = sysUserService.getById(colleagueEvalRecord.getUserId()).getName();
+        colleagueEvalRecord.setUserName(name);
+
+        //分数细节
+        List<EvalTaskItemScoreDto> list = EvalTaskItemScoreDto.string2list(colleagueEvalRecord.getDetail());
+        colleagueEvalRecord.setEvalItemResults(list);
+
         return Response.ok().put("colleagueEvalRecord", colleagueEvalRecord);
     }
 
@@ -56,6 +74,10 @@ public class ColleagueEvalRecordController {
     @RequestMapping("/save")
     @RequiresPermissions("eval:colleagueevaltask:eval")
     public Response save(@RequestBody ColleagueEvalRecordEntity colleagueEvalRecord){
+
+        colleagueEvalRecord.setDetail(EvalTaskItemScoreDto.list2string(colleagueEvalRecord.getEvalItemResults()));
+        colleagueEvalRecord.setUpdateTime(new Date());
+
         colleagueEvalRecordService.save(colleagueEvalRecord);
 
         return Response.ok();

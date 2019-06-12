@@ -11,7 +11,20 @@
         <result property="score" column="score"/>
         <result property="updateTime" column="update_time"/>
         <result property="remark" column="remark"/>
+        <result property="userName" column="name"/>
     </resultMap>
+
+    <select id="pageGetList" resultMap="studentEvalRecordMap">
+        SELECT t.*,u.name
+        FROM tb_student_eval_record t LEFT JOIN sys_user u ON t.user_id = u.user_id
+        WHERE t.sub_task_id = #{subTaskId,jdbcType=DECIMAL}
+        <if test="name != null">
+            AND u.name LIKE "%"#{name,jdbcType=VARCHAR}"%"
+        </if>
+        <if test="sql_filter != null">
+            AND ${sql_filter}
+        </if>
+    </select>
 
 
 </mapper>

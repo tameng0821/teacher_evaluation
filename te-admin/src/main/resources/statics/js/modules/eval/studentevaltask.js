@@ -80,6 +80,10 @@ let userListData;
 let vm = new Vue({
 	el:'#rrapp',
 	data:{
+        q:{
+            name: null
+        },
+
 		showList: true,
         showRecordList: false,
         showRecordAdd:false,
@@ -113,7 +117,7 @@ let vm = new Vue({
 		reload: function (event) {
 			vm.switchList();
 			let page = $("#jqGrid").jqGrid('getGridParam','page');
-			$("#jqGrid").jqGrid('setGridParam',{ 
+			$("#jqGrid").jqGrid('setGridParam',{
                 page:page
             }).trigger("reloadGrid");
 		},
@@ -138,6 +142,7 @@ let vm = new Vue({
             vm.switchTaskList();
             let page = $("#recordListJqGrid").jqGrid('getGridParam','page');
             $("#recordListJqGrid").jqGrid('setGridParam',{
+                postData:{'name': vm.q.name},
                 page:page
             }).trigger("reloadGrid");
         },
@@ -152,7 +157,7 @@ let vm = new Vue({
         },
         gotoImportRecord:function(){
             //学生评价批量导入记录
-            let uploadUrl = baseURL + "eval/studentevalrecord/import/"+vm.subTaskId;
+            let uploadUrl = baseURL + "eval/studentevalrecord/import/"+vm.taskId+"/"+vm.subTaskId;
             fileInputInit($("#xlsRecordFile"),uploadUrl,function (data) {
                 vm.importRecordSuccessList=data.response.successList;
                 vm.importRecordErrorList=data.response.errorList;
@@ -309,7 +314,7 @@ let vm = new Vue({
                         layer.msg("请从表格中选择一个人员！", {icon: 5});
                     } else {
                         vm.studentEvalRecord.userId = vm.layer.chooseUser.userId;
-                        vm.studentEvalRecord.userName = vm.layer.chooseUser.name;
+                        Vue.set(vm.studentEvalRecord,"userName",vm.layer.chooseUser.name);
                         layer.close(index);
                     }
                 });

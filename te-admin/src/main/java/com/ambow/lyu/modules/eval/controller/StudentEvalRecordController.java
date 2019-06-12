@@ -88,10 +88,10 @@ public class StudentEvalRecordController {
     /**
      * 文件上传导入
      */
-    @RequestMapping(value = "/import/{subTaskId}",method=RequestMethod.POST
+    @RequestMapping(value = "/import/{taskId}/{subTaskId}",method=RequestMethod.POST
             ,consumes = MediaType.MULTIPART_FORM_DATA_VALUE,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @RequiresPermissions("eval:studentevaltask:eval")
-    public Response fileImport(@PathVariable("subTaskId") Long subTaskId,@RequestParam("xlsRecordFile") MultipartFile xlsRecordFile) {
+    public Response fileImport(@PathVariable("taskId") Long taskId,@PathVariable("subTaskId") Long subTaskId,@RequestParam("xlsRecordFile") MultipartFile xlsRecordFile) {
         try {
             Map<String,String> score;
             score = ExcelUtils.readStudentEvalScore(xlsRecordFile.getInputStream(),xlsRecordFile.getOriginalFilename());
@@ -107,7 +107,7 @@ public class StudentEvalRecordController {
                         throw new TeException("成绩只能为浮点数或者正整数");
                     }
                     Double s = Double.valueOf(score.get(name));
-                    boolean result = studentEvalRecordService.add(subTaskId,name,s);
+                    boolean result = studentEvalRecordService.add(taskId,subTaskId,name,s);
                     if(result){
                         successList.add(itemResult);
                     }else {

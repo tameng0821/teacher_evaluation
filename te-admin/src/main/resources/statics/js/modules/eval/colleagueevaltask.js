@@ -80,6 +80,10 @@ let userListData;
 let vm = new Vue({
 	el:'#rrapp',
 	data:{
+        q:{
+            name: null
+        },
+
         showList: true,
         showRecordList: false,
         showRecordAdd:false,
@@ -88,11 +92,13 @@ let vm = new Vue({
         showRecordUpdate:false,
 
 		title: null,
-		colleagueEvalTask: {},
 
         taskId:null,
         subTaskId:null,
         evalTaskDeptId:null,
+
+        colleagueEvalTask: {},
+        colleagueEvalRecord:{},
 
         importRecordSuccessList:{},
         importRecordErrorList:{},
@@ -110,7 +116,7 @@ let vm = new Vue({
 		},
 		reload: function (event) {
 			vm.showList = true;
-			var page = $("#jqGrid").jqGrid('getGridParam','page');
+			let page = $("#jqGrid").jqGrid('getGridParam','page');
 			$("#jqGrid").jqGrid('setGridParam',{ 
                 page:page
             }).trigger("reloadGrid");
@@ -128,9 +134,7 @@ let vm = new Vue({
             vm.evalTaskDeptId = rowData.deptId;
 
             vm.switchTaskList();
-            //todo set record list query url
-            // ex.
-            // recordJqGrid.url = baseURL + 'eval/list/'+id;
+            recordJqGrid.url = baseURL + 'eval/colleagueevalrecord/list/'+id;
             recordJqGrid.width = $("#container_grid")[0].offsetWidth;
             $("#recordListJqGrid").jqGrid(recordJqGrid);
         },
@@ -138,12 +142,19 @@ let vm = new Vue({
             vm.switchTaskList();
             let page = $("#recordListJqGrid").jqGrid('getGridParam','page');
             $("#recordListJqGrid").jqGrid('setGridParam',{
+                postData:{'name': vm.q.name},
                 page:page
             }).trigger("reloadGrid");
         },
         gotoAddRecord: function() {
 
+            vm.colleagueEvalRecord = {
+                subTaskId: vm.subTaskId,
+                evalItemResults: []
+            };
+
             vm.getDept();
+            vm.getEvalItems();
 
             vm.switchRecordAdd();
             vm.title = "新增";
@@ -155,7 +166,9 @@ let vm = new Vue({
 
         },
         getRecordInfo: function(id){
-            //todo ajax findById
+            $.get(baseURL + "eval/colleagueevalrecord/info/"+id, function(r){
+                vm.studentEvalRecord = r.studentEvalRecord;
+            });
         },
         gotoUpdateRecord: function (event) {
             let id = getRecordListSelectedRow();
@@ -168,8 +181,43 @@ let vm = new Vue({
             vm.getRecordInfo(id)
         },
         saveRecord: function (event) {
+
+            if (isBlank(vm.colleagueEvalRecord.userId)) {
+                layer.msg("用户不能为空！", {icon: 5});
+                return false;
+            } else if (vm.colleagueEvalRecord.evalItemResults.filter(value => isBlank(value.score)).length !== 0) {
+                layer.msg("评价项目得分不能为空！", {icon: 5});
+                return false;
+            } else if (vm.colleagueEvalRecord.evalItemResults.filter(value => isNaN(value.score)).length !== 0) {
+                layer.msg("评价项目得分只能是数字！", {icon: 5});
+                return false;
+            } else if (vm.colleagueEvalRecord.evalItemResults.filter(value => value.score>100).length !== 0) {
+                layer.msg("评价项目得分不能超过100分！", {icon: 5});
+                return false;
+            } else if (vm.colleagueEvalRecord.evalItemResults.filter(value => value.score<0).length !== 0) {
+                layer.msg("评价项目得分不能低于0分！", {icon: 5});
+                return false;
+            }
+
             $('#btnSave').button('loading').delay(1000).queue(function() {
-                //todo ajax add
+                $.ajax({
+                    type: "POST",
+                    url: baseURL + "eval/colleagueevalrecord/save",
+                    contentType: "application/json",
+                    data: JSON.stringify(vm.colleagueEvalRecord),
+                    success: function(r){
+                        if(r.code === 0){
+                            layer.msg("操作成功", {icon: 1});
+                            vm.reload();
+                            $('#btnSave').button('reset');
+                            $('#btnSave').dequeue();
+                        }else{
+                            layer.alert(r.msg);
+                            $('#btnSave').button('reset');
+                            $('#btnSave').dequeue();
+                        }
+                    }
+                });
             });
         },
         updateRecord: function (event) {
@@ -193,7 +241,19 @@ let vm = new Vue({
             }, function(){
             });
         },
+        getEvalItems: function() {
+            $.get(baseURL + "eval/colleagueevaltask/items/"+vm.taskId, function(r){
 
+                vm.colleagueEvalRecord.evalItemResults = [];
+                for(let i = 0 ; i < r.items.length ; ++i){
+                    let result  = {score:null};
+                    result.id = r.items[i].id;
+                    result.name = r.items[i].name;
+                    result.percentage = r.items[i].percentage;
+                    vm.colleagueEvalRecord.evalItemResults[i] = result;
+                }
+            });
+        },
         //从后台获取当前部门部门数据
         getDept: function () {
             //获取并保存部门数据
@@ -243,10 +303,8 @@ let vm = new Vue({
                     if (isBlank(vm.layer.chooseUser.userId)) {
                         layer.msg("请从表格中选择一个人员！", {icon: 5});
                     } else {
-                        //todo 处理选择结果 vm.layer.chooseUser
-                        // for example
-                        // vm.studentEvalRecord.userId = vm.layer.chooseUser.userId;
-                        // vm.studentEvalRecord.userName = vm.layer.chooseUser.name;
+                        vm.colleagueEvalRecord.userId = vm.layer.chooseUser.userId;
+                        Vue.set(vm.colleagueEvalRecord,"userName",vm.layer.chooseUser.name);
                         layer.close(index);
                     }
                 });

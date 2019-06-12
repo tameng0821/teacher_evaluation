@@ -1,5 +1,6 @@
 package com.ambow.lyu.modules.eval.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -44,5 +45,11 @@ public class OtherEvalRecordEntity implements Serializable {
 	 * 备注
 	 */
 	private String remark;
+
+	/**
+	 * 姓名
+	 */
+	@TableField(exist = false)
+	private String userName;
 
 }

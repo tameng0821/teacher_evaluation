@@ -1,11 +1,14 @@
 package com.ambow.lyu.modules.eval.entity;
 
+import com.ambow.lyu.modules.eval.dto.EvalTaskItemScoreDto;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 同行评价记录
@@ -33,7 +36,7 @@ public class ColleagueEvalRecordEntity implements Serializable {
 	 */
 	private Long userId;
 	/**
-	 * 记录每个评价选项以及分数，格式：taskItemID:taskItemScore,taskItemID1:taskItemScore1
+	 * 记录每个评价选项以及分数，格式：taskItemID:name:percentage:taskItemScore,taskItemID1:name:percentage:taskItemScore1
 	 */
 	private String detail;
 	/**
@@ -48,5 +51,17 @@ public class ColleagueEvalRecordEntity implements Serializable {
 	 * 备注
 	 */
 	private String remark;
+
+	/**
+	 * 姓名
+	 */
+	@TableField(exist = false)
+	private String userName;
+
+	/**
+	 * 得分详情
+	 */
+	@TableField(exist = false)
+	private List<EvalTaskItemScoreDto> evalItemResults;
 
 }
