@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -30,10 +32,12 @@ public class ColleagueEvalRecordEntity implements Serializable {
 	/**
 	 * 同行评价ID
 	 */
+	@NotNull(message = "数据错误")
 	private Long subTaskId;
 	/**
 	 * 用户ID
 	 */
+	@NotNull(message = "用户不能为空")
 	private Long userId;
 	/**
 	 * 记录每个评价选项以及分数，格式：taskItemID:name:percentage:taskItemScore,taskItemID1:name:percentage:taskItemScore1
@@ -62,6 +66,7 @@ public class ColleagueEvalRecordEntity implements Serializable {
 	 * 得分详情
 	 */
 	@TableField(exist = false)
+	@Valid
 	private List<EvalTaskItemScoreDto> evalItemResults;
 
 }

@@ -127,8 +127,9 @@ let vm = new Vue({
                 return;
             }
 
+            $.jgrid.gridUnload("recordListJqGrid");
+
             let rowData = $("#jqGrid").getRowData(id);
-            vm.title = '评价任务 >> '+rowData.name;
             vm.taskId = rowData.taskId;
             vm.subTaskId = rowData.id;
             vm.evalTaskDeptId = rowData.deptId;
@@ -195,7 +196,8 @@ let vm = new Vue({
                     success: function(r){
                         if(r.code === 0){
                             layer.msg("操作成功", {icon: 1});
-                            vm.reload();
+                            vm.q.name = null;
+                            vm.recordListReload();
                             $('#btnSave').button('reset');
                             $('#btnSave').dequeue();
                         }else{
@@ -217,7 +219,8 @@ let vm = new Vue({
                     success: function(r){
                         if(r.code === 0){
                             layer.msg("操作成功", {icon: 1});
-                            vm.reload();
+                            vm.q.name = null;
+                            vm.recordListReload();
                             $('#btnUpdate').button('reset');
                             $('#btnUpdate').dequeue();
                         }else{
@@ -254,7 +257,8 @@ let vm = new Vue({
                         success: function(r){
                             if(r.code == 0){
                                 layer.msg("操作成功", {icon: 1});
-                                $("#jqGrid").trigger("reloadGrid");
+                                vm.q.name = null;
+                                vm.recordListReload();
                             }else{
                                 layer.alert(r.msg);
                             }

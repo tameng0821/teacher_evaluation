@@ -75,7 +75,10 @@ public class ColleagueEvalRecordController {
     @RequiresPermissions("eval:colleagueevaltask:eval")
     public Response save(@RequestBody ColleagueEvalRecordEntity colleagueEvalRecord){
 
+        ValidatorUtils.validateEntity(colleagueEvalRecord);
+
         colleagueEvalRecord.setDetail(EvalTaskItemScoreDto.list2string(colleagueEvalRecord.getEvalItemResults()));
+        colleagueEvalRecord.setScore(EvalTaskItemScoreDto.calculateScore(colleagueEvalRecord.getEvalItemResults()));
         colleagueEvalRecord.setUpdateTime(new Date());
 
         colleagueEvalRecordService.save(colleagueEvalRecord);
@@ -90,7 +93,13 @@ public class ColleagueEvalRecordController {
     @RequiresPermissions("eval:colleagueevaltask:eval")
     public Response update(@RequestBody ColleagueEvalRecordEntity colleagueEvalRecord){
         ValidatorUtils.validateEntity(colleagueEvalRecord);
-        colleagueEvalRecordService.updateById(colleagueEvalRecord);
+
+        ColleagueEvalRecordEntity dbData = colleagueEvalRecordService.getById(colleagueEvalRecord.getId());
+        dbData.setDetail(EvalTaskItemScoreDto.list2string(colleagueEvalRecord.getEvalItemResults()));
+        dbData.setScore(EvalTaskItemScoreDto.calculateScore(colleagueEvalRecord.getEvalItemResults()));
+        dbData.setUpdateTime(new Date());
+
+        colleagueEvalRecordService.updateById(dbData);
         
         return Response.ok();
     }

@@ -127,8 +127,9 @@ let vm = new Vue({
                 return;
             }
 
+            $.jgrid.gridUnload("recordListJqGrid");
+
             let rowData = $("#jqGrid").getRowData(id);
-            vm.title = '评价任务 >> '+rowData.name;
             vm.taskId = rowData.taskId;
             vm.subTaskId = rowData.id;
             vm.evalTaskDeptId = rowData.deptId;
@@ -161,13 +162,23 @@ let vm = new Vue({
         },
         gotoImportRecord:function(){
 
+            //学生评价批量导入记录
+            let uploadUrl = baseURL + "eval/colleagueevalrecord/import/"+vm.taskId+"/"+vm.subTaskId;
+            fileInputInit($("#xlsRecordFile"),uploadUrl,function (data) {
+                vm.importRecordSuccessList=data.response.successList;
+                vm.importRecordErrorList=data.response.errorList;
+                Vue.set(vm.importRecordSuccessList);
+                Vue.set(vm.importRecordErrorList);
+                vm.showRecordImportResult = true;
+            });
+
             vm.switchRecordImport();
             vm.title = "批量导入";
 
         },
         getRecordInfo: function(id){
             $.get(baseURL + "eval/colleagueevalrecord/info/"+id, function(r){
-                vm.studentEvalRecord = r.studentEvalRecord;
+                vm.colleagueEvalRecord = r.colleagueEvalRecord;
             });
         },
         gotoUpdateRecord: function (event) {
@@ -208,7 +219,8 @@ let vm = new Vue({
                     success: function(r){
                         if(r.code === 0){
                             layer.msg("操作成功", {icon: 1});
-                            vm.reload();
+                            vm.q.name = null;
+                            vm.recordListReload();
                             $('#btnSave').button('reset');
                             $('#btnSave').dequeue();
                         }else{
@@ -221,8 +233,41 @@ let vm = new Vue({
             });
         },
         updateRecord: function (event) {
+
+            if (vm.colleagueEvalRecord.evalItemResults.filter(value => isBlank(value.score)).length !== 0) {
+                layer.msg("评价项目得分不能为空！", {icon: 5});
+                return false;
+            } else if (vm.colleagueEvalRecord.evalItemResults.filter(value => isNaN(value.score)).length !== 0) {
+                layer.msg("评价项目得分只能是数字！", {icon: 5});
+                return false;
+            } else if (vm.colleagueEvalRecord.evalItemResults.filter(value => value.score>100).length !== 0) {
+                layer.msg("评价项目得分不能超过100分！", {icon: 5});
+                return false;
+            } else if (vm.colleagueEvalRecord.evalItemResults.filter(value => value.score<0).length !== 0) {
+                layer.msg("评价项目得分不能低于0分！", {icon: 5});
+                return false;
+            }
+
             $('#btnUpdate').button('loading').delay(1000).queue(function() {
-                //todo ajax modify
+                $.ajax({
+                    type: "POST",
+                    url: baseURL + "eval/colleagueevalrecord/update",
+                    contentType: "application/json",
+                    data: JSON.stringify(vm.colleagueEvalRecord),
+                    success: function(r){
+                        if(r.code === 0){
+                            layer.msg("操作成功", {icon: 1});
+                            vm.q.name = null;
+                            vm.recordListReload();
+                            $('#btnUpdate').button('reset');
+                            $('#btnUpdate').dequeue();
+                        }else{
+                            layer.alert(r.msg);
+                            $('#btnUpdate').button('reset');
+                            $('#btnUpdate').dequeue();
+                        }
+                    }
+                });
             });
         },
         delRecord: function (event) {
@@ -236,7 +281,21 @@ let vm = new Vue({
             }, function(){
                 if(!lock) {
                     lock = true;
-                    //todo ajax delete
+                    $.ajax({
+                        type: "POST",
+                        url: baseURL + "eval/colleagueevalrecord/delete",
+                        contentType: "application/json",
+                        data: JSON.stringify(ids),
+                        success: function(r){
+                            if(r.code == 0){
+                                layer.msg("操作成功", {icon: 1});
+                                vm.q.name = null;
+                                vm.recordListReload();
+                            }else{
+                                layer.alert(r.msg);
+                            }
+                        }
+                    });
                 }
             }, function(){
             });

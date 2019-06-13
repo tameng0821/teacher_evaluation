@@ -2,6 +2,8 @@ package com.ambow.lyu.modules.eval.dto;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,18 +19,22 @@ public class EvalTaskItemScoreDto {
     /**
      * 项目ID
      */
+    @NotNull(message = "评价项目不能为空")
     private Long id;
     /**
      * 名称
      */
+    @NotBlank(message = "评价项目不能为空")
     private String name;
     /**
      * 占比
      */
+    @NotNull(message = "评价项目不能为空")
     private Integer percentage;
     /**
      * 得分
      */
+    @NotNull(message = "评价项目得分不能为空")
     private Double score;
 
     @Override
@@ -52,6 +58,14 @@ public class EvalTaskItemScoreDto {
 
         return dto;
 
+    }
+
+    public static double  calculateScore(List<EvalTaskItemScoreDto> list){
+        double result = 0.0;
+        for(EvalTaskItemScoreDto dto : list){
+            result += (dto.getScore()*dto.getPercentage());
+        }
+        return result/100;
     }
 
     public static String list2string(List<EvalTaskItemScoreDto> list){
