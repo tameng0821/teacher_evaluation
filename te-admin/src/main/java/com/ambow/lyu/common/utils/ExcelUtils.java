@@ -1,5 +1,9 @@
 package com.ambow.lyu.common.utils;
 
+import com.ambow.lyu.common.dto.EvalTaskItemScoreDto;
+import com.ambow.lyu.common.exception.TeException;
+import com.ambow.lyu.modules.eval.entity.ColleagueEvalTaskItemEntity;
+import com.ambow.lyu.modules.eval.entity.InspectorEvalTaskItemEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.*;
@@ -57,6 +61,93 @@ public class ExcelUtils {
      */
     public static Map<String, String> readStudentEvalScore(File file) throws IOException {
         return readStudentEvalScore(new FileInputStream(file),file.getName());
+    }
+
+    /**
+     * 读取同行评价分数
+     *
+     * @param is       文件流
+     * @param fileName 文件名
+     * @return Map<教师, 分数>
+     */
+    public static Map<String, List<EvalTaskItemScoreDto>> readColleagueEvalScore(InputStream is, String fileName,List<ColleagueEvalTaskItemEntity> itemEntities) throws IOException {
+        List<Map<Integer, String>> xlsList = readExcel(is,fileName, 0);
+
+        Map<Integer, String> title = xlsList.get(0);
+        if(!title.get(0).contains("姓名")){
+            throw new TeException("请使用正确的EXCEL模板");
+        }
+        for(int i = 0 ; i < itemEntities.size() ; ++i){
+            if(!title.get(i+1).contains(itemEntities.get(i).getName())){
+                throw new TeException("请使用正确的EXCEL模板");
+            }
+        }
+
+        Map<String, List<EvalTaskItemScoreDto>> score = new HashMap<>();
+        for(int i = 1 ; i < xlsList.size() ; ++i){
+            Map<Integer, String> row = xlsList.get(i);
+            String name = row.get(0);
+            List<EvalTaskItemScoreDto> scoreDetail = new ArrayList<>();
+            for(int j = 0 ; j < itemEntities.size() ; ++j){
+                Double itemScore = Double.valueOf(row.get(j+1).trim());
+                EvalTaskItemScoreDto dto = new EvalTaskItemScoreDto().generateFromEvalItemEntity(itemEntities.get(j),itemScore);
+                scoreDetail.add(dto);
+            }
+            score.put(name,scoreDetail);
+        }
+        return score;
+    }
+
+    /**
+     * 读取督导评价分数
+     *
+     * @param is       文件流
+     * @param fileName 文件名
+     * @return Map<教师, 分数>
+     */
+    public static Map<String, List<EvalTaskItemScoreDto>> readInspectorEvalScore(InputStream is, String fileName,List<InspectorEvalTaskItemEntity> itemEntities) throws IOException {
+        List<Map<Integer, String>> xlsList = readExcel(is,fileName, 0);
+
+        Map<Integer, String> title = xlsList.get(0);
+        if(!title.get(0).contains("姓名")){
+            throw new TeException("请使用正确的EXCEL模板");
+        }
+        for(int i = 0 ; i < itemEntities.size() ; ++i){
+            if(!title.get(i+1).contains(itemEntities.get(i).getName())){
+                throw new TeException("请使用正确的EXCEL模板");
+            }
+        }
+
+        Map<String, List<EvalTaskItemScoreDto>> score = new HashMap<>();
+        for(int i = 1 ; i < xlsList.size() ; ++i){
+            Map<Integer, String> row = xlsList.get(i);
+            String name = row.get(0);
+            List<EvalTaskItemScoreDto> scoreDetail = new ArrayList<>();
+            for(int j = 0 ; j < itemEntities.size() ; ++j){
+                Double itemScore = Double.valueOf(row.get(j+1).trim());
+                EvalTaskItemScoreDto dto = new EvalTaskItemScoreDto().generateFromEvalItemEntity(itemEntities.get(j),itemScore);
+                scoreDetail.add(dto);
+            }
+            score.put(name,scoreDetail);
+        }
+        return score;
+    }
+
+    /**
+     * 读取其他评价分数
+     *
+     * @param is       文件流
+     * @param fileName 文件名
+     * @return Map<教师, 分数>
+     */
+    public static Map<String, String> readOtherEvalScore(InputStream is, String fileName) throws IOException {
+        List<Map<Integer, String>> xlsList = readExcel(is,fileName, 0);
+        Map<String, String> score = new HashMap<>();
+        for(int i = 1 ; i < xlsList.size() ; ++i){
+            Map<Integer, String> row = xlsList.get(i);
+            score.put(row.get(0).trim(),row.get(1).trim());
+        }
+        return score;
     }
 
     /**

@@ -29,7 +29,8 @@ public class InspectorEvalTaskItemServiceImpl extends ServiceImpl<InspectorEvalT
 
     @Override
     public List<InspectorEvalTaskItemEntity> selectByTaskId(Long taskId) {
-        return super.list(new QueryWrapper<InspectorEvalTaskItemEntity>().eq("task_id",taskId));
+        return super.list(new QueryWrapper<InspectorEvalTaskItemEntity>()
+                .eq("task_id",taskId).orderByAsc("id"));
     }
 
 

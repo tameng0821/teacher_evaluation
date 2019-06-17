@@ -1,5 +1,7 @@
-package com.ambow.lyu.modules.eval.dto;
+package com.ambow.lyu.common.dto;
 
+import com.ambow.lyu.modules.eval.entity.ColleagueEvalTaskItemEntity;
+import com.ambow.lyu.modules.eval.entity.InspectorEvalTaskItemEntity;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -40,6 +42,22 @@ public class EvalTaskItemScoreDto {
     @Override
     public String toString(){
         return ""+id+":"+name+":"+percentage+":"+score;
+    }
+
+    public EvalTaskItemScoreDto generateFromEvalItemEntity(ColleagueEvalTaskItemEntity entity,Double score){
+        this.setId(entity.getId());
+        this.setName(entity.getName());
+        this.setPercentage(entity.getPercentage());
+        this.setScore(score);
+        return this;
+    }
+
+    public EvalTaskItemScoreDto generateFromEvalItemEntity(InspectorEvalTaskItemEntity entity, Double score){
+        this.setId(entity.getId());
+        this.setName(entity.getName());
+        this.setPercentage(entity.getPercentage());
+        this.setScore(score);
+        return this;
     }
 
     public static EvalTaskItemScoreDto fromString(String str){

@@ -79,6 +79,10 @@ let userListData;
 let vm = new Vue({
 	el:'#rrapp',
 	data:{
+        q:{
+            name: null
+        },
+
         showList: true,
         showRecordList: false,
         showRecordAdd:false,
@@ -86,12 +90,14 @@ let vm = new Vue({
         showRecordImportResult:false,
         showRecordUpdate:false,
 
-		title: null,
-		otherEvalTask: {},
+        title: null,
 
         taskId:null,
         subTaskId:null,
         evalTaskDeptId:null,
+
+		otherEvalTask: {},
+		otherEvalRecord: {},
 
         importRecordSuccessList:{},
         importRecordErrorList:{},
@@ -120,6 +126,8 @@ let vm = new Vue({
                 return;
             }
 
+            $.jgrid.gridUnload("recordListJqGrid");
+
             let rowData = $("#jqGrid").getRowData(id);
             vm.title = '评价任务 >> ' + rowData.name;
             vm.taskId = rowData.taskId;
@@ -127,9 +135,7 @@ let vm = new Vue({
             vm.evalTaskDeptId = rowData.deptId;
 
             vm.switchTaskList();
-            //todo set record list query url
-            // ex.
-            // recordJqGrid.url = baseURL + 'eval/list/'+id;
+            recordJqGrid.url = baseURL + 'eval/otherevalrecord/list/'+id;
             recordJqGrid.width = $("#container_grid")[0].offsetWidth;
             $("#recordListJqGrid").jqGrid(recordJqGrid);
         },
@@ -137,6 +143,7 @@ let vm = new Vue({
             vm.switchTaskList();
             let page = $("#recordListJqGrid").jqGrid('getGridParam', 'page');
             $("#recordListJqGrid").jqGrid('setGridParam', {
+                postData:{'name': vm.q.name},
                 page: page
             }).trigger("reloadGrid");
         },
@@ -146,15 +153,28 @@ let vm = new Vue({
 
             vm.switchRecordAdd();
             vm.title = "新增";
+            vm.otherEvalRecord = {};
+            vm.otherEvalRecord.subTaskId = vm.subTaskId;
         },
         gotoImportRecord: function () {
 
+            //学生评价批量导入记录
+            let uploadUrl = baseURL + "eval/otherevalrecord/import/"+vm.taskId+"/"+vm.subTaskId;
+            fileInputInit($("#xlsRecordFile"),uploadUrl,function (data) {
+                vm.importRecordSuccessList=data.response.successList;
+                vm.importRecordErrorList=data.response.errorList;
+                Vue.set(vm.importRecordSuccessList);
+                Vue.set(vm.importRecordErrorList);
+                vm.showRecordImportResult = true;
+            });
             vm.switchRecordImport();
             vm.title = "批量导入";
 
         },
         getRecordInfo: function (id) {
-            //todo ajax findById
+            $.get(baseURL + "eval/otherevalrecord/info/"+id, function(r){
+                vm.otherEvalRecord = r.otherEvalRecord;
+            });
         },
         gotoUpdateRecord: function (event) {
             let id = getRecordListSelectedRow();
@@ -167,13 +187,82 @@ let vm = new Vue({
             vm.getRecordInfo(id)
         },
         saveRecord: function (event) {
+
+            if (isBlank(vm.otherEvalRecord.userId)) {
+                layer.msg("用户不能为空！", {icon: 5});
+                return false;
+            } else if (isBlank(vm.otherEvalRecord.score)) {
+                layer.msg("评价得分不能为空！", {icon: 5});
+                return false;
+            } else if (isNaN(vm.otherEvalRecord.score)) {
+                layer.msg("评价得分只能是数字！", {icon: 5});
+                return false;
+            } else if (vm.otherEvalRecord.score>100) {
+                layer.msg("评价得分不能超过100分！", {icon: 5});
+                return false;
+            } else if (vm.otherEvalRecord.score<0) {
+                layer.msg("评价得分不能低于0分！", {icon: 5});
+                return false;
+            }
+
             $('#btnSave').button('loading').delay(1000).queue(function () {
-                //todo ajax add
+                $.ajax({
+                    type: "POST",
+                    url: baseURL + "eval/otherevalrecord/save",
+                    contentType: "application/json",
+                    data: JSON.stringify(vm.otherEvalRecord),
+                    success: function(r){
+                        if(r.code === 0){
+                            layer.msg("操作成功", {icon: 1});
+                            vm.q.name = null;
+                            vm.recordListReload();
+                            $('#btnSave').button('reset');
+                            $('#btnSave').dequeue();
+                        }else{
+                            layer.alert(r.msg);
+                            $('#btnSave').button('reset');
+                            $('#btnSave').dequeue();
+                        }
+                    }
+                });
             });
         },
         updateRecord: function (event) {
+
+            if (isBlank(vm.otherEvalRecord.score)) {
+                layer.msg("评价得分不能为空！", {icon: 5});
+                return false;
+            } else if (isNaN(vm.otherEvalRecord.score)) {
+                layer.msg("评价得分只能是数字！", {icon: 5});
+                return false;
+            } else if (vm.otherEvalRecord.score>100) {
+                layer.msg("评价得分不能超过100分！", {icon: 5});
+                return false;
+            } else if (vm.otherEvalRecord.score<0) {
+                layer.msg("评价得分不能低于0分！", {icon: 5});
+                return false;
+            }
+
             $('#btnUpdate').button('loading').delay(1000).queue(function () {
-                //todo ajax modify
+                $.ajax({
+                    type: "POST",
+                    url: baseURL + "eval/otherevalrecord/update",
+                    contentType: "application/json",
+                    data: JSON.stringify(vm.otherEvalRecord),
+                    success: function(r){
+                        if(r.code === 0){
+                            layer.msg("操作成功", {icon: 1});
+                            vm.q.name = null;
+                            vm.recordListReload();
+                            $('#btnUpdate').button('reset');
+                            $('#btnUpdate').dequeue();
+                        }else{
+                            layer.alert(r.msg);
+                            $('#btnUpdate').button('reset');
+                            $('#btnUpdate').dequeue();
+                        }
+                    }
+                });
             });
         },
         delRecord: function (event) {
@@ -187,7 +276,21 @@ let vm = new Vue({
             }, function () {
                 if (!lock) {
                     lock = true;
-                    //todo ajax delete
+                    $.ajax({
+                        type: "POST",
+                        url: baseURL + "eval/otherevalrecord/delete",
+                        contentType: "application/json",
+                        data: JSON.stringify(ids),
+                        success: function(r){
+                            if(r.code == 0){
+                                layer.msg("操作成功", {icon: 1});
+                                vm.q.name = null;
+                                vm.recordListReload();
+                            }else{
+                                layer.alert(r.msg);
+                            }
+                        }
+                    });
                 }
             }, function () {
             });
@@ -242,10 +345,8 @@ let vm = new Vue({
                     if (isBlank(vm.layer.chooseUser.userId)) {
                         layer.msg("请从表格中选择一个人员！", {icon: 5});
                     } else {
-                        //todo 处理选择结果 vm.layer.chooseUser
-                        // for example
-                        // vm.studentEvalRecord.userId = vm.layer.chooseUser.userId;
-                        // vm.studentEvalRecord.userName = vm.layer.chooseUser.name;
+                        vm.otherEvalRecord.userId = vm.layer.chooseUser.userId;
+                        Vue.set(vm.otherEvalRecord,"userName",vm.layer.chooseUser.name);
                         layer.close(index);
                     }
                 });

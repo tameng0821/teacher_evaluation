@@ -1,29 +1,96 @@
 package com.ambow.lyu.modules.eval.service.impl;
 
-import org.springframework.stereotype.Service;
-import java.util.Map;
+import com.ambow.lyu.common.exception.TeException;
+import com.ambow.lyu.common.utils.Constant;
+import com.ambow.lyu.common.utils.PageUtils;
+import com.ambow.lyu.common.utils.Query;
+import com.ambow.lyu.modules.eval.dao.OtherEvalRecordDao;
+import com.ambow.lyu.modules.eval.entity.EvalTaskEntity;
+import com.ambow.lyu.modules.eval.entity.OtherEvalRecordEntity;
+import com.ambow.lyu.modules.eval.entity.StudentEvalRecordEntity;
+import com.ambow.lyu.modules.eval.service.EvalTaskService;
+import com.ambow.lyu.modules.eval.service.OtherEvalRecordService;
+import com.ambow.lyu.modules.sys.entity.SysUserEntity;
+import com.ambow.lyu.modules.sys.service.SysDeptService;
+import com.ambow.lyu.modules.sys.service.SysUserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.ambow.lyu.common.utils.PageUtils;
-import com.ambow.lyu.common.utils.Query;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import com.ambow.lyu.modules.eval.dao.OtherEvalRecordDao;
-import com.ambow.lyu.modules.eval.entity.OtherEvalRecordEntity;
-import com.ambow.lyu.modules.eval.service.OtherEvalRecordService;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 @Service("otherEvalRecordService")
 public class OtherEvalRecordServiceImpl extends ServiceImpl<OtherEvalRecordDao, OtherEvalRecordEntity> implements OtherEvalRecordService {
 
+    @Autowired
+    private EvalTaskService evalTaskService;
+    @Autowired
+    private SysUserService sysUserService;
+    @Autowired
+    private SysDeptService sysDeptService;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
-        IPage<OtherEvalRecordEntity> page = this.page(
-                new Query<OtherEvalRecordEntity>().getPage(params),
-                new QueryWrapper<OtherEvalRecordEntity>()
-        );
+        Long subTaskId = (Long) params.get(Constant.SUB_TASK_ID);
+        String name = (String) params.get("name");
 
+        IPage<OtherEvalRecordEntity> page = new Query<OtherEvalRecordEntity>().getPage(params);
+
+        List<OtherEvalRecordEntity> list = baseMapper.pageGetList(page,
+                subTaskId, name, (String) params.get(Constant.SQL_FILTER));
+
+        page.setRecords(list);
         return new PageUtils(page);
+
     }
 
+    @Override
+    public boolean add(Long taskId, Long subTaskId, String name, Double score) {
+        if(subTaskId == null){
+            throw new TeException("评价任务异常，未找到正确的评价任务！");
+        }
+        if(StringUtils.isBlank(name)){
+            throw new TeException("姓名不能为空！");
+        }
+        if(score == null){
+            throw new TeException("分数不能为空！");
+        }
+
+        //根据subTask获得任务所属部门
+        EvalTaskEntity evalTaskEntity = evalTaskService.getById(taskId);
+        if(evalTaskEntity == null){
+            throw new TeException("无效的评价任务，请正确的使用系统！");
+        }
+        List<Long> deptIds = sysDeptService.getSubDeptIdList(evalTaskEntity.getDeptId());
+        deptIds.add(evalTaskEntity.getDeptId());
+
+        //根据姓名查找userId，现在考虑为一个学院没有重名的
+        SysUserEntity user = sysUserService.getOne(
+                new QueryWrapper<SysUserEntity>().eq("name",name).in("dept_id",deptIds));
+        if(user == null){
+            throw new TeException("无效的姓名，未能在系统内找到此教师！");
+        }
+        //根据subTaskId、userId查找是否存在之前的记录，如果是修改，否则添加
+        OtherEvalRecordEntity record = this.getOne(
+                new QueryWrapper<OtherEvalRecordEntity>().eq("sub_task_id",subTaskId).eq("user_id",user.getUserId()));
+
+        if(record == null){
+            record = new OtherEvalRecordEntity();
+            record.setSubTaskId(subTaskId);
+            record.setUserId(user.getUserId());
+            record.setScore(score);
+            record.setUpdateTime(new Date());
+            return super.save(record);
+        }else {
+            record.setScore(score);
+            record.setUpdateTime(new Date());
+            return super.updateById(record);
+        }
+    }
 }

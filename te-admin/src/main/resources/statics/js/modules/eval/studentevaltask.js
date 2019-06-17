@@ -187,6 +187,24 @@ let vm = new Vue({
             vm.getRecordInfo(id)
         },
         saveRecord: function (event) {
+
+            if (isBlank(vm.studentEvalRecord.userId)) {
+                layer.msg("用户不能为空！", {icon: 5});
+                return false;
+            } else if (isBlank(vm.studentEvalRecord.score)) {
+                layer.msg("评价得分不能为空！", {icon: 5});
+                return false;
+            } else if (isNaN(vm.studentEvalRecord.score)) {
+                layer.msg("评价得分只能是数字！", {icon: 5});
+                return false;
+            } else if (vm.studentEvalRecord.score>100) {
+                layer.msg("评价得分不能超过100分！", {icon: 5});
+                return false;
+            } else if (vm.studentEvalRecord.score<0) {
+                layer.msg("评价得分不能低于0分！", {icon: 5});
+                return false;
+            }
+
             $('#btnSave').button('loading').delay(1000).queue(function() {
                 $.ajax({
                     type: "POST",
@@ -210,6 +228,21 @@ let vm = new Vue({
             });
         },
         updateRecord: function (event) {
+
+           if (isBlank(vm.studentEvalRecord.score)) {
+                layer.msg("评价得分不能为空！", {icon: 5});
+                return false;
+            } else if (isNaN(vm.studentEvalRecord.score)) {
+                layer.msg("评价得分只能是数字！", {icon: 5});
+                return false;
+            } else if (vm.studentEvalRecord.score>100) {
+                layer.msg("评价得分不能超过100分！", {icon: 5});
+                return false;
+            } else if (vm.studentEvalRecord.score<0) {
+                layer.msg("评价得分不能低于0分！", {icon: 5});
+                return false;
+            }
+
             $('#btnUpdate').button('loading').delay(1000).queue(function() {
                 $.ajax({
                     type: "POST",
@@ -230,12 +263,6 @@ let vm = new Vue({
                         }
                     }
                 });
-            });
-        },
-        importRecord:  function (event) {
-            $('#btnImport').button('loading').delay(1000).queue(function() {
-                $('#btnImport').button('reset');
-                $('#btnImport').dequeue();
             });
         },
         delRecord: function (event) {

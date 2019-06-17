@@ -162,7 +162,7 @@ let vm = new Vue({
         },
         gotoImportRecord:function(){
 
-            //学生评价批量导入记录
+            //同行评价批量导入记录
             let uploadUrl = baseURL + "eval/colleagueevalrecord/import/"+vm.taskId+"/"+vm.subTaskId;
             fileInputInit($("#xlsRecordFile"),uploadUrl,function (data) {
                 vm.importRecordSuccessList=data.response.successList;

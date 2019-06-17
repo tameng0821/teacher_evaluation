@@ -1,6 +1,6 @@
 package com.ambow.lyu.modules.eval.entity;
 
-import com.ambow.lyu.modules.eval.dto.EvalTaskItemScoreDto;
+import com.ambow.lyu.common.dto.EvalTaskItemScoreDto;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;

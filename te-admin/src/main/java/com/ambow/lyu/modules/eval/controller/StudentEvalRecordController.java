@@ -75,7 +75,7 @@ public class StudentEvalRecordController {
         int sum = studentEvalRecordService.count( new QueryWrapper<StudentEvalRecordEntity>()
                 .eq("sub_task_id",studentEvalRecord.getSubTaskId()).eq("user_id",studentEvalRecord.getUserId()));
         if(sum != 0){
-            throw new TeException("该教师学生记录已被添加！！！");
+            throw new TeException("该教师已添加学生评价记录！！！");
         }
 
         studentEvalRecord.setUpdateTime(new Date());

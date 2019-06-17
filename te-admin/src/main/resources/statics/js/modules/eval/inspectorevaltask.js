@@ -80,6 +80,10 @@ let userListData;
 let vm = new Vue({
 	el:'#rrapp',
 	data:{
+        q:{
+            name: null
+        },
+
         showList: true,
         showRecordList: false,
         showRecordAdd:false,
@@ -88,11 +92,13 @@ let vm = new Vue({
         showRecordUpdate:false,
 
 		title: null,
-		inspectorEvalTask: {},
 
         taskId:null,
         subTaskId:null,
         evalTaskDeptId:null,
+
+		inspectorEvalTask: {},
+        inspectorEvalRecord:{},
 
         importRecordSuccessList:{},
         importRecordErrorList:{},
@@ -121,6 +127,8 @@ let vm = new Vue({
                 return;
             }
 
+            $.jgrid.gridUnload("recordListJqGrid");
+
             let rowData = $("#jqGrid").getRowData(id);
             vm.title = '评价任务 >> '+rowData.name;
             vm.taskId = rowData.taskId;
@@ -128,9 +136,7 @@ let vm = new Vue({
             vm.evalTaskDeptId = rowData.deptId;
 
             vm.switchTaskList();
-            //todo set record list query url
-            // ex.
-            // recordJqGrid.url = baseURL + 'eval/list/'+id;
+            recordJqGrid.url = baseURL + 'eval/inspectorevalrecord/list/'+id;
             recordJqGrid.width = $("#container_grid")[0].offsetWidth;
             $("#recordListJqGrid").jqGrid(recordJqGrid);
         },
@@ -138,24 +144,43 @@ let vm = new Vue({
             vm.switchTaskList();
             let page = $("#recordListJqGrid").jqGrid('getGridParam','page');
             $("#recordListJqGrid").jqGrid('setGridParam',{
+                postData:{'name': vm.q.name},
                 page:page
             }).trigger("reloadGrid");
         },
         gotoAddRecord: function() {
 
+            vm.inspectorEvalRecord = {
+                subTaskId: vm.subTaskId,
+                evalItemResults: []
+            };
+
             vm.getDept();
+            vm.getEvalItems();
 
             vm.switchRecordAdd();
             vm.title = "新增";
         },
         gotoImportRecord:function(){
 
+            //督导评价批量导入记录
+            let uploadUrl = baseURL + "eval/inspectorevalrecord/import/"+vm.taskId+"/"+vm.subTaskId;
+            fileInputInit($("#xlsRecordFile"),uploadUrl,function (data) {
+                vm.importRecordSuccessList=data.response.successList;
+                vm.importRecordErrorList=data.response.errorList;
+                Vue.set(vm.importRecordSuccessList);
+                Vue.set(vm.importRecordErrorList);
+                vm.showRecordImportResult = true;
+            });
+
             vm.switchRecordImport();
             vm.title = "批量导入";
 
         },
         getRecordInfo: function(id){
-            //todo ajax findById
+            $.get(baseURL + "eval/inspectorevalrecord/info/"+id, function(r){
+                vm.inspectorEvalRecord = r.inspectorEvalRecord;
+            });
         },
         gotoUpdateRecord: function (event) {
             let id = getRecordListSelectedRow();
@@ -168,13 +193,82 @@ let vm = new Vue({
             vm.getRecordInfo(id)
         },
         saveRecord: function (event) {
+
+            if (isBlank(vm.inspectorEvalRecord.userId)) {
+                layer.msg("用户不能为空！", {icon: 5});
+                return false;
+            } else if (vm.inspectorEvalRecord.evalItemResults.filter(value => isBlank(value.score)).length !== 0) {
+                layer.msg("评价项目得分不能为空！", {icon: 5});
+                return false;
+            } else if (vm.inspectorEvalRecord.evalItemResults.filter(value => isNaN(value.score)).length !== 0) {
+                layer.msg("评价项目得分只能是数字！", {icon: 5});
+                return false;
+            } else if (vm.inspectorEvalRecord.evalItemResults.filter(value => value.score>100).length !== 0) {
+                layer.msg("评价项目得分不能超过100分！", {icon: 5});
+                return false;
+            } else if (vm.inspectorEvalRecord.evalItemResults.filter(value => value.score<0).length !== 0) {
+                layer.msg("评价项目得分不能低于0分！", {icon: 5});
+                return false;
+            }
+
             $('#btnSave').button('loading').delay(1000).queue(function() {
-                //todo ajax add
+                $.ajax({
+                    type: "POST",
+                    url: baseURL + "eval/inspectorevalrecord/save",
+                    contentType: "application/json",
+                    data: JSON.stringify(vm.inspectorEvalRecord),
+                    success: function(r){
+                        if(r.code === 0){
+                            layer.msg("操作成功", {icon: 1});
+                            vm.q.name = null;
+                            vm.recordListReload();
+                            $('#btnSave').button('reset');
+                            $('#btnSave').dequeue();
+                        }else{
+                            layer.alert(r.msg);
+                            $('#btnSave').button('reset');
+                            $('#btnSave').dequeue();
+                        }
+                    }
+                });
             });
         },
         updateRecord: function (event) {
+
+            if (vm.inspectorEvalRecord.evalItemResults.filter(value => isBlank(value.score)).length !== 0) {
+                layer.msg("评价项目得分不能为空！", {icon: 5});
+                return false;
+            } else if (vm.inspectorEvalRecord.evalItemResults.filter(value => isNaN(value.score)).length !== 0) {
+                layer.msg("评价项目得分只能是数字！", {icon: 5});
+                return false;
+            } else if (vm.inspectorEvalRecord.evalItemResults.filter(value => value.score>100).length !== 0) {
+                layer.msg("评价项目得分不能超过100分！", {icon: 5});
+                return false;
+            } else if (vm.inspectorEvalRecord.evalItemResults.filter(value => value.score<0).length !== 0) {
+                layer.msg("评价项目得分不能低于0分！", {icon: 5});
+                return false;
+            }
+
             $('#btnUpdate').button('loading').delay(1000).queue(function() {
-                //todo ajax modify
+                $.ajax({
+                    type: "POST",
+                    url: baseURL + "eval/inspectorevalrecord/update",
+                    contentType: "application/json",
+                    data: JSON.stringify(vm.inspectorEvalRecord),
+                    success: function(r){
+                        if(r.code === 0){
+                            layer.msg("操作成功", {icon: 1});
+                            vm.q.name = null;
+                            vm.recordListReload();
+                            $('#btnUpdate').button('reset');
+                            $('#btnUpdate').dequeue();
+                        }else{
+                            layer.alert(r.msg);
+                            $('#btnUpdate').button('reset');
+                            $('#btnUpdate').dequeue();
+                        }
+                    }
+                });
             });
         },
         delRecord: function (event) {
@@ -188,9 +282,36 @@ let vm = new Vue({
             }, function(){
                 if(!lock) {
                     lock = true;
-                    //todo ajax delete
+                    $.ajax({
+                        type: "POST",
+                        url: baseURL + "eval/colleagueevalrecord/delete",
+                        contentType: "application/json",
+                        data: JSON.stringify(ids),
+                        success: function(r){
+                            if(r.code == 0){
+                                layer.msg("操作成功", {icon: 1});
+                                vm.q.name = null;
+                                vm.recordListReload();
+                            }else{
+                                layer.alert(r.msg);
+                            }
+                        }
+                    });
                 }
             }, function(){
+            });
+        },
+        getEvalItems: function() {
+            $.get(baseURL + "eval/inspectorevaltask/items/"+vm.taskId, function(r){
+
+                vm.inspectorEvalRecord.evalItemResults = [];
+                for(let i = 0 ; i < r.items.length ; ++i){
+                    let result  = {score:null};
+                    result.id = r.items[i].id;
+                    result.name = r.items[i].name;
+                    result.percentage = r.items[i].percentage;
+                    vm.inspectorEvalRecord.evalItemResults[i] = result;
+                }
             });
         },
 
@@ -243,10 +364,8 @@ let vm = new Vue({
                     if (isBlank(vm.layer.chooseUser.userId)) {
                         layer.msg("请从表格中选择一个人员！", {icon: 5});
                     } else {
-                        //todo 处理选择结果 vm.layer.chooseUser
-                        // for example
-                        // vm.studentEvalRecord.userId = vm.layer.chooseUser.userId;
-                        // vm.studentEvalRecord.userName = vm.layer.chooseUser.name;
+                        vm.inspectorEvalRecord.userId = vm.layer.chooseUser.userId;
+                        Vue.set(vm.inspectorEvalRecord,"userName",vm.layer.chooseUser.name);
                         layer.close(index);
                     }
                 });

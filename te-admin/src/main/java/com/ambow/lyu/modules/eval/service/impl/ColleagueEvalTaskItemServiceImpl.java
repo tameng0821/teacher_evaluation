@@ -5,7 +5,6 @@ import com.ambow.lyu.common.utils.Query;
 import com.ambow.lyu.modules.eval.dao.ColleagueEvalTaskItemDao;
 import com.ambow.lyu.modules.eval.entity.ColleagueEvalTaskItemEntity;
 import com.ambow.lyu.modules.eval.service.ColleagueEvalTaskItemService;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -30,10 +29,8 @@ public class ColleagueEvalTaskItemServiceImpl extends ServiceImpl<ColleagueEvalT
 
     @Override
     public List<ColleagueEvalTaskItemEntity> selectByTaskId(Long taskId) {
-
-        Wrapper<ColleagueEvalTaskItemEntity> wrapper = new QueryWrapper<ColleagueEvalTaskItemEntity>().eq("task_id",taskId);
-
-        return super.list(wrapper);
+        return super.list(new QueryWrapper<ColleagueEvalTaskItemEntity>()
+                .eq("task_id",taskId).orderByAsc("id"));
     }
 
 }

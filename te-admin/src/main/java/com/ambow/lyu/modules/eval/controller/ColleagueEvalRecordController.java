@@ -1,22 +1,25 @@
 package com.ambow.lyu.modules.eval.controller;
 
+import com.ambow.lyu.common.dto.EvalTaskItemScoreDto;
+import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.common.utils.Constant;
+import com.ambow.lyu.common.utils.ExcelUtils;
 import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.common.validator.ValidatorUtils;
 import com.ambow.lyu.common.vo.Response;
-import com.ambow.lyu.modules.eval.dto.EvalTaskItemScoreDto;
 import com.ambow.lyu.modules.eval.entity.ColleagueEvalRecordEntity;
+import com.ambow.lyu.modules.eval.entity.ColleagueEvalTaskItemEntity;
 import com.ambow.lyu.modules.eval.service.ColleagueEvalRecordService;
+import com.ambow.lyu.modules.eval.service.ColleagueEvalTaskItemService;
 import com.ambow.lyu.modules.sys.service.SysUserService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 
 
 /**
@@ -33,13 +36,15 @@ public class ColleagueEvalRecordController {
     private ColleagueEvalRecordService colleagueEvalRecordService;
     @Autowired
     private SysUserService sysUserService;
+    @Autowired
+    private ColleagueEvalTaskItemService colleagueEvalTaskItemService;
 
     /**
      * 列表
      */
     @RequestMapping("/list/{subTaskId}")
     @RequiresPermissions("eval:colleagueevaltask:eval")
-    public Response list(@PathVariable("subTaskId") Long subTaskId,@RequestParam Map<String, Object> params){
+    public Response list(@PathVariable("subTaskId") Long subTaskId, @RequestParam Map<String, Object> params) {
 
         params.put(Constant.SUB_TASK_ID, subTaskId);
 
@@ -54,7 +59,7 @@ public class ColleagueEvalRecordController {
      */
     @RequestMapping("/info/{id}")
     @RequiresPermissions("eval:colleagueevaltask:eval")
-    public Response info(@PathVariable("id") Long id){
+    public Response info(@PathVariable("id") Long id) {
         ColleagueEvalRecordEntity colleagueEvalRecord = colleagueEvalRecordService.getById(id);
 
         //姓名
@@ -73,9 +78,16 @@ public class ColleagueEvalRecordController {
      */
     @RequestMapping("/save")
     @RequiresPermissions("eval:colleagueevaltask:eval")
-    public Response save(@RequestBody ColleagueEvalRecordEntity colleagueEvalRecord){
+    public Response save(@RequestBody ColleagueEvalRecordEntity colleagueEvalRecord) {
 
         ValidatorUtils.validateEntity(colleagueEvalRecord);
+
+        //数据是否存在校验
+        int sum = colleagueEvalRecordService.count( new QueryWrapper<ColleagueEvalRecordEntity>()
+                .eq("sub_task_id",colleagueEvalRecord.getSubTaskId()).eq("user_id",colleagueEvalRecord.getUserId()));
+        if(sum != 0){
+            throw new TeException("该教师已添加同行评价记录！！！");
+        }
 
         colleagueEvalRecord.setDetail(EvalTaskItemScoreDto.list2string(colleagueEvalRecord.getEvalItemResults()));
         colleagueEvalRecord.setScore(EvalTaskItemScoreDto.calculateScore(colleagueEvalRecord.getEvalItemResults()));
@@ -91,7 +103,7 @@ public class ColleagueEvalRecordController {
      */
     @RequestMapping("/update")
     @RequiresPermissions("eval:colleagueevaltask:eval")
-    public Response update(@RequestBody ColleagueEvalRecordEntity colleagueEvalRecord){
+    public Response update(@RequestBody ColleagueEvalRecordEntity colleagueEvalRecord) {
         ValidatorUtils.validateEntity(colleagueEvalRecord);
 
         ColleagueEvalRecordEntity dbData = colleagueEvalRecordService.getById(colleagueEvalRecord.getId());
@@ -100,7 +112,7 @@ public class ColleagueEvalRecordController {
         dbData.setUpdateTime(new Date());
 
         colleagueEvalRecordService.updateById(dbData);
-        
+
         return Response.ok();
     }
 
@@ -109,10 +121,55 @@ public class ColleagueEvalRecordController {
      */
     @RequestMapping("/delete")
     @RequiresPermissions("eval:colleagueevaltask:eval")
-    public Response delete(@RequestBody Long[] ids){
+    public Response delete(@RequestBody Long[] ids) {
         colleagueEvalRecordService.removeByIds(Arrays.asList(ids));
 
         return Response.ok();
     }
 
+    /**
+     * 文件上传导入
+     */
+    @RequestMapping(value = "/import/{taskId}/{subTaskId}", method = RequestMethod.POST
+            , consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequiresPermissions("eval:colleagueevaltask:eval")
+    public Response fileImport(@PathVariable("taskId") Long taskId,
+                               @PathVariable("subTaskId") Long subTaskId, @RequestParam("xlsRecordFile") MultipartFile xlsRecordFile) {
+        try {
+            List<ColleagueEvalTaskItemEntity> itemEntities = colleagueEvalTaskItemService.selectByTaskId(taskId);
+
+            Map<String,List<EvalTaskItemScoreDto>> score = ExcelUtils.readColleagueEvalScore(
+                    xlsRecordFile.getInputStream(),xlsRecordFile.getOriginalFilename(),itemEntities);
+
+            Response response = Response.ok();
+            List<Map<String,String>> successList = new ArrayList<>();
+            List<Map<String,String>> errorList = new ArrayList<>();
+
+            for(String name : score.keySet()){
+                Map<String,String> itemResult = new HashMap<>(3);
+                itemResult.put("name",name);
+                try{
+                    boolean result = colleagueEvalRecordService.add(taskId,subTaskId,name,score.get(name));
+                    if(result){
+                        itemResult.put("score",""+EvalTaskItemScoreDto.calculateScore(score.get(name)));
+                        successList.add(itemResult);
+                    }else {
+                        throw new TeException("数据库异常，添加失败");
+                    }
+                }catch (Exception ex){
+                    itemResult.put("reason",ex.getMessage());
+                    errorList.add(itemResult);
+                }
+            }
+
+            response.put("successList",successList);
+            response.put("errorList",errorList);
+            return response;
+        }catch (Exception e) {
+            //捕获所有的异常，使用bootstrap-fileinput需要返回error字段
+            String error = e.getMessage();
+            return Response.error().put("error",error);
+        }
+
+    }
 }

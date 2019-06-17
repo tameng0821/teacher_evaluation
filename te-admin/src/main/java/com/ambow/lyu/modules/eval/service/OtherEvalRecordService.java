@@ -16,5 +16,15 @@ import java.util.Map;
 public interface OtherEvalRecordService extends IService<OtherEvalRecordEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    /**
+     * 添加一条记录
+     * @param taskId 评价任务ID
+     * @param subTaskId  学生评价任务ID
+     * @param name user姓名
+     * @param score 分数
+     * @return 是否成功
+     */
+    boolean add(Long taskId,Long subTaskId,String name,Double score);
 }
 

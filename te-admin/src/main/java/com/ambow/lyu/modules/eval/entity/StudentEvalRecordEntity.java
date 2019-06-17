@@ -5,8 +5,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -41,7 +42,8 @@ public class StudentEvalRecordEntity implements Serializable {
      * 分数
      */
     @NotNull(message = "成绩不能为空")
-    @Pattern(regexp = "^(100|([1-9]?\\d))([.]\\d*)?$",message = "成绩只能是0-100的正浮点数")
+    @Max(value = 100,message = "成绩最大不能大于100")
+    @Min(value = 0,message = "成绩最小不能小于0")
     private Double score;
     /**
      * 修改时间
