@@ -1,5 +1,6 @@
 package com.ambow.lyu.modules.eval.controller;
 
+import com.ambow.lyu.common.dto.ColOrInspectorEvalScoreDto;
 import com.ambow.lyu.common.dto.EvalTaskItemScoreDto;
 import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.common.utils.Constant;
@@ -138,27 +139,25 @@ public class ColleagueEvalRecordController {
         try {
             List<ColleagueEvalTaskItemEntity> itemEntities = colleagueEvalTaskItemService.selectByTaskId(taskId);
 
-            Map<String,List<EvalTaskItemScoreDto>> score = ExcelUtils.readColleagueEvalScore(
+            List<ColOrInspectorEvalScoreDto> xlsResult = ExcelUtils.readColleagueEvalScore(
                     xlsRecordFile.getInputStream(),xlsRecordFile.getOriginalFilename(),itemEntities);
 
             Response response = Response.ok();
-            List<Map<String,String>> successList = new ArrayList<>();
-            List<Map<String,String>> errorList = new ArrayList<>();
+            List<ColOrInspectorEvalScoreDto> successList = new ArrayList<>();
+            List<ColOrInspectorEvalScoreDto> errorList = new ArrayList<>();
 
-            for(String name : score.keySet()){
-                Map<String,String> itemResult = new HashMap<>(3);
-                itemResult.put("name",name);
+            for(ColOrInspectorEvalScoreDto item : xlsResult){
                 try{
-                    boolean result = colleagueEvalRecordService.add(taskId,subTaskId,name,score.get(name));
+                    boolean result = colleagueEvalRecordService.add(taskId,subTaskId,item.getUsername(),item.getName(),item.getDetails());
                     if(result){
-                        itemResult.put("score",""+EvalTaskItemScoreDto.calculateScore(score.get(name)));
-                        successList.add(itemResult);
+                        item.setScore(""+EvalTaskItemScoreDto.calculateScore(item.getDetails()));
+                        successList.add(item);
                     }else {
                         throw new TeException("数据库异常，添加失败");
                     }
                 }catch (Exception ex){
-                    itemResult.put("reason",ex.getMessage());
-                    errorList.add(itemResult);
+                    item.setReason(ex.getMessage());
+                    errorList.add(item);
                 }
             }
 

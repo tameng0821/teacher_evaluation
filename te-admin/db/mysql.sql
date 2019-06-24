@@ -24,7 +24,7 @@ CREATE TABLE `sys_dept` (
 -- 系统用户
 CREATE TABLE `sys_user` (
   `user_id` bigint NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) NOT NULL COMMENT '用户名',
+  `username` varchar(50) NOT NULL COMMENT '用户名/工号',
   `password` varchar(100) COMMENT '密码',
   `salt` varchar(20) COMMENT '盐',
   `name` varchar(100) COMMENT '姓名',
@@ -213,6 +213,7 @@ create table tb_eval_task
    status               tinyint COMMENT '状态，0：新建；1：发布；2：关闭；',
    dept_id              bigint COMMENT '评价部门ID',
    remark               varchar(500) COMMENT '备注',
+   headcount               int COMMENT '参评总人数',
    primary key (id)
 )ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='评价任务';
 
@@ -286,6 +287,10 @@ INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, 
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('160', '100', '督导评价', 'modules/eval/inspectorevaltask.html', 'eval:inspectorevaltask:eval', '1', 'fa fa-eye', '7');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('165', '100', '其他评价', 'modules/eval/otherevaltask.html', 'eval:otherevaltask:eval', '1', 'fa fa-check-circle', '8');
 
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('170', '100', '评价结果', 'modules/eval/evalresult.html', NULL, '1', 'fa fa-book', '9');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('171', '170', '查看', null, 'eval:evalresult:list,eval:evalresult:info', '2', null, '1');
+INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('172', '170', '修改', null, 'eval:evalresult:update', '2', null, '2');
+
 create table tb_student_eval_record
 (
    id                   bigint not null AUTO_INCREMENT,
@@ -331,3 +336,27 @@ create table tb_other_eval_record
    remark               varchar(500) COMMENT '备注',
    primary key (id)
 )ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='其他评价记录';
+
+
+create table tb_eval_result
+(
+   id                   bigint not null AUTO_INCREMENT,
+   task_id              bigint COMMENT '关联评价任务ID',
+   `username` varchar(50) NOT NULL COMMENT '用户名/工号',
+   `name` varchar(100) COMMENT '姓名',
+   `dept_name` varchar(50) COMMENT '系部名称',
+   student_eval_score   double COMMENT '学生评价分数',
+   student_eval_detail  varchar(500) COMMENT '学生评价细节',
+   colleague_eval_score double COMMENT '同行评价分数',
+   colleague_eval_detail varchar(500) COMMENT '同行评价细节',
+   inspector_eval_score double COMMENT '督导评价分数',
+   inspector_eval_detail varchar(500) COMMENT '督导评价细节',
+   other_eval_score     double COMMENT '其他评价分数',
+   other_eval_detail    varchar(500) COMMENT '其他评价细节',
+   account_score        double comment '总分',
+   ranking              bigint comment '排名',
+   rating               varchar(20) comment '评级：30%为优秀，30~70为良好，70~100为合格，小于60分为不合格',
+   remark               varchar(500) COMMENT '备注',
+   update_time          datetime COMMENT '修改时间',
+   primary key (id)
+)ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COMMENT='评价结果';

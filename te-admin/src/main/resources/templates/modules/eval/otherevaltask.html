@@ -90,6 +90,7 @@
                 <table class="table table-hover">
                     <thead>
                     <tr>
+                        <th>工号</th>
                         <th>姓名</th>
                         <th>成绩</th>
                         <th>原因</th>
@@ -97,6 +98,7 @@
                     </thead>
                     <tbody>
                     <tr class="warning" v-for="(item, index) in importRecordErrorList" :key="index">
+                        <td>{{item.username}}</td>
                         <td>{{item.name}}</td>
                         <td>{{item.score}}</td>
                         <td>{{item.reason}}</td>
@@ -111,12 +113,14 @@
                 <table class="table table-hover">
                     <thead>
                     <tr>
+                        <th>工号</th>
                         <th>姓名</th>
                         <th>成绩</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr class="success"v-for="(item, index) in importRecordSuccessList" :key="index">
+                        <td>{{item.username}}</td>
                         <td>{{item.name}}</td>
                         <td>{{item.score}}</td>
                     </tr>
@@ -190,7 +194,7 @@
                 <table class="table table-fixed">
                     <thead>
                     <tr>
-                        <th class="col-sm-6">账号</th>
+                        <th class="col-sm-6">工号</th>
                         <th class="col-sm-6">姓名</th>
                     </tr>
                     </thead>
@@ -209,7 +213,7 @@
             <div class="form-inline">
                 <div class="input-group">
                     <div class="input-group-addon">选择结果：</div>
-                    <div class="input-group-addon">账号</div>
+                    <div class="input-group-addon">工号</div>
                     <input type="text" class="form-control" v-model="layer.chooseUser.username" readonly/>
                     <div class="input-group-addon">姓名</div>
                     <input type="text" class="form-control" v-model="layer.chooseUser.name" readonly/>

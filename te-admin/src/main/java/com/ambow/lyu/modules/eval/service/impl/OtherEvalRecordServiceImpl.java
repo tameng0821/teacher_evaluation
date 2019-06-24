@@ -7,7 +7,6 @@ import com.ambow.lyu.common.utils.Query;
 import com.ambow.lyu.modules.eval.dao.OtherEvalRecordDao;
 import com.ambow.lyu.modules.eval.entity.EvalTaskEntity;
 import com.ambow.lyu.modules.eval.entity.OtherEvalRecordEntity;
-import com.ambow.lyu.modules.eval.entity.StudentEvalRecordEntity;
 import com.ambow.lyu.modules.eval.service.EvalTaskService;
 import com.ambow.lyu.modules.eval.service.OtherEvalRecordService;
 import com.ambow.lyu.modules.sys.entity.SysUserEntity;
@@ -51,9 +50,12 @@ public class OtherEvalRecordServiceImpl extends ServiceImpl<OtherEvalRecordDao, 
     }
 
     @Override
-    public boolean add(Long taskId, Long subTaskId, String name, Double score) {
+    public boolean add(Long taskId, Long subTaskId, String username,String name, Double score) {
         if(subTaskId == null){
             throw new TeException("评价任务异常，未找到正确的评价任务！");
+        }
+        if(StringUtils.isBlank(username)){
+            throw new TeException("工号不能为空！");
         }
         if(StringUtils.isBlank(name)){
             throw new TeException("姓名不能为空！");
@@ -70,11 +72,11 @@ public class OtherEvalRecordServiceImpl extends ServiceImpl<OtherEvalRecordDao, 
         List<Long> deptIds = sysDeptService.getSubDeptIdList(evalTaskEntity.getDeptId());
         deptIds.add(evalTaskEntity.getDeptId());
 
-        //根据姓名查找userId，现在考虑为一个学院没有重名的
+        //根据用户名/工号查找userId，用户名/工号为用户唯一的
         SysUserEntity user = sysUserService.getOne(
-                new QueryWrapper<SysUserEntity>().eq("name",name).in("dept_id",deptIds));
+                new QueryWrapper<SysUserEntity>().eq("username",username).in("dept_id",deptIds));
         if(user == null){
-            throw new TeException("无效的姓名，未能在系统内找到此教师！");
+            throw new TeException("无效的工号，未能在系统内找到此教师！");
         }
         //根据subTaskId、userId查找是否存在之前的记录，如果是修改，否则添加
         OtherEvalRecordEntity record = this.getOne(

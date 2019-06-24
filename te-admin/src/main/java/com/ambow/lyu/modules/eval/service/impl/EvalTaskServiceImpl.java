@@ -1,5 +1,6 @@
 package com.ambow.lyu.modules.eval.service.impl;
 
+import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.common.utils.Query;
 import com.ambow.lyu.modules.eval.dao.EvalTaskDao;
@@ -39,13 +40,26 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
     private InspectorEvalTaskService inspectorEvalTaskService;
     @Autowired
     private OtherEvalTaskService otherEvalTaskService;
+    @Autowired
+    private StudentEvalRecordService studentEvalRecordService;
+    @Autowired
+    private ColleagueEvalRecordService colleagueEvalRecordService;
+    @Autowired
+    private InspectorEvalRecordService inspectorEvalRecordService;
+    @Autowired
+    private OtherEvalRecordService otherEvalRecordService;
+    @Autowired
+    private EvalResultService evalResultService;
 
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
+
+        Integer status = (Integer) params.get("task_status");
+
         IPage<EvalTaskEntity> page = super.page(
                 new Query<EvalTaskEntity>().getPage(params),
-                new QueryWrapper<EvalTaskEntity>()
+                new QueryWrapper<EvalTaskEntity>().eq(status != null,"status",status)
         );
 
         for (EvalTaskEntity evalTaskEntity : page.getRecords()) {
@@ -54,6 +68,124 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
         }
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public void generateResult(Long taskId) {
+        EvalTaskEntity evalTask = super.getById(taskId);
+
+        //查找参评人数
+        List<Long> subDeptIds = sysDeptService.getSubDeptIdList(evalTask.getDeptId());
+        subDeptIds.add(evalTask.getDeptId());
+        int headcount = sysUserService.count(new QueryWrapper<SysUserEntity>().in("dept_id",subDeptIds));
+
+        //查看评价结果进度，如果没有全部完成则不能生成评价结果
+
+        //查询学生评价进度
+        StudentEvalTaskEntity studentEvalTaskEntity = studentEvalTaskService.getOne(
+                new QueryWrapper<StudentEvalTaskEntity>().eq("task_id", taskId));
+        int studentCount = studentEvalRecordService.count(
+                new QueryWrapper<StudentEvalRecordEntity>().eq("sub_task_id", studentEvalTaskEntity.getId()));
+
+        if(studentCount!=headcount){
+            throw new TeException("学生评价任务未完成，不能生成评价结果");
+        }
+        //查询同行评价进度
+        List<ColleagueEvalTaskEntity> colleagueEvalTasks = colleagueEvalTaskService.list(
+                new QueryWrapper<ColleagueEvalTaskEntity>().eq("task_id", taskId));
+        for (ColleagueEvalTaskEntity colleagueEvalTask : colleagueEvalTasks) {
+            //查询同行评价进度
+            int colleagueCount = colleagueEvalRecordService.count(
+                    new QueryWrapper<ColleagueEvalRecordEntity>().eq("sub_task_id", colleagueEvalTask.getId()));
+            if(colleagueCount!=headcount){
+                throw new TeException("同行评价任务未完成，不能生成评价结果");
+            }
+        }
+        //查询督导评价进度
+        List<InspectorEvalTaskEntity> inspectorEvalTasks = inspectorEvalTaskService.list(
+                new QueryWrapper<InspectorEvalTaskEntity>().eq("task_id", taskId));
+        for (InspectorEvalTaskEntity inspectorEvalTask : inspectorEvalTasks) {
+            int inspectorCount = inspectorEvalRecordService.count(
+                    new QueryWrapper<InspectorEvalRecordEntity>().eq("sub_task_id", inspectorEvalTask.getId()));
+            if(inspectorCount!=headcount){
+                throw new TeException("督导评价任务未完成，不能生成评价结果");
+            }
+        }
+        //查询其他评价进度
+        OtherEvalTaskEntity otherEvalTaskEntity = otherEvalTaskService.getOne(
+                new QueryWrapper<OtherEvalTaskEntity>().eq("task_id", taskId));
+        int otherCount = otherEvalRecordService.count(
+                new QueryWrapper<OtherEvalRecordEntity>().eq("sub_task_id", otherEvalTaskEntity.getId()));
+        if(otherCount!=headcount){
+            throw new TeException("其他评价任务未完成，不能生成评价结果");
+        }
+        //Map<userId,评价结果>
+        Map<Long,EvalResultEntity> resultEntityMap = new HashMap<>(headcount);
+
+        //设置学生评价结果
+        List<StudentEvalRecordEntity> studentEvalRecordEntityList = studentEvalRecordService.list(
+                new QueryWrapper<StudentEvalRecordEntity>().eq("sub_task_id", studentEvalTaskEntity.getId()));
+        for(StudentEvalRecordEntity recordEntity : studentEvalRecordEntityList){
+
+            SysUserEntity userEntity = sysUserService.getById(recordEntity.getUserId());
+            SysDeptEntity deptEntity = sysDeptService.getById(userEntity.getDeptId());
+
+            EvalResultEntity evalResultEntity = new EvalResultEntity();
+            evalResultEntity.setTaskId(taskId);
+            evalResultEntity.setUsername(userEntity.getUsername());
+            evalResultEntity.setName(userEntity.getName());
+            evalResultEntity.setDeptName(deptEntity.getName());
+            evalResultEntity.setStudentEvalScore(recordEntity.getScore());
+
+            resultEntityMap.put(recordEntity.getUserId(),evalResultEntity);
+        }
+        //设置同行评价结果
+        for (ColleagueEvalTaskEntity colleagueEvalTask : colleagueEvalTasks) {
+            List<ColleagueEvalRecordEntity> colleagueEvalRecordEntityList = colleagueEvalRecordService.list(
+                    new QueryWrapper<ColleagueEvalRecordEntity>().eq("sub_task_id", colleagueEvalTask.getId()));
+            for(ColleagueEvalRecordEntity recordEntity : colleagueEvalRecordEntityList){
+                EvalResultEntity evalResultEntity = resultEntityMap.get(recordEntity.getUserId());
+                evalResultEntity.setColleagueEvalScore(recordEntity.getScore());
+                evalResultEntity.setColleagueEvalDetail(recordEntity.getDetail());
+            }
+        }
+        //设置督导评价结果
+        for (InspectorEvalTaskEntity inspectorEvalTask : inspectorEvalTasks) {
+            List<InspectorEvalRecordEntity> inspectorEvalRecordEntityList = inspectorEvalRecordService.list(
+                    new QueryWrapper<InspectorEvalRecordEntity>().eq("sub_task_id", inspectorEvalTask.getId())
+            );
+            for(InspectorEvalRecordEntity recordEntity : inspectorEvalRecordEntityList){
+                EvalResultEntity evalResultEntity = resultEntityMap.get(recordEntity.getUserId());
+                if(evalResultEntity.getInspectorEvalScore() != null){
+                    Double score = (recordEntity.getScore() + evalResultEntity.getInspectorEvalScore()) / 2;
+                    evalResultEntity.setInspectorEvalScore(score);
+                    evalResultEntity.setInspectorEvalDetail(evalResultEntity.getInspectorEvalDetail()
+                            + "#" + inspectorEvalTask.getUserId().toString() + "_" + recordEntity.getDetail());
+                }else{
+                    evalResultEntity.setInspectorEvalScore(recordEntity.getScore());
+                    evalResultEntity.setInspectorEvalDetail(""+inspectorEvalTask.getUserId()+"_"+recordEntity.getDetail());
+                }
+            }
+        }
+        //设置其他评价结果
+        List<OtherEvalRecordEntity> otherEvalRecordEntityList = otherEvalRecordService.list(
+                new QueryWrapper<OtherEvalRecordEntity>().eq("sub_task_id", otherEvalTaskEntity.getId()));
+        for(OtherEvalRecordEntity recordEntity : otherEvalRecordEntityList){
+            EvalResultEntity evalResultEntity = resultEntityMap.get(recordEntity.getUserId());
+            evalResultEntity.setOtherEvalScore(recordEntity.getScore());
+        }
+        //保存评价结果
+        for(EvalResultEntity resultEntity : resultEntityMap.values()){
+            evalResultService.save(resultEntity);
+        }
+
+        //对评价结果进行排名
+        evalResultService.sortEvalResult(taskId);
+
+        //修改评价状态为完成状态
+        evalTask.setHeadcount(headcount);
+        evalTask.setStatus(EvalTaskEntity.Status.COMPLETE.value());
+        super.updateById(evalTask);
     }
 
     @Override
@@ -74,27 +206,44 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteById(Collection<? extends Serializable> idList) {
 
-        //删除学生任务
-        studentEvalTaskService.remove(new QueryWrapper<StudentEvalTaskEntity>().in("task_id", idList));
+        //删除学生评价记录,删除学生任务
+        List<StudentEvalTaskEntity> studentTasks = studentEvalTaskService.list(new QueryWrapper<StudentEvalTaskEntity>().in("task_id", idList));
+        for(StudentEvalTaskEntity entity : studentTasks){
+            studentEvalRecordService.remove(new QueryWrapper<StudentEvalRecordEntity>().eq("sub_task_id", entity.getTaskId()));
+            studentEvalTaskService.removeById(entity.getTaskId());
+        }
 
         //删除同行评价项目
         colleagueEvalTaskItemService.remove(new QueryWrapper<ColleagueEvalTaskItemEntity>().in("task_id", idList));
 
-        //删除同行评价详情
-        colleagueEvalTaskService.remove(new QueryWrapper<ColleagueEvalTaskEntity>().in("task_id", idList));
-
+        //删除同行评价记录,删除同行任务
+        List<ColleagueEvalTaskEntity> colleagueTasks = colleagueEvalTaskService.list(new QueryWrapper<ColleagueEvalTaskEntity>().in("task_id", idList));
+       for(ColleagueEvalTaskEntity entity : colleagueTasks){
+           colleagueEvalRecordService.remove(new QueryWrapper<ColleagueEvalRecordEntity>().eq("sub_task_id", entity.getTaskId()));
+           colleagueEvalTaskService.removeById(entity.getTaskId());
+       }
         //删除督导评价项目
         inspectorEvalTaskItemService.remove(new QueryWrapper<InspectorEvalTaskItemEntity>().in("task_id", idList));
 
-        //删除督导评价详情
-        inspectorEvalTaskService.remove(new QueryWrapper<InspectorEvalTaskEntity>().in("task_id", idList));
+        //删除督导评价记录,删除督导任务
+        List<InspectorEvalTaskEntity> inspectorTasks = inspectorEvalTaskService.list(new QueryWrapper<InspectorEvalTaskEntity>().in("task_id", idList));
+        for(InspectorEvalTaskEntity entity : inspectorTasks){
+            inspectorEvalRecordService.remove(new QueryWrapper<InspectorEvalRecordEntity>().eq("sub_task_id", entity.getTaskId()));
+            inspectorEvalTaskService.removeById(entity.getTaskId());
+        }
 
-        //删除其他评价详情
-        otherEvalTaskService.remove(new QueryWrapper<OtherEvalTaskEntity>().in("task_id", idList));
+        //删除其他评价记录,删除其他任务
+        List<OtherEvalTaskEntity> otherTasks = otherEvalTaskService.list(new QueryWrapper<OtherEvalTaskEntity>().in("task_id", idList));
+        for(OtherEvalTaskEntity entity : otherTasks){
+            otherEvalRecordService.remove(new QueryWrapper<OtherEvalRecordEntity>().eq("sub_task_id", entity.getTaskId()));
+            otherEvalTaskService.removeById(entity.getTaskId());
+        }
 
-        //TODO 删除评价记录
+        //删除评价结果
+        evalResultService.remove(new QueryWrapper<EvalResultEntity>().in("task_id", idList));
 
         //删除评价任务
         super.removeByIds(idList);
@@ -113,6 +262,13 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
             //学生评价
             StudentEvalTaskEntity studentEvalTaskEntity = studentEvalTaskService.getOne(
                     new QueryWrapper<StudentEvalTaskEntity>().eq("task_id", id));
+
+            //查询学生评价进度
+            Integer studentCount = studentEvalRecordService.count(
+                    new QueryWrapper<StudentEvalRecordEntity>().eq("sub_task_id", studentEvalTaskEntity.getId()));
+            studentEvalTaskEntity.setSchedule(studentCount);
+
+            //vo添加学生评价
             evalTask.setStudentPercentage(studentEvalTaskEntity.getPercentage());
             evalTask.setStudentEvalTask(studentEvalTaskEntity);
 
@@ -125,12 +281,16 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
             List<ColleagueEvalTaskEntity> colleagueEvalTasks = colleagueEvalTaskService.list(
                     new QueryWrapper<ColleagueEvalTaskEntity>().eq("task_id", id));
             for (ColleagueEvalTaskEntity colleagueEvalTask : colleagueEvalTasks) {
-                //查找部门名称
-                SysDeptEntity taskDept = sysDeptService.getById(colleagueEvalTask.getDeptId());
-                colleagueEvalTask.setDeptName(taskDept.getName());
                 //查找系主任/同行姓名
                 SysUserEntity taskUser = sysUserService.getById(colleagueEvalTask.getUserId());
                 colleagueEvalTask.setUserName(taskUser.getName());
+                //查找部门名称
+                SysDeptEntity taskDept = sysDeptService.getById(colleagueEvalTask.getDeptId());
+                colleagueEvalTask.setDeptName(taskDept.getName());
+                //查询同行评价进度
+                Integer colleagueCount = colleagueEvalRecordService.count(
+                        new QueryWrapper<ColleagueEvalRecordEntity>().eq("sub_task_id", colleagueEvalTask.getId()));
+                colleagueEvalTask.setSchedule(colleagueCount);
             }
             evalTask.setColleaguePercentage(colleagueEvalTasks.get(0).getPercentage());
             evalTask.setColleagueEvalTasks(colleagueEvalTasks);
@@ -147,6 +307,11 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
                 //查找系主任/同行姓名
                 SysUserEntity taskUser = sysUserService.getById(inspectorEvalTask.getUserId());
                 inspectorEvalTask.setUserName(taskUser.getName());
+
+                //查询督导评价进度
+                Integer inspectorCount = inspectorEvalRecordService.count(
+                        new QueryWrapper<InspectorEvalRecordEntity>().eq("sub_task_id", inspectorEvalTask.getId()));
+                inspectorEvalTask.setSchedule(inspectorCount);
             }
             evalTask.setInspectorPercentage(inspectorEvalTasks.get(0).getPercentage());
             evalTask.setInspectorEvalTasks(inspectorEvalTasks);
@@ -154,8 +319,23 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
             //其他评价
             OtherEvalTaskEntity otherEvalTaskEntity = otherEvalTaskService.getOne(
                     new QueryWrapper<OtherEvalTaskEntity>().eq("task_id", id));
+
+            //查询其他评价进度
+            Integer otherCount = otherEvalRecordService.count(
+                    new QueryWrapper<OtherEvalRecordEntity>().eq("sub_task_id", otherEvalTaskEntity.getId()));
+            otherEvalTaskEntity.setSchedule(otherCount);
+
             evalTask.setOtherPercentage(otherEvalTaskEntity.getPercentage());
             evalTask.setOtherEvalTask(otherEvalTaskEntity);
+
+            //查找参评人数
+            if(evalTask.getHeadcount() == null){
+                List<Long> subDeptIds = sysDeptService.getSubDeptIdList(evalTask.getDeptId());
+                subDeptIds.add(evalTask.getDeptId());
+                Integer headcount = sysUserService.count(new QueryWrapper<SysUserEntity>().in("dept_id",subDeptIds));
+                evalTask.setHeadcount(headcount);
+            }
+
 
         }
 

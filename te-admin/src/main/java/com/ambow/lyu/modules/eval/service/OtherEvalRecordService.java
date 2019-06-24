@@ -21,10 +21,11 @@ public interface OtherEvalRecordService extends IService<OtherEvalRecordEntity> 
      * 添加一条记录
      * @param taskId 评价任务ID
      * @param subTaskId  学生评价任务ID
-     * @param name user姓名
+     * @param username 用户名/工号
+     * @param name 姓名
      * @param score 分数
      * @return 是否成功
      */
-    boolean add(Long taskId,Long subTaskId,String name,Double score);
+    boolean add(Long taskId,Long subTaskId,String username,String name,Double score);
 }
 

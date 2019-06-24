@@ -23,6 +23,9 @@
             <#if shiro.hasPermission("eval:evaltask:close")>
             <a class="btn btn-primary" @click="close"><i class="fa fa-pencil-square-o"></i>&nbsp;关闭</a>
             </#if>
+            <#if shiro.hasPermission("eval:evaltask:result")>
+            <a class="btn btn-primary" @click="generateResult"><i class="fa fa-pencil-square-o"></i>&nbsp;生成评价结果</a>
+            </#if>
 			<#if shiro.hasPermission("eval:evaltask:delete")>
             <a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
 			</#if>
@@ -291,7 +294,7 @@
                 <div class="col-sm-2 control-label">状态</div>
                 <div class="col-sm-4">
                     <span v-if='evalTask.status==0' class="label label-default">新建</span>
-                    <span v-else-if="evalTask.status==0" class="label label-success">发布</span>
+                    <span v-else-if="evalTask.status==1" class="label label-success">发布</span>
                     <span v-else class="label label-danger">关闭</span>
                 </div>
             </div>
@@ -327,6 +330,25 @@
                 </div>
             </div>
             <div class="form-group">
+                <div class="col-sm-2 control-label">学生评价详情</div>
+                <div class="col-sm-8">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>评价部门</th>
+                            <th>学生评价进度(完成人数/总人数)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>{{evalTask.deptName}}</td>
+                            <td>{{evalTask.studentEvalTask.schedule}}/{{evalTask.headcount}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group">
                 <div class="col-sm-2 control-label">同行评价项目</div>
                 <div class="col-sm-8">
                     <table class="table table-hover">
@@ -356,6 +378,7 @@
                             <th>序号</th>
                             <th>评价部门</th>
                             <th>评价执行人</th>
+                            <th>同行评价进度(完成人数/总人数)</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -363,6 +386,7 @@
                             <td>{{index+1}}</td>
                             <td>{{item.deptName}}</td>
                             <td>{{item.userName}}</td>
+                            <td>{{item.schedule}}/{{evalTask.headcount}}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -396,13 +420,36 @@
                         <thead>
                         <tr>
                             <th>序号</th>
+                            <th>评价部门</th>
                             <th>评价执行人</th>
+                            <th>督导评价进度(完成人数/总人数)</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr v-for="(item, index) in evalTask.inspectorEvalTasks" :key="index">
                             <td>{{index+1}}</td>
+                            <td>{{evalTask.deptName}}</td>
                             <td>{{item.userName}}</td>
+                            <td>{{item.schedule}}/{{evalTask.headcount}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-2 control-label">其他评价详情</div>
+                <div class="col-sm-8">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>评价部门</th>
+                            <th>其他评价进度(完成人数/总人数)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>{{evalTask.deptName}}</td>
+                            <td>{{evalTask.otherEvalTask.schedule}}/{{evalTask.headcount}}</td>
                         </tr>
                         </tbody>
                     </table>

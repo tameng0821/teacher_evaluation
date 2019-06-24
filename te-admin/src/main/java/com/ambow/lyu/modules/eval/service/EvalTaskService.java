@@ -20,6 +20,12 @@ public interface EvalTaskService extends IService<EvalTaskEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
     /**
+     * 生成评价结果
+     * @param taskId 任务ID
+     */
+    void generateResult(Long taskId);
+
+    /**
      * 获取评价任务状态
      *
      * @param taskId 评价任务ID

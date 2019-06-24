@@ -18,7 +18,6 @@
     <modules>
         <module>te-common</module>
         <module>te-admin</module>
-        <module>te-api</module>
     </modules>
 
     <properties>

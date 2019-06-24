@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ambow.lyu.modules.eval.dao.EvalResultDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.ambow.lyu.modules.eval.entity.EvalResultEntity" id="evalResultMap">
+        <result property="id" column="id"/>
+        <result property="taskId" column="task_id"/>
+        <result property="username" column="username"/>
+        <result property="name" column="name"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="studentEvalScore" column="student_eval_score"/>
+        <result property="studentEvalDetail" column="student_eval_detail"/>
+        <result property="colleagueEvalScore" column="colleague_eval_score"/>
+        <result property="colleagueEvalDetail" column="colleague_eval_detail"/>
+        <result property="inspectorEvalScore" column="inspector_eval_score"/>
+        <result property="inspectorEvalDetail" column="inspector_eval_detail"/>
+        <result property="otherEvalScore" column="other_eval_score"/>
+        <result property="otherEvalDetail" column="other_eval_detail"/>
+        <result property="accountScore" column="account_score"/>
+        <result property="ranking" column="ranking"/>
+        <result property="rating" column="rating"/>
+        <result property="remark" column="remark"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+
+</mapper>

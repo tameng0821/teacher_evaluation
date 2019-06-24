@@ -90,8 +90,8 @@ public class EvalTaskController {
     public Response release(@PathVariable("id") Long id) {
 
         EvalTaskEntity.Status status = evalTaskService.getTaskStatus(id);
-        if (!EvalTaskEntity.Status.NEW.equals(status)) {
-            throw new TeException("只有处于新建状态的评价任务才能发布！");
+        if (!(EvalTaskEntity.Status.NEW.equals(status) || EvalTaskEntity.Status.CLOSE.equals(status)) ) {
+            throw new TeException("只有处于新建或者关闭状态的评价任务才能发布！");
         }
 
         evalTaskService.updateTaskStatus(id, EvalTaskEntity.Status.RELEASE);
@@ -110,7 +110,6 @@ public class EvalTaskController {
         if (!EvalTaskEntity.Status.RELEASE.equals(status)) {
             throw new TeException("只有处于发布状态的评价任务才能关闭！");
         }
-
         evalTaskService.updateTaskStatus(id, EvalTaskEntity.Status.CLOSE);
 
         return Response.ok();
@@ -123,6 +122,22 @@ public class EvalTaskController {
     @RequiresPermissions("eval:evaltask:delete")
     public Response delete(@RequestBody Long[] ids) {
         evalTaskService.deleteById(Arrays.asList(ids));
+
+        return Response.ok();
+    }
+
+    /**
+     * 生成评价结果
+     */
+    @RequestMapping("/result/{id}")
+    @RequiresPermissions("eval:evaltask:result")
+    public Response result(@PathVariable("id") Long id) {
+        EvalTaskEntity.Status status = evalTaskService.getTaskStatus(id);
+        if (!EvalTaskEntity.Status.CLOSE.equals(status)) {
+            throw new TeException("只有处于关闭状态的评价任务才能生成评价结果！");
+        }
+
+        evalTaskService.generateResult(id);
 
         return Response.ok();
     }

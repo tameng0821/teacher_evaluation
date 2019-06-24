@@ -35,7 +35,6 @@ public class EvalBaseItemEntity implements Serializable {
      * 百分比
      */
     @NotNull(message = "百分比不能为空", groups = {AddGroup.class, UpdateGroup.class})
-    @Pattern(message = "百分比只能是正整数", regexp = "^[1-9]+[0-9]*$", groups = {AddGroup.class, UpdateGroup.class})
     @Max(message = "百分比最大不能超多100", value = 100, groups = {AddGroup.class, UpdateGroup.class})
     @Min(message = "百分比最小不能超过0", value = 0, groups = {AddGroup.class, UpdateGroup.class})
     private Integer percentage;

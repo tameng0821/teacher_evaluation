@@ -4,7 +4,7 @@ $(function () {
         datatype: "json",
         colModel: [			
 			{ label: '用户ID', name: 'userId', index: "user_id", width: 45, key: true },
-			{ label: '用户名', name: 'username', width: 75 },
+			{ label: '工号', name: 'username', width: 75 },
             { label: '所属部门', name: 'deptName', sortable: false, width: 95 },
 			{ label: '姓名', name: 'name', width: 55 },
 			{ label: '邮箱', name: 'email', width: 90 },

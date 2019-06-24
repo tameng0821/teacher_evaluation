@@ -15,6 +15,8 @@ $(function () {
                         return '<span class="label label-success">发布</span>';
                     } else if (value === 2) {
                         return '<span class="label label-danger">关闭</span>';
+                    } else if (value === 3) {
+                        return '<span class="label label-info">完成</span>';
                     }
                 }
             }
@@ -282,8 +284,8 @@ let vm = new Vue({
             }
 
             let rowData = $("#jqGrid").getRowData(id);
-            if (rowData.status.indexOf('新建') === -1) {
-                layer.msg("只有处于新建状态的任务才能发布！", {icon: 2});
+            if( !(rowData.status.indexOf('新建') !== -1 || rowData.status.indexOf('关闭') !== -1 ) ) {
+                layer.msg("只有处于新建或者状态的任务才能发布！", {icon: 2});
                 return;
             }
 
@@ -326,6 +328,36 @@ let vm = new Vue({
                     $.get(baseURL + "eval/evaltask/close/" + id, function (r) {
                         if (r.code === 0) {
                             layer.msg("评价任务关闭成功", {icon: 1});
+                            vm.reload();
+                        } else {
+                            layer.alert(r.msg);
+                        }
+                    });
+                }
+            }, function () {
+            });
+        },
+        generateResult: function (event) {
+            let id = getSelectedRow();
+            if (id == null) {
+                return;
+            }
+
+            let rowData = $("#jqGrid").getRowData(id);
+            if (rowData.status.indexOf('关闭') === -1) {
+                layer.msg("只有处于关闭状态的任务才能生成评价结果！", {icon: 2});
+                return;
+            }
+
+            let lock = false;
+            layer.confirm('评价任务将生成评价结果，确定？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                if (!lock) {
+                    lock = true;
+                    $.get(baseURL + "eval/evaltask/result/" + id, function (r) {
+                        if (r.code === 0) {
+                            layer.msg("评价结果生成完成，请去评价结果模块查看!", {icon: 1});
                             vm.reload();
                         } else {
                             layer.alert(r.msg);

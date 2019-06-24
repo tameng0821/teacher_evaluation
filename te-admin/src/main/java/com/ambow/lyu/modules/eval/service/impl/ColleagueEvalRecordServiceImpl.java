@@ -51,12 +51,15 @@ public class ColleagueEvalRecordServiceImpl extends ServiceImpl<ColleagueEvalRec
     }
 
     @Override
-    public boolean add(Long taskId, Long subTaskId, String name, List<EvalTaskItemScoreDto> scoreDtoList) {
+    public boolean add(Long taskId, Long subTaskId,String username, String name, List<EvalTaskItemScoreDto> scoreDtoList) {
         if(taskId == null){
             throw new TeException("评价任务异常，未找到正确的评价任务！");
         }
         if(subTaskId == null){
             throw new TeException("评价任务异常，未找到正确的评价任务！");
+        }
+        if(StringUtils.isBlank(username)){
+            throw new TeException("工号不能为空！");
         }
         if(StringUtils.isBlank(name)){
             throw new TeException("姓名不能为空！");
@@ -72,9 +75,9 @@ public class ColleagueEvalRecordServiceImpl extends ServiceImpl<ColleagueEvalRec
 
         //根据姓名查找userId，现在考虑为一个学院没有重名的
         SysUserEntity user = sysUserService.getOne(
-                new QueryWrapper<SysUserEntity>().eq("name",name).in("dept_id",deptIds));
+                new QueryWrapper<SysUserEntity>().eq("username",username).in("dept_id",deptIds));
         if(user == null){
-            throw new TeException("无效的姓名，未能在当前部门内找到此教师！");
+            throw new TeException("无效的工号，未能在当前部门内找到此教师！");
         }
 
         //根据subTaskId、userId查找是否存在之前的记录，如果是修改，否则添加

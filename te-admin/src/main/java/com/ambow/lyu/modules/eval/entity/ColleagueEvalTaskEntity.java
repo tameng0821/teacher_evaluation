@@ -66,5 +66,11 @@ public class ColleagueEvalTaskEntity implements Serializable {
     @TableField(exist = false)
     private String taskCreateTime;
 
+    /**
+     * 完成进度，完成人数，最后会和部门总人数做比较
+     */
+    @TableField(exist = false)
+    private Integer schedule;
+
 
 }

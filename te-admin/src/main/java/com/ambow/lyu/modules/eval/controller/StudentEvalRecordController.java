@@ -1,5 +1,6 @@
 package com.ambow.lyu.modules.eval.controller;
 
+import com.ambow.lyu.common.dto.StuOrOtherEvalScoreDto;
 import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.common.utils.Constant;
 import com.ambow.lyu.common.utils.ExcelUtils;
@@ -93,32 +94,28 @@ public class StudentEvalRecordController {
     @RequiresPermissions("eval:studentevaltask:eval")
     public Response fileImport(@PathVariable("taskId") Long taskId,@PathVariable("subTaskId") Long subTaskId,@RequestParam("xlsRecordFile") MultipartFile xlsRecordFile) {
         try {
-            Map<String,String> score;
-            score = ExcelUtils.readStudentEvalScore(xlsRecordFile.getInputStream(),xlsRecordFile.getOriginalFilename());
+            List<StuOrOtherEvalScoreDto> xlsResult = ExcelUtils.readStudentOrOtherEvalScore(xlsRecordFile.getInputStream(),xlsRecordFile.getOriginalFilename());
             Response response = Response.ok();
-            List<Map<String,String>> successList = new ArrayList<>();
-            List<Map<String,String>> errorList = new ArrayList<>();
-            for(String name : score.keySet()){
-                Map<String,String> itemResult = new HashMap<>(3);
-                itemResult.put("name",name);
-                itemResult.put("score",score.get(name));
+            List<StuOrOtherEvalScoreDto> successList = new ArrayList<>();
+            List<StuOrOtherEvalScoreDto> errorList = new ArrayList<>();
+            for(StuOrOtherEvalScoreDto item : xlsResult){
                 try{
-                    if(!Pattern.matches("^(100|([1-9]?\\d))([.]\\d*)?$",score.get(name))){
-                        throw new TeException("成绩只能为浮点数或者正整数");
+                    if(!Pattern.matches("^(100|([1-9]?\\d))([.]\\d*)?$",item.getScore())){
+                        throw new TeException("学生评价分数只能为浮点数或者正整数");
                     }
-                    Double s = Double.valueOf(score.get(name));
-                    boolean result = studentEvalRecordService.add(taskId,subTaskId,name,s);
+                    Double score = Double.valueOf(item.getScore());
+                    boolean result = studentEvalRecordService.add(taskId,subTaskId,item.getUsername(),item.getName(),score);
                     if(result){
-                        successList.add(itemResult);
+                        successList.add(item);
                     }else {
                         throw new TeException("数据库异常，添加失败");
                     }
                 }catch (NumberFormatException e){
-                    itemResult.put("reason","成绩只能为浮点数或者正整数");
-                    errorList.add(itemResult);
+                    item.setReason("成绩只能为浮点数或者正整数");
+                    errorList.add(item);
                 }catch (Exception ex){
-                    itemResult.put("reason",ex.getMessage());
-                    errorList.add(itemResult);
+                    item.setReason(ex.getMessage());
+                    errorList.add(item);
                 }
             }
             response.put("successList",successList);

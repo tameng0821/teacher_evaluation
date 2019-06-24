@@ -6,7 +6,6 @@ import com.ambow.lyu.common.utils.Constant;
 import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.common.utils.Query;
 import com.ambow.lyu.modules.eval.dao.InspectorEvalRecordDao;
-import com.ambow.lyu.modules.eval.entity.ColleagueEvalRecordEntity;
 import com.ambow.lyu.modules.eval.entity.EvalTaskEntity;
 import com.ambow.lyu.modules.eval.entity.InspectorEvalRecordEntity;
 import com.ambow.lyu.modules.eval.service.EvalTaskService;
@@ -52,20 +51,23 @@ public class InspectorEvalRecordServiceImpl extends ServiceImpl<InspectorEvalRec
     }
 
     @Override
-    public boolean add(Long taskId, Long subTaskId, String name, List<EvalTaskItemScoreDto> scoreDtoList) {
-        if (taskId == null) {
+    public boolean add(Long taskId, Long subTaskId,String username, String name, List<EvalTaskItemScoreDto> scoreDtoList) {
+        if(taskId == null){
             throw new TeException("评价任务异常，未找到正确的评价任务！");
         }
-        if (subTaskId == null) {
+        if(subTaskId == null){
             throw new TeException("评价任务异常，未找到正确的评价任务！");
         }
-        if (StringUtils.isBlank(name)) {
+        if(StringUtils.isBlank(username)){
+            throw new TeException("工号不能为空！");
+        }
+        if(StringUtils.isBlank(name)){
             throw new TeException("姓名不能为空！");
         }
 
         //根据subTask获得任务所属部门
         EvalTaskEntity evalTaskEntity = evalTaskService.getById(taskId);
-        if (evalTaskEntity == null) {
+        if(evalTaskEntity == null){
             throw new TeException("无效的评价任务，请正确的使用系统！");
         }
         List<Long> deptIds = sysDeptService.getSubDeptIdList(evalTaskEntity.getDeptId());
@@ -73,9 +75,9 @@ public class InspectorEvalRecordServiceImpl extends ServiceImpl<InspectorEvalRec
 
         //根据姓名查找userId，现在考虑为一个学院没有重名的
         SysUserEntity user = sysUserService.getOne(
-                new QueryWrapper<SysUserEntity>().eq("name", name).in("dept_id", deptIds));
-        if (user == null) {
-            throw new TeException("无效的姓名，未能在当前部门内找到此教师！");
+                new QueryWrapper<SysUserEntity>().eq("username",username).in("dept_id",deptIds));
+        if(user == null){
+            throw new TeException("无效的工号，未能在当前部门内找到此教师！");
         }
 
         //根据subTaskId、userId查找是否存在之前的记录，如果是修改，否则添加

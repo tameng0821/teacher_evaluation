@@ -67,23 +67,28 @@ public class TemplateDownloadController {
 
         //标题
         HSSFRow row = sheet.createRow(0);
-        HSSFCell cell = row.createCell(0);
-        cell.setCellValue("姓名");
-        cell.setCellStyle(cellStyle);
+        HSSFCell usernameCell = row.createCell(0);
+        usernameCell.setCellValue("教师工号");
+        usernameCell.setCellStyle(cellStyle);
         sheet.setColumnWidth(0,5*3*256);
+        HSSFCell nameCell = row.createCell(1);
+        nameCell.setCellValue("教师姓名");
+        nameCell.setCellStyle(cellStyle);
+        sheet.setColumnWidth(1,5*3*256);
         for(int i=0; i < itemEntities.size() ; ++i){
             String value = itemEntities.get(i).getName()+"（占比:"+itemEntities.get(i).getPercentage()+"%）";
-            HSSFCell itemCell = row.createCell(i+1);
+            HSSFCell itemCell = row.createCell(i+2);
             itemCell.setCellValue(value);
             itemCell.setCellStyle(cellStyle);
-            sheet.setColumnWidth(i+1,value.getBytes().length*256);
+            sheet.setColumnWidth(i+2,value.getBytes().length*256);
         }
 
         //演示数据
         HSSFRow row1 = sheet.createRow(1);
-        row1.createCell(0).setCellValue("李某某");
+        row1.createCell(0).setCellValue("1230001");
+        row1.createCell(1).setCellValue("刘某某");
         for(int i=0; i < itemEntities.size() ; ++i){
-            row1.createCell(i+1).setCellValue("100");
+            row1.createCell(i+2).setCellValue("100");
         }
 
 
@@ -115,23 +120,28 @@ public class TemplateDownloadController {
 
         //标题
         HSSFRow row = sheet.createRow(0);
-        HSSFCell cell = row.createCell(0);
-        cell.setCellValue("姓名");
-        cell.setCellStyle(cellStyle);
+        HSSFCell usernameCell = row.createCell(0);
+        usernameCell.setCellValue("教师工号");
+        usernameCell.setCellStyle(cellStyle);
         sheet.setColumnWidth(0,5*3*256);
+        HSSFCell nameCell = row.createCell(1);
+        nameCell.setCellValue("教师姓名");
+        nameCell.setCellStyle(cellStyle);
+        sheet.setColumnWidth(1,5*3*256);
         for(int i=0; i < itemEntities.size() ; ++i){
             String value = itemEntities.get(i).getName()+"（占比:"+itemEntities.get(i).getPercentage()+"%）";
-            HSSFCell itemCell = row.createCell(i+1);
+            HSSFCell itemCell = row.createCell(i+2);
             itemCell.setCellValue(value);
             itemCell.setCellStyle(cellStyle);
-            sheet.setColumnWidth(i+1,value.getBytes().length*256);
+            sheet.setColumnWidth(i+2,value.getBytes().length*256);
         }
 
         //演示数据
         HSSFRow row1 = sheet.createRow(1);
-        row1.createCell(0).setCellValue("刘某某");
+        row1.createCell(0).setCellValue("1230001");
+        row1.createCell(1).setCellValue("刘某某");
         for(int i=0; i < itemEntities.size() ; ++i){
-            row1.createCell(i+1).setCellValue("100");
+            row1.createCell(i+2).setCellValue("100");
         }
 
 

@@ -52,6 +52,11 @@ public class EvalTaskEntity implements Serializable {
      * 备注
      */
     private String remark;
+    /**
+     * 参与评价人数，即为评价部门下所有人，因为每学期老师人数会发生变化，保留人数
+     * 生成评价结果的时候添加
+     */
+    private Integer headcount;
 
     /**
      * 部门名称
@@ -128,6 +133,8 @@ public class EvalTaskEntity implements Serializable {
     @TableField(exist = false)
     private OtherEvalTaskEntity otherEvalTask;
 
+
+
     /**
      * 评价任务状态常量
      */
@@ -136,8 +143,9 @@ public class EvalTaskEntity implements Serializable {
          * NEW =新建
          * RELEASE =发布
          * CLOSE =关闭
+         * COMPLETE = 已经生成评价结果
          */
-        NEW(0), RELEASE(1), CLOSE(2);
+        NEW(0), RELEASE(1), CLOSE(2),COMPLETE(3);
 
         private int value = 0;
 
@@ -153,6 +161,8 @@ public class EvalTaskEntity implements Serializable {
                     return RELEASE;
                 case 2:
                     return CLOSE;
+                case 3:
+                    return COMPLETE;
                 default:
                     return null;
             }

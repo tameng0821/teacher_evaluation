@@ -1,6 +1,8 @@
 package com.ambow.lyu.common.utils;
 
+import com.ambow.lyu.common.dto.ColOrInspectorEvalScoreDto;
 import com.ambow.lyu.common.dto.EvalTaskItemScoreDto;
+import com.ambow.lyu.common.dto.StuOrOtherEvalScoreDto;
 import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.modules.eval.entity.ColleagueEvalTaskItemEntity;
 import com.ambow.lyu.modules.eval.entity.InspectorEvalTaskItemEntity;
@@ -28,8 +30,12 @@ public class ExcelUtils {
     /**
      * excel 文件后缀名
      */
-    public static final String OFFICE_EXCEL_XLS = "xls";
-    public static final String OFFICE_EXCEL_XLSX = "xlsx";
+    private static final String OFFICE_EXCEL_XLS = "xls";
+    private static final String OFFICE_EXCEL_XLSX = "xlsx";
+
+    private static final String EXCEL_TEM_TITLE_0 = "教师工号";
+    private static final String EXCEL_TEM_TITLE_1 = "教师姓名";
+    private static final String EXCEL_TEM_TITLE_2 = "得分";
 
     public static void main(String[] args) throws IOException {
 
@@ -54,48 +60,44 @@ public class ExcelUtils {
     }
 
     /**
-     * 读取学生评价分数
-     *
-     * @param file 学生评价导入样例表（教务处导出）.xls
-     * @return Map<教师, 分数>
-     */
-    public static Map<String, String> readStudentEvalScore(File file) throws IOException {
-        return readStudentEvalScore(new FileInputStream(file),file.getName());
-    }
-
-    /**
      * 读取同行评价分数
      *
      * @param is       文件流
      * @param fileName 文件名
-     * @return Map<教师, 分数>
+     * @return 评价得分结果
      */
-    public static Map<String, List<EvalTaskItemScoreDto>> readColleagueEvalScore(InputStream is, String fileName,List<ColleagueEvalTaskItemEntity> itemEntities) throws IOException {
+    public static List<ColOrInspectorEvalScoreDto> readColleagueEvalScore(InputStream is, String fileName, List<ColleagueEvalTaskItemEntity> itemEntities) throws IOException {
         List<Map<Integer, String>> xlsList = readExcel(is,fileName, 0);
 
         Map<Integer, String> title = xlsList.get(0);
-        if(!title.get(0).contains("姓名")){
+        if(!title.get(0).contains(EXCEL_TEM_TITLE_0)){
+            throw new TeException("请使用正确的EXCEL模板");
+        }else if(!title.get(1).contains(EXCEL_TEM_TITLE_1)){
             throw new TeException("请使用正确的EXCEL模板");
         }
         for(int i = 0 ; i < itemEntities.size() ; ++i){
-            if(!title.get(i+1).contains(itemEntities.get(i).getName())){
+            if(!title.get(i+2).contains(itemEntities.get(i).getName())){
                 throw new TeException("请使用正确的EXCEL模板");
             }
         }
 
-        Map<String, List<EvalTaskItemScoreDto>> score = new HashMap<>();
+        List<ColOrInspectorEvalScoreDto> result = new ArrayList<>();
         for(int i = 1 ; i < xlsList.size() ; ++i){
             Map<Integer, String> row = xlsList.get(i);
-            String name = row.get(0);
+            ColOrInspectorEvalScoreDto item = new ColOrInspectorEvalScoreDto();
+            item.setUsername(row.get(0));
+            item.setName(row.get(1));
+
             List<EvalTaskItemScoreDto> scoreDetail = new ArrayList<>();
             for(int j = 0 ; j < itemEntities.size() ; ++j){
-                Double itemScore = Double.valueOf(row.get(j+1).trim());
+                Double itemScore = Double.valueOf(row.get(j+2).trim());
                 EvalTaskItemScoreDto dto = new EvalTaskItemScoreDto().generateFromEvalItemEntity(itemEntities.get(j),itemScore);
                 scoreDetail.add(dto);
             }
-            score.put(name,scoreDetail);
+            item.setDetails(scoreDetail);
+            result.add(item);
         }
-        return score;
+        return result;
     }
 
     /**
@@ -103,34 +105,40 @@ public class ExcelUtils {
      *
      * @param is       文件流
      * @param fileName 文件名
-     * @return Map<教师, 分数>
+     * @return 评价得分结果
      */
-    public static Map<String, List<EvalTaskItemScoreDto>> readInspectorEvalScore(InputStream is, String fileName,List<InspectorEvalTaskItemEntity> itemEntities) throws IOException {
+    public static List<ColOrInspectorEvalScoreDto> readInspectorEvalScore(InputStream is, String fileName,List<InspectorEvalTaskItemEntity> itemEntities) throws IOException {
         List<Map<Integer, String>> xlsList = readExcel(is,fileName, 0);
 
         Map<Integer, String> title = xlsList.get(0);
-        if(!title.get(0).contains("姓名")){
+        if(!title.get(0).contains(EXCEL_TEM_TITLE_0)){
+            throw new TeException("请使用正确的EXCEL模板");
+        }else if(!title.get(1).contains(EXCEL_TEM_TITLE_1)){
             throw new TeException("请使用正确的EXCEL模板");
         }
         for(int i = 0 ; i < itemEntities.size() ; ++i){
-            if(!title.get(i+1).contains(itemEntities.get(i).getName())){
+            if(!title.get(i+2).contains(itemEntities.get(i).getName())){
                 throw new TeException("请使用正确的EXCEL模板");
             }
         }
 
-        Map<String, List<EvalTaskItemScoreDto>> score = new HashMap<>();
+        List<ColOrInspectorEvalScoreDto> result = new ArrayList<>();
         for(int i = 1 ; i < xlsList.size() ; ++i){
             Map<Integer, String> row = xlsList.get(i);
-            String name = row.get(0);
+            ColOrInspectorEvalScoreDto item = new ColOrInspectorEvalScoreDto();
+            item.setUsername(row.get(0));
+            item.setName(row.get(1));
+
             List<EvalTaskItemScoreDto> scoreDetail = new ArrayList<>();
             for(int j = 0 ; j < itemEntities.size() ; ++j){
-                Double itemScore = Double.valueOf(row.get(j+1).trim());
+                Double itemScore = Double.valueOf(row.get(j+2).trim());
                 EvalTaskItemScoreDto dto = new EvalTaskItemScoreDto().generateFromEvalItemEntity(itemEntities.get(j),itemScore);
                 scoreDetail.add(dto);
             }
-            score.put(name,scoreDetail);
+            item.setDetails(scoreDetail);
+            result.add(item);
         }
-        return score;
+        return result;
     }
 
     /**
@@ -138,26 +146,41 @@ public class ExcelUtils {
      *
      * @param is       文件流
      * @param fileName 文件名
-     * @return Map<教师, 分数>
+     * @return 评价得分结果
      */
-    public static Map<String, String> readOtherEvalScore(InputStream is, String fileName) throws IOException {
+    public static List<StuOrOtherEvalScoreDto> readStudentOrOtherEvalScore(InputStream is, String fileName) throws IOException {
         List<Map<Integer, String>> xlsList = readExcel(is,fileName, 0);
-        Map<String, String> score = new HashMap<>();
+
+        Map<Integer, String> title = xlsList.get(0);
+        if(!title.get(0).contains(EXCEL_TEM_TITLE_0)){
+            throw new TeException("请使用正确的EXCEL模板");
+        }else if(!title.get(1).contains(EXCEL_TEM_TITLE_1)){
+            throw new TeException("请使用正确的EXCEL模板");
+        }else if(!title.get(2).contains(EXCEL_TEM_TITLE_2)){
+            throw new TeException("请使用正确的EXCEL模板");
+        }
+
+       List<StuOrOtherEvalScoreDto> result = new ArrayList<>();
         for(int i = 1 ; i < xlsList.size() ; ++i){
             Map<Integer, String> row = xlsList.get(i);
-            score.put(row.get(0).trim(),row.get(1).trim());
+            StuOrOtherEvalScoreDto dto = new StuOrOtherEvalScoreDto();
+            dto.setUsername(row.get(0));
+            dto.setName(row.get(1));
+            dto.setScore(row.get(2));
+            result.add(dto);
         }
-        return score;
+        return result;
     }
 
     /**
-     * 读取学生评价分数
+     * 丛临沂大学教务处导出的excel文件读取学生评价分数
      *
      * @param is       文件流
      * @param fileName 文件名
      * @return Map<教师, 分数>
      */
-    public static Map<String, String> readStudentEvalScore(InputStream is, String fileName) throws IOException {
+    @Deprecated
+    public static Map<String, String> readStudentEvalScoreFromLyuSys(InputStream is, String fileName) throws IOException {
         List<Map<Integer, String>> result = readExcel(is,fileName, 0);
 
         Map<String, String> score = new HashMap<>();

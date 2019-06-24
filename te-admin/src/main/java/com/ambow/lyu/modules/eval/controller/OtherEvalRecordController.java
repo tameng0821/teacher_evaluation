@@ -1,5 +1,6 @@
 package com.ambow.lyu.modules.eval.controller;
 
+import com.ambow.lyu.common.dto.StuOrOtherEvalScoreDto;
 import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.common.utils.Constant;
 import com.ambow.lyu.common.utils.ExcelUtils;
@@ -40,7 +41,7 @@ public class OtherEvalRecordController {
      */
     @RequestMapping("/list/{subTaskId}")
     @RequiresPermissions("eval:otherevaltask:eval")
-    public Response list(@PathVariable("subTaskId") Long subTaskId,@RequestParam Map<String, Object> params){
+    public Response list(@PathVariable("subTaskId") Long subTaskId, @RequestParam Map<String, Object> params) {
 
         params.put(Constant.SUB_TASK_ID, subTaskId);
 
@@ -55,7 +56,7 @@ public class OtherEvalRecordController {
      */
     @RequestMapping("/info/{id}")
     @RequiresPermissions("eval:otherevaltask:eval")
-    public Response info(@PathVariable("id") Long id){
+    public Response info(@PathVariable("id") Long id) {
         OtherEvalRecordEntity otherEvalRecord = otherEvalRecordService.getById(id);
 
         //姓名
@@ -70,15 +71,15 @@ public class OtherEvalRecordController {
      */
     @RequestMapping("/save")
     @RequiresPermissions("eval:otherevaltask:eval")
-    public Response save(@RequestBody OtherEvalRecordEntity otherEvalRecord){
+    public Response save(@RequestBody OtherEvalRecordEntity otherEvalRecord) {
 
         //数据校验
         ValidatorUtils.validateEntity(otherEvalRecord);
 
         //数据是否存在校验
-        int sum = otherEvalRecordService.count( new QueryWrapper<OtherEvalRecordEntity>()
-                .eq("sub_task_id",otherEvalRecord.getSubTaskId()).eq("user_id",otherEvalRecord.getUserId()));
-        if(sum != 0){
+        int sum = otherEvalRecordService.count(new QueryWrapper<OtherEvalRecordEntity>()
+                .eq("sub_task_id", otherEvalRecord.getSubTaskId()).eq("user_id", otherEvalRecord.getUserId()));
+        if (sum != 0) {
             throw new TeException("该教师已添加其他评价记录！！！");
         }
 
@@ -95,11 +96,11 @@ public class OtherEvalRecordController {
      */
     @RequestMapping("/update")
     @RequiresPermissions("eval:otherevaltask:eval")
-    public Response update(@RequestBody OtherEvalRecordEntity otherEvalRecord){
+    public Response update(@RequestBody OtherEvalRecordEntity otherEvalRecord) {
         ValidatorUtils.validateEntity(otherEvalRecord);
         otherEvalRecord.setUpdateTime(new Date());
         otherEvalRecordService.updateById(otherEvalRecord);
-        
+
         return Response.ok();
     }
 
@@ -108,7 +109,7 @@ public class OtherEvalRecordController {
      */
     @RequestMapping("/delete")
     @RequiresPermissions("eval:otherevaltask:eval")
-    public Response delete(@RequestBody Long[] ids){
+    public Response delete(@RequestBody Long[] ids) {
         otherEvalRecordService.removeByIds(Arrays.asList(ids));
 
         return Response.ok();
@@ -117,45 +118,43 @@ public class OtherEvalRecordController {
     /**
      * 文件上传导入
      */
-    @RequestMapping(value = "/import/{taskId}/{subTaskId}",method=RequestMethod.POST
-            ,consumes = MediaType.MULTIPART_FORM_DATA_VALUE,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/import/{taskId}/{subTaskId}", method = RequestMethod.POST
+            , consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @RequiresPermissions("eval:studentevaltask:eval")
-    public Response fileImport(@PathVariable("taskId") Long taskId,@PathVariable("subTaskId") Long subTaskId,@RequestParam("xlsRecordFile") MultipartFile xlsRecordFile) {
+    public Response fileImport(@PathVariable("taskId") Long taskId, @PathVariable("subTaskId") Long subTaskId, @RequestParam("xlsRecordFile") MultipartFile xlsRecordFile) {
         try {
-            Map<String,String> score;
-            score = ExcelUtils.readOtherEvalScore(xlsRecordFile.getInputStream(),xlsRecordFile.getOriginalFilename());
+            List<StuOrOtherEvalScoreDto> xlsResult = ExcelUtils.readStudentOrOtherEvalScore(xlsRecordFile.getInputStream(), xlsRecordFile.getOriginalFilename());
             Response response = Response.ok();
-            List<Map<String,String>> successList = new ArrayList<>();
-            List<Map<String,String>> errorList = new ArrayList<>();
-            for(String name : score.keySet()){
-                Map<String,String> itemResult = new HashMap<>(3);
-                itemResult.put("name",name);
-                itemResult.put("score",score.get(name));
-                try{
-                    if(!Pattern.matches("^(100|([1-9]?\\d))([.]\\d*)?$",score.get(name))){
-                        throw new TeException("成绩只能为浮点数或者正整数");
+            List<StuOrOtherEvalScoreDto> successList = new ArrayList<>();
+            List<StuOrOtherEvalScoreDto> errorList = new ArrayList<>();
+            for (StuOrOtherEvalScoreDto item : xlsResult) {
+                try {
+                    if (!Pattern.matches("^(100|([1-9]?\\d))([.]\\d*)?$", item.getScore())) {
+                        throw new TeException("其他评价分数只能为浮点数或者正整数");
                     }
-                    Double s = Double.valueOf(score.get(name));
-                    boolean result = otherEvalRecordService.add(taskId,subTaskId,name,s);
-                    if(result){
-                        successList.add(itemResult);
-                    }else {
+                    Double score = Double.valueOf(item.getScore());
+                    boolean result = otherEvalRecordService.add(taskId, subTaskId, item.getUsername(), item.getName(), score);
+                    if (result) {
+                        successList.add(item);
+                    } else {
                         throw new TeException("数据库异常，添加失败");
                     }
-                }catch (Exception ex){
-                    itemResult.put("reason",ex.getMessage());
-                    errorList.add(itemResult);
+                } catch (NumberFormatException e) {
+                    item.setReason("成绩只能为浮点数或者正整数");
+                    errorList.add(item);
+                } catch (Exception ex) {
+                    item.setReason(ex.getMessage());
+                    errorList.add(item);
                 }
             }
-            response.put("successList",successList);
-            response.put("errorList",errorList);
+            response.put("successList", successList);
+            response.put("errorList", errorList);
             return response;
         } catch (Exception e) {
             //捕获所有的异常，使用bootstrap-fileinput需要返回error字段
             String error = e.getMessage();
-            return Response.error().put("error",error);
+            return Response.error().put("error", error);
         }
-
     }
 
 }

@@ -23,10 +23,11 @@ public interface ColleagueEvalRecordService extends IService<ColleagueEvalRecord
      * 添加一条记录
      * @param taskId 评价任务ID
      * @param subTaskId  同行评价任务ID
-     * @param name user姓名
+     * @param username 用户名/工号
+     * @param name 姓名
      * @param scoreDtoList 分数
      * @return 是否成功
      */
-    boolean add(Long taskId, Long subTaskId, String name, List<EvalTaskItemScoreDto> scoreDtoList);
+    boolean add(Long taskId, Long subTaskId,String username, String name, List<EvalTaskItemScoreDto> scoreDtoList);
 }
 
