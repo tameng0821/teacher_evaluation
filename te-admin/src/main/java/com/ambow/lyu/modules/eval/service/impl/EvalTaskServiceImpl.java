@@ -75,9 +75,7 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
         EvalTaskEntity evalTask = super.getById(taskId);
 
         //查找参评人数
-        List<Long> subDeptIds = sysDeptService.getSubDeptIdList(evalTask.getDeptId());
-        subDeptIds.add(evalTask.getDeptId());
-        int headcount = sysUserService.count(new QueryWrapper<SysUserEntity>().in("dept_id",subDeptIds));
+        int headcount = sysUserService.countByDept(evalTask.getDeptId());
 
         //查看评价结果进度，如果没有全部完成则不能生成评价结果
 
@@ -97,7 +95,10 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
             //查询同行评价进度
             int colleagueCount = colleagueEvalRecordService.count(
                     new QueryWrapper<ColleagueEvalRecordEntity>().eq("sub_task_id", colleagueEvalTask.getId()));
-            if(colleagueCount!=headcount){
+
+           int colleagueHeadCount  = sysUserService.countByDept(colleagueEvalTask.getDeptId());
+
+            if(colleagueCount!=colleagueHeadCount){
                 throw new TeException("同行评价任务未完成，不能生成评价结果");
             }
         }
@@ -222,7 +223,7 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
         //删除同行评价记录,删除同行任务
         List<ColleagueEvalTaskEntity> colleagueTasks = colleagueEvalTaskService.list(new QueryWrapper<ColleagueEvalTaskEntity>().in("task_id", idList));
        for(ColleagueEvalTaskEntity entity : colleagueTasks){
-           colleagueEvalRecordService.remove(new QueryWrapper<ColleagueEvalRecordEntity>().eq("sub_task_id", entity.getTaskId()));
+           colleagueEvalRecordService.remove(new QueryWrapper<ColleagueEvalRecordEntity>().eq("sub_task_id", entity.getId()));
            colleagueEvalTaskService.removeById(entity.getTaskId());
        }
         //删除督导评价项目
@@ -231,15 +232,15 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
         //删除督导评价记录,删除督导任务
         List<InspectorEvalTaskEntity> inspectorTasks = inspectorEvalTaskService.list(new QueryWrapper<InspectorEvalTaskEntity>().in("task_id", idList));
         for(InspectorEvalTaskEntity entity : inspectorTasks){
-            inspectorEvalRecordService.remove(new QueryWrapper<InspectorEvalRecordEntity>().eq("sub_task_id", entity.getTaskId()));
-            inspectorEvalTaskService.removeById(entity.getTaskId());
+            inspectorEvalRecordService.remove(new QueryWrapper<InspectorEvalRecordEntity>().eq("sub_task_id", entity.getId()));
+            inspectorEvalTaskService.removeById(entity.getId());
         }
 
         //删除其他评价记录,删除其他任务
         List<OtherEvalTaskEntity> otherTasks = otherEvalTaskService.list(new QueryWrapper<OtherEvalTaskEntity>().in("task_id", idList));
         for(OtherEvalTaskEntity entity : otherTasks){
-            otherEvalRecordService.remove(new QueryWrapper<OtherEvalRecordEntity>().eq("sub_task_id", entity.getTaskId()));
-            otherEvalTaskService.removeById(entity.getTaskId());
+            otherEvalRecordService.remove(new QueryWrapper<OtherEvalRecordEntity>().eq("sub_task_id", entity.getId()));
+            otherEvalTaskService.removeById(entity.getId());
         }
 
         //删除评价结果
@@ -291,6 +292,8 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
                 Integer colleagueCount = colleagueEvalRecordService.count(
                         new QueryWrapper<ColleagueEvalRecordEntity>().eq("sub_task_id", colleagueEvalTask.getId()));
                 colleagueEvalTask.setSchedule(colleagueCount);
+                //查询同行部门人数
+                colleagueEvalTask.setHeadcount(sysUserService.countByDept(colleagueEvalTask.getDeptId()));
             }
             evalTask.setColleaguePercentage(colleagueEvalTasks.get(0).getPercentage());
             evalTask.setColleagueEvalTasks(colleagueEvalTasks);
@@ -330,10 +333,7 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
 
             //查找参评人数
             if(evalTask.getHeadcount() == null){
-                List<Long> subDeptIds = sysDeptService.getSubDeptIdList(evalTask.getDeptId());
-                subDeptIds.add(evalTask.getDeptId());
-                Integer headcount = sysUserService.count(new QueryWrapper<SysUserEntity>().in("dept_id",subDeptIds));
-                evalTask.setHeadcount(headcount);
+                evalTask.setHeadcount(sysUserService.countByDept(evalTask.getDeptId()));
             }
 
 

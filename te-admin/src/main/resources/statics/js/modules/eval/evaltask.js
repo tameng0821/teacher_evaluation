@@ -354,8 +354,8 @@ let vm = new Vue({
                 btn: ['确定', '取消'] //按钮
             }, function () {
                 if (!lock) {
-                    lock = true;
                     $.get(baseURL + "eval/evaltask/result/" + id, function (r) {
+                        lock = true;
                         if (r.code === 0) {
                             layer.msg("评价结果生成完成，请去评价结果模块查看!", {icon: 1});
                             vm.reload();

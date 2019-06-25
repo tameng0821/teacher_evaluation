@@ -72,5 +72,11 @@ public class ColleagueEvalTaskEntity implements Serializable {
     @TableField(exist = false)
     private Integer schedule;
 
+    /**
+     * 当前部门总人数
+     */
+    @TableField(exist = false)
+    private Integer headcount;
+
 
 }

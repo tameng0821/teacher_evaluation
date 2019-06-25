@@ -73,7 +73,7 @@ public class InspectorEvalRecordServiceImpl extends ServiceImpl<InspectorEvalRec
         List<Long> deptIds = sysDeptService.getSubDeptIdList(evalTaskEntity.getDeptId());
         deptIds.add(evalTaskEntity.getDeptId());
 
-        //根据姓名查找userId，现在考虑为一个学院没有重名的
+        //根据用户名/工号查找userId
         SysUserEntity user = sysUserService.getOne(
                 new QueryWrapper<SysUserEntity>().eq("username",username).in("dept_id",deptIds));
         if(user == null){

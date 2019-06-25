@@ -7,7 +7,7 @@ $(function () {
 			{ label: '任务ID', name: 'taskId', index: 'task_id', width: 80,hidden: true },
 			{ label: '部门ID', name: 'deptId', index: 'dept_id', width: 80,hidden: true },
 			{ label: '系主任ID', name: 'userId', index: 'user_id', width: 80,hidden: true },
-			{ label: '任务名称', name: 'taskName', sortable:false, width: 80 },
+			{ label: '评价任务', name: 'taskName', sortable:false, width: 80 },
 			{ label: '评价部门', name: 'deptName', sortable:false, width: 80 },
 			{ label: '创建时间', name: 'taskCreateTime', sortable:false, width: 80 }
         ],

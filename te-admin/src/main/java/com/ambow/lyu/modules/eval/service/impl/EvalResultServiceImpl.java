@@ -30,9 +30,12 @@ public class EvalResultServiceImpl extends ServiceImpl<EvalResultDao, EvalResult
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
+
+        Long taskId = (Long) params.get("task_id");
+
         IPage<EvalResultEntity> page = this.page(
                 new Query<EvalResultEntity>().getPage(params),
-                new QueryWrapper<EvalResultEntity>()
+                new QueryWrapper<EvalResultEntity>().eq(taskId != null,"task_id",taskId)
         );
 
         return new PageUtils(page);
@@ -43,10 +46,10 @@ public class EvalResultServiceImpl extends ServiceImpl<EvalResultDao, EvalResult
         //查找评分标准
         StudentEvalTaskEntity studentEvalTask = studentEvalTaskService.getOne(
                 new QueryWrapper<StudentEvalTaskEntity>().eq("task_id", taskId));
-        ColleagueEvalTaskEntity colleagueEvalTask = colleagueEvalTaskService.getOne(
-                new QueryWrapper<ColleagueEvalTaskEntity>().eq("task_id", taskId));
-        InspectorEvalTaskEntity inspectorEvalTask = inspectorEvalTaskService.getOne(
-                new QueryWrapper<InspectorEvalTaskEntity>().eq("task_id", taskId));
+        ColleagueEvalTaskEntity colleagueEvalTask = colleagueEvalTaskService.list(
+                new QueryWrapper<ColleagueEvalTaskEntity>().eq("task_id", taskId)).get(0);
+        InspectorEvalTaskEntity inspectorEvalTask = inspectorEvalTaskService.list(
+                new QueryWrapper<InspectorEvalTaskEntity>().eq("task_id", taskId)).get(0);
         OtherEvalTaskEntity otherEvalTask = otherEvalTaskService.getOne(
                 new QueryWrapper<OtherEvalTaskEntity>().eq("task_id", taskId));
         //计算总分

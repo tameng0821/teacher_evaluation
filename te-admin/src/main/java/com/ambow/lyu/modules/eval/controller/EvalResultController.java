@@ -36,7 +36,7 @@ public class EvalResultController {
     @RequestMapping("/list")
     @RequiresPermissions("eval:evalresult:list")
     public Response list(@RequestParam Map<String, Object> params){
-        params.put("task_status", EvalTaskEntity.Status.COMPLETE);
+        params.put("task_status", EvalTaskEntity.Status.COMPLETE.value());
         PageUtils page = evalTaskService.queryPage(params);
 
         return Response.ok().put("page", page);
@@ -48,6 +48,7 @@ public class EvalResultController {
     @RequestMapping("/detail/list/{taskId}")
     @RequiresPermissions("eval:evalresult:list")
     public Response detailList(@PathVariable("taskId") Long taskId,@RequestParam Map<String, Object> params){
+        params.put("task_id",taskId);
         PageUtils page = evalResultService.queryPage(params);
 
         return Response.ok().put("page", page);

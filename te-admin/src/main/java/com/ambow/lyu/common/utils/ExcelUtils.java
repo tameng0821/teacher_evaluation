@@ -6,14 +6,18 @@ import com.ambow.lyu.common.dto.StuOrOtherEvalScoreDto;
 import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.modules.eval.entity.ColleagueEvalTaskItemEntity;
 import com.ambow.lyu.modules.eval.entity.InspectorEvalTaskItemEntity;
+import com.ambow.lyu.modules.sys.entity.SysUserEntity;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,30 +37,42 @@ public class ExcelUtils {
     private static final String OFFICE_EXCEL_XLS = "xls";
     private static final String OFFICE_EXCEL_XLSX = "xlsx";
 
-    private static final String EXCEL_TEM_TITLE_0 = "教师工号";
-    private static final String EXCEL_TEM_TITLE_1 = "教师姓名";
+    public static final String EXCEL_TEM_TITLE_0 = "教师工号";
+    public static final String EXCEL_TEM_TITLE_1 = "教师姓名";
     private static final String EXCEL_TEM_TITLE_2 = "得分";
 
-    public static void main(String[] args) throws IOException {
 
-        System.out.println("姓名".getBytes().length);
+    public static ResponseEntity<byte[]> createTemplate(String fileName, String sheetName, List<String> titles, List<SysUserEntity> users) throws IOException {
+        HSSFWorkbook wb = new HSSFWorkbook();
+        HSSFSheet sheet = wb.createSheet(sheetName);
 
-//        File file = new File("C:\\Users\\w\\Documents\\项目文档\\教师评价系统_项目文档目录\\01产品需求文档\\学生评价导入样例表（教务处导出）.xls");
-//        Map<String, String> resultScore = readStudentEvalScore(file);
-//        int i = 10;
-//        int j = 10;
-//        int n = 0;
-//        for (String name : resultScore.keySet()) {
-//
-//            String pinyin = HanyuPinyinUtils.toHanyuPinyin(name);
-//            System.out.println("INSERT INTO `sys_user` (`user_id`, `username`, `password`, `salt`,`name`,`email`, `mobile`, `status`, `dept_id`, `create_time`) VALUES (" + i + "," +
-//                    " '" + pinyin + "', 'f854a071e5d3747cbfb8495c0666c75636fc53c57428c6e3df7d5ffb3904ea77', 'LBmXDCbL20S0aGwCAuJa'," +
-//                    " '" + name + "', NULL, NULL, 1, " + (n % 5 + 4) + ", '2019-05-23 10:21:28');");
-//            System.out.println("INSERT INTO `sys_user_role` (`id`, `user_id`, `role_id`) VALUES (" + j + ", " + i + ", 1);");
-//            i++;
-//            j++;
-//            n++;
-//        }
+        //左右、上下居中
+        HSSFCellStyle cellStyle = wb.createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+
+        //标题
+        HSSFRow titleRow = sheet.createRow(0);
+        for(int i=0; i < titles.size() ; ++i){
+            HSSFCell titleCell = titleRow.createCell(i);
+            titleCell.setCellValue(titles.get(i));
+            titleCell.setCellStyle(cellStyle);
+            sheet.setColumnWidth(i,titles.get(i).getBytes().length*256);
+        }
+
+        //填充人员工号、人员姓名
+        for(int i = 0 ; i < users.size() ; ++i){
+            HSSFRow contentRow = sheet.createRow(i+1);
+            contentRow.createCell(0).setCellValue(users.get(i).getUsername());
+            contentRow.createCell(1).setCellValue(users.get(i).getName());
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDispositionFormData("attachment", new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+        ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
+        wb.write(outByteStream);
+        return new ResponseEntity<byte[]>(outByteStream.toByteArray(), headers, HttpStatus.OK);
     }
 
     /**
@@ -232,6 +248,8 @@ public class ExcelUtils {
             throw new IllegalArgumentException("文件不能为空");
         }
 
+        DataFormatter formatter = new DataFormatter();
+
         List<Map<Integer, String>> result = new ArrayList<>();
         Workbook workbook = getWorkbook(is, fileName);
         if (workbook != null) {
@@ -250,7 +268,7 @@ public class ExcelUtils {
                         for (int j = 0; j < columnNos; j++) {
                             Cell cell = row.getCell(j);
                             if (cell != null) {
-                                rowResult.put(j, cell.getStringCellValue());
+                                rowResult.put(j, formatter.formatCellValue(cell).trim());
                             }
                         }
 

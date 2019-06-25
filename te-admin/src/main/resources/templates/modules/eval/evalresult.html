@@ -7,115 +7,33 @@
 <body>
 <div id="rrapp" v-cloak>
     <div v-show="showList">
-        <div class="grid-btn">
-			<#if shiro.hasPermission("eval:evalresult:update")>
-            <a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
-			</#if>
+        <div class="grid-btn" id="container_grid">
+            <a class="btn btn-primary" @click="queryResultList"><i class="fa fa-pencil-square-o"></i>&nbsp;查看评价结果</a>
         </div>
         <table id="jqGrid"></table>
         <div id="jqGridPager"></div>
     </div>
 
-    <div v-show="!showList" class="panel panel-default">
-        <div class="panel-heading">{{title}}</div>
-        <form class="form-horizontal">
-					<div class="form-group">
-                        <div class="col-sm-2 control-label">关联评价任务ID</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="evalResult.taskId" placeholder="关联评价任务ID"/>
-                        </div>
-                    </div>
-					<div class="form-group">
-                        <div class="col-sm-2 control-label">用户ID</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="evalResult.userId" placeholder="用户ID"/>
-                        </div>
-                    </div>
-					<div class="form-group">
-                        <div class="col-sm-2 control-label">学生评价分数</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="evalResult.studentEvalScore" placeholder="学生评价分数"/>
-                        </div>
-                    </div>
-					<div class="form-group">
-                        <div class="col-sm-2 control-label">学生评价细节</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="evalResult.studentEvalDetail" placeholder="学生评价细节"/>
-                        </div>
-                    </div>
-					<div class="form-group">
-                        <div class="col-sm-2 control-label">同行评价分数</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="evalResult.colleagueEvalScore" placeholder="同行评价分数"/>
-                        </div>
-                    </div>
-					<div class="form-group">
-                        <div class="col-sm-2 control-label">同行评价细节</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="evalResult.colleagueEvalDetail" placeholder="同行评价细节"/>
-                        </div>
-                    </div>
-					<div class="form-group">
-                        <div class="col-sm-2 control-label">督导评价分数</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="evalResult.inspectorEvalScore" placeholder="督导评价分数"/>
-                        </div>
-                    </div>
-					<div class="form-group">
-                        <div class="col-sm-2 control-label">督导评价细节</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="evalResult.inspectorEvalDetail" placeholder="督导评价细节"/>
-                        </div>
-                    </div>
-					<div class="form-group">
-                        <div class="col-sm-2 control-label">其他评价分数</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="evalResult.otherEvalScore" placeholder="其他评价分数"/>
-                        </div>
-                    </div>
-					<div class="form-group">
-                        <div class="col-sm-2 control-label">其他评价细节</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="evalResult.otherEvalDetail" placeholder="其他评价细节"/>
-                        </div>
-                    </div>
-					<div class="form-group">
-                        <div class="col-sm-2 control-label">总分</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="evalResult.accountScore" placeholder="总分"/>
-                        </div>
-                    </div>
-					<div class="form-group">
-                        <div class="col-sm-2 control-label">排名</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="evalResult.ranking" placeholder="排名"/>
-                        </div>
-                    </div>
-					<div class="form-group">
-                        <div class="col-sm-2 control-label">评级</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="evalResult.rating" placeholder="评级"/>
-                        </div>
-                    </div>
-					<div class="form-group">
-                        <div class="col-sm-2 control-label">其他评价ID</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="evalResult.remark" placeholder="其他评价ID"/>
-                        </div>
-                    </div>
-					<div class="form-group">
-                        <div class="col-sm-2 control-label">其他评价ID</div>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" v-model="evalResult.updateTime" placeholder="其他评价ID"/>
-                        </div>
-                    </div>
-					<div class="form-group">
-                        <div class="col-sm-2 control-label"></div>
-                        <input type="button" class="btn btn-primary" id="btnSaveOrUpdate" data-loading-text="保存中..." @click="saveOrUpdate" value="确定"/>
-                        &nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="reload" value="返回"/>
-                    </div>
-        </form>
+    <div v-show="showResultList">
+        <div class="grid-btn">
+            <div class="form-group col-sm-1">
+                <a class="btn btn-warning" @click="reload"><i class="fa fa-chevron-circle-left"></i>&nbsp;返回</a>
+            </div>
+            <#if shiro.hasPermission("eval:evalresult:info")>
+            <div class="form-group col-sm-2">
+                <input type="text" class="form-control" v-model="q.name" @keyup.enter="resultListReload" placeholder="姓名">
+            </div>
+            <a class="btn btn-default" @click="resultListReload">查询</a>
+            </#if>
+            <#if shiro.hasPermission("eval:evalresult:update")>
+            <a class="btn btn-primary" @click="gotoUpdateResult"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+            </#if>
+        </div>
+        <table id="resultListJqGrid"></table>
+        <div id="resultListJqGridPager"></div>
     </div>
+
+
 </div>
 
 <script src="${request.contextPath}/statics/js/modules/eval/evalresult.js?_${.now?long}"></script>

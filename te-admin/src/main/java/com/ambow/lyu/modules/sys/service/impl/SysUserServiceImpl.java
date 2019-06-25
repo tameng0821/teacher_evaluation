@@ -115,4 +115,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserDao, SysUserEntity> i
         return result;
     }
 
+    @Override
+    public int countByDept(Long deptId) {
+        //查找参评人数
+        List<Long> subDeptIds = sysDeptService.getSubDeptIdList(deptId);
+        subDeptIds.add(deptId);
+        return super.count(new QueryWrapper<SysUserEntity>().in("dept_id",subDeptIds));
+    }
+
 }

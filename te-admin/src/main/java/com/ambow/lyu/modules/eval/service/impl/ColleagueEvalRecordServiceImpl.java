@@ -7,8 +7,9 @@ import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.common.utils.Query;
 import com.ambow.lyu.modules.eval.dao.ColleagueEvalRecordDao;
 import com.ambow.lyu.modules.eval.entity.ColleagueEvalRecordEntity;
-import com.ambow.lyu.modules.eval.entity.EvalTaskEntity;
+import com.ambow.lyu.modules.eval.entity.ColleagueEvalTaskEntity;
 import com.ambow.lyu.modules.eval.service.ColleagueEvalRecordService;
+import com.ambow.lyu.modules.eval.service.ColleagueEvalTaskService;
 import com.ambow.lyu.modules.eval.service.EvalTaskService;
 import com.ambow.lyu.modules.sys.entity.SysUserEntity;
 import com.ambow.lyu.modules.sys.service.SysDeptService;
@@ -34,6 +35,8 @@ public class ColleagueEvalRecordServiceImpl extends ServiceImpl<ColleagueEvalRec
     private SysUserService sysUserService;
     @Autowired
     private SysDeptService sysDeptService;
+    @Autowired
+    private ColleagueEvalTaskService colleagueEvalTaskService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -66,16 +69,14 @@ public class ColleagueEvalRecordServiceImpl extends ServiceImpl<ColleagueEvalRec
         }
 
         //根据subTask获得任务所属部门
-        EvalTaskEntity evalTaskEntity = evalTaskService.getById(taskId);
-        if(evalTaskEntity == null){
+        ColleagueEvalTaskEntity colleagueEvalTaskEntity = colleagueEvalTaskService.getById(subTaskId);
+        if(colleagueEvalTaskEntity == null){
             throw new TeException("无效的评价任务，请正确的使用系统！");
         }
-        List<Long> deptIds = sysDeptService.getSubDeptIdList(evalTaskEntity.getDeptId());
-        deptIds.add(evalTaskEntity.getDeptId());
 
         //根据姓名查找userId，现在考虑为一个学院没有重名的
         SysUserEntity user = sysUserService.getOne(
-                new QueryWrapper<SysUserEntity>().eq("username",username).in("dept_id",deptIds));
+                new QueryWrapper<SysUserEntity>().eq("username",username).eq("dept_id",colleagueEvalTaskEntity.getDeptId()));
         if(user == null){
             throw new TeException("无效的工号，未能在当前部门内找到此教师！");
         }

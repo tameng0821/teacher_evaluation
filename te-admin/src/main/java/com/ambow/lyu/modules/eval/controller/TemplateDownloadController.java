@@ -1,26 +1,22 @@
 package com.ambow.lyu.modules.eval.controller;
 
 import com.ambow.lyu.common.exception.TeException;
+import com.ambow.lyu.common.utils.ExcelUtils;
 import com.ambow.lyu.modules.eval.entity.ColleagueEvalTaskItemEntity;
 import com.ambow.lyu.modules.eval.entity.InspectorEvalTaskItemEntity;
 import com.ambow.lyu.modules.eval.service.ColleagueEvalTaskItemService;
 import com.ambow.lyu.modules.eval.service.InspectorEvalTaskItemService;
-import org.apache.commons.io.IOUtils;
-import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import com.ambow.lyu.modules.sys.entity.SysUserEntity;
+import com.ambow.lyu.modules.sys.service.SysUserService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.*;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,138 +28,98 @@ import java.util.List;
 public class TemplateDownloadController {
 
     @Autowired
+    private SysUserService sysUserService;
+    @Autowired
     private ColleagueEvalTaskItemService colleagueEvalTaskItemService;
     @Autowired
     private InspectorEvalTaskItemService inspectorEvalTaskItemService;
 
-    @RequestMapping("/student")
+    @RequestMapping("/student/{deptId}")
     @RequiresPermissions("eval:studentevaltask:eval")
-    public ResponseEntity<byte[]> downloadStudentImportTemplate() throws IOException {
-        Resource resource = new ClassPathResource("template/studentTemplate.xls");
+    public ResponseEntity<byte[]> downloadStudentImportTemplate(@PathVariable("deptId") Long deptId) throws IOException {
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentDispositionFormData("attachment", "studentTemplate.xls");
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        String fileName = "学生评价分数导入模板.xls";
 
-        return new ResponseEntity<byte[]>(IOUtils.toByteArray(resource.getInputStream()), headers, HttpStatus.OK);
+        String sheetName = "学生评价";
+
+        List<String> titles = new ArrayList<>();
+        titles.add(ExcelUtils.EXCEL_TEM_TITLE_0);
+        titles.add(ExcelUtils.EXCEL_TEM_TITLE_1);
+        titles.add("学生评价得分[0-100分]");
+
+        List<SysUserEntity> userList = sysUserService.queryByDept(deptId);
+
+        return ExcelUtils.createTemplate(fileName,sheetName,titles,userList);
     }
 
-    @RequestMapping("/colleague/{taskId}")
+    @RequestMapping("/colleague/{taskId}/{deptId}")
     @RequiresPermissions("eval:colleagueevaltask:eval")
-    public ResponseEntity<byte[]> downloadColleagueImportTemplate(@PathVariable("taskId") Long taskId) throws IOException {
+    public ResponseEntity<byte[]> downloadColleagueImportTemplate(@PathVariable("taskId") Long taskId,@PathVariable("deptId") Long deptId) throws IOException {
 
         List<ColleagueEvalTaskItemEntity> itemEntities = colleagueEvalTaskItemService.selectByTaskId(taskId);
         if(itemEntities.size() == 0){
             throw new TeException("未能找到同行评价项目，请检查数据是否完整！");
         }
 
+        String fileName = "同行评价分数导入模板.xls";
 
-        HSSFWorkbook wb = new HSSFWorkbook();
-        HSSFSheet sheet = wb.createSheet("同行评价导入模板");
+        String sheetName = "同行评价";
 
-        //左右、上下居中
-        HSSFCellStyle cellStyle = wb.createCellStyle();
-        cellStyle.setAlignment(HorizontalAlignment.CENTER);
-
-        //标题
-        HSSFRow row = sheet.createRow(0);
-        HSSFCell usernameCell = row.createCell(0);
-        usernameCell.setCellValue("教师工号");
-        usernameCell.setCellStyle(cellStyle);
-        sheet.setColumnWidth(0,5*3*256);
-        HSSFCell nameCell = row.createCell(1);
-        nameCell.setCellValue("教师姓名");
-        nameCell.setCellStyle(cellStyle);
-        sheet.setColumnWidth(1,5*3*256);
-        for(int i=0; i < itemEntities.size() ; ++i){
-            String value = itemEntities.get(i).getName()+"（占比:"+itemEntities.get(i).getPercentage()+"%）";
-            HSSFCell itemCell = row.createCell(i+2);
-            itemCell.setCellValue(value);
-            itemCell.setCellStyle(cellStyle);
-            sheet.setColumnWidth(i+2,value.getBytes().length*256);
+        List<String> titles = new ArrayList<>();
+        titles.add(ExcelUtils.EXCEL_TEM_TITLE_0);
+        titles.add(ExcelUtils.EXCEL_TEM_TITLE_1);
+        for (ColleagueEvalTaskItemEntity itemEntity : itemEntities) {
+            String value = itemEntity.getName() + "(占比:" + itemEntity.getPercentage() + "%)[0-100分]";
+            titles.add(value);
         }
 
-        //演示数据
-        HSSFRow row1 = sheet.createRow(1);
-        row1.createCell(0).setCellValue("1230001");
-        row1.createCell(1).setCellValue("刘某某");
-        for(int i=0; i < itemEntities.size() ; ++i){
-            row1.createCell(i+2).setCellValue("100");
-        }
+        List<SysUserEntity> userList = sysUserService.queryByDept(deptId);
 
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentDispositionFormData("attachment", "colleagueTemplate.xls");
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-
-        ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
-        wb.write(outByteStream);
-        return new ResponseEntity<byte[]>(outByteStream.toByteArray(), headers, HttpStatus.OK);
+        return ExcelUtils.createTemplate(fileName,sheetName,titles,userList);
     }
 
-    @RequestMapping("/inspector/{taskId}")
+    @RequestMapping("/inspector/{taskId}/{deptId}")
     @RequiresPermissions("eval:inspectorevaltask:eval")
-    public ResponseEntity<byte[]> downloadInspectorImportTemplate(@PathVariable("taskId") Long taskId) throws IOException {
+    public ResponseEntity<byte[]> downloadInspectorImportTemplate(@PathVariable("taskId") Long taskId,@PathVariable("deptId") Long deptId) throws IOException {
 
         List<InspectorEvalTaskItemEntity> itemEntities = inspectorEvalTaskItemService.selectByTaskId(taskId);
         if(itemEntities.size() == 0){
             throw new TeException("未能找到督导评价项目，请检查数据是否完整！");
         }
 
+        String fileName = "督导评价分数导入模板.xls";
 
-        HSSFWorkbook wb = new HSSFWorkbook();
-        HSSFSheet sheet = wb.createSheet("督导评价导入模板");
+        String sheetName = "督导评价";
 
-        //左右、上下居中
-        HSSFCellStyle cellStyle = wb.createCellStyle();
-        cellStyle.setAlignment(HorizontalAlignment.CENTER);
-
-        //标题
-        HSSFRow row = sheet.createRow(0);
-        HSSFCell usernameCell = row.createCell(0);
-        usernameCell.setCellValue("教师工号");
-        usernameCell.setCellStyle(cellStyle);
-        sheet.setColumnWidth(0,5*3*256);
-        HSSFCell nameCell = row.createCell(1);
-        nameCell.setCellValue("教师姓名");
-        nameCell.setCellStyle(cellStyle);
-        sheet.setColumnWidth(1,5*3*256);
-        for(int i=0; i < itemEntities.size() ; ++i){
-            String value = itemEntities.get(i).getName()+"（占比:"+itemEntities.get(i).getPercentage()+"%）";
-            HSSFCell itemCell = row.createCell(i+2);
-            itemCell.setCellValue(value);
-            itemCell.setCellStyle(cellStyle);
-            sheet.setColumnWidth(i+2,value.getBytes().length*256);
+        List<String> titles = new ArrayList<>();
+        titles.add(ExcelUtils.EXCEL_TEM_TITLE_0);
+        titles.add(ExcelUtils.EXCEL_TEM_TITLE_1);
+        for (InspectorEvalTaskItemEntity itemEntity : itemEntities) {
+            String value = itemEntity.getName() + "(占比:" + itemEntity.getPercentage() + "%)[0-100分]";
+            titles.add(value);
         }
 
-        //演示数据
-        HSSFRow row1 = sheet.createRow(1);
-        row1.createCell(0).setCellValue("1230001");
-        row1.createCell(1).setCellValue("刘某某");
-        for(int i=0; i < itemEntities.size() ; ++i){
-            row1.createCell(i+2).setCellValue("100");
-        }
+        List<SysUserEntity> userList = sysUserService.queryByDept(deptId);
 
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentDispositionFormData("attachment", "inspectorTemplate.xls");
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-
-        ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
-        wb.write(outByteStream);
-        return new ResponseEntity<byte[]>(outByteStream.toByteArray(), headers, HttpStatus.OK);
+        return ExcelUtils.createTemplate(fileName,sheetName,titles,userList);
     }
 
 
-    @RequestMapping("/other")
+    @RequestMapping("/other/{deptId}")
     @RequiresPermissions("eval:otherevaltask:eval")
-    public ResponseEntity<byte[]> downloadOtherImportTemplate() throws IOException {
-        Resource resource = new ClassPathResource("template/otherTemplate.xls");
+    public ResponseEntity<byte[]> downloadOtherImportTemplate(@PathVariable("deptId") Long deptId) throws IOException {
+        String fileName = "其他评价分数导入模板.xls";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentDispositionFormData("attachment", "otherTemplate.xls");
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        String sheetName = "其他评价";
 
-        return new ResponseEntity<byte[]>(IOUtils.toByteArray(resource.getInputStream()), headers, HttpStatus.OK);
+        List<String> titles = new ArrayList<>();
+        titles.add(ExcelUtils.EXCEL_TEM_TITLE_0);
+        titles.add(ExcelUtils.EXCEL_TEM_TITLE_1);
+        titles.add("其他评价得分[0-100分]");
+
+        List<SysUserEntity> userList = sysUserService.queryByDept(deptId);
+
+        return ExcelUtils.createTemplate(fileName,sheetName,titles,userList);
     }
 }

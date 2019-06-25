@@ -7,7 +7,7 @@ $(function () {
 			{ label: '任务ID', name: 'taskId', index: 'task_id', width: 80 ,hidden:true},
             { label: '部门ID', name: 'deptId', index: 'dept_id', width: 80,hidden: true },
 			{ label: '督导ID', name: 'userId', index: 'user_id', width: 80 ,hidden:true},
-            { label: '任务名称', name: 'taskName', sortable: false, width: 80 },
+            { label: '评价任务', name: 'taskName', sortable: false, width: 80 },
             { label: '评价部门', name: 'deptName', sortable: false, width: 80 },
             { label: '创建时间', name: 'taskCreateTime', sortable: false, width: 80 }
         ],
@@ -162,7 +162,6 @@ let vm = new Vue({
             vm.title = "新增";
         },
         gotoImportRecord:function(){
-
             //督导评价批量导入记录
             let uploadUrl = baseURL + "eval/inspectorevalrecord/import/"+vm.taskId+"/"+vm.subTaskId;
             fileInputInit($("#xlsRecordFile"),uploadUrl,function (data) {

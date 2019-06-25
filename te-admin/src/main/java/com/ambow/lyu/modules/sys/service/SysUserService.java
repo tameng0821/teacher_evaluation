@@ -48,4 +48,11 @@ public interface SysUserService extends IService<SysUserEntity> {
      * @return 人员列表
      */
     List<SysUserEntity> queryByDept(Long deptId);
+
+    /**
+     * 统计当前部门以及子部门人数
+     * @param deptId 部门ID
+     * @return 人员列表
+     */
+    int countByDept(Long deptId);
 }

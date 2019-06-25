@@ -11,6 +11,7 @@ import com.ambow.lyu.modules.eval.entity.OtherEvalRecordEntity;
 import com.ambow.lyu.modules.eval.service.OtherEvalRecordService;
 import com.ambow.lyu.modules.sys.service.SysUserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -128,24 +129,36 @@ public class OtherEvalRecordController {
             List<StuOrOtherEvalScoreDto> successList = new ArrayList<>();
             List<StuOrOtherEvalScoreDto> errorList = new ArrayList<>();
             for (StuOrOtherEvalScoreDto item : xlsResult) {
-                try {
-                    if (!Pattern.matches("^(100|([1-9]?\\d))([.]\\d*)?$", item.getScore())) {
-                        throw new TeException("其他评价分数只能为浮点数或者正整数");
-                    }
-                    Double score = Double.valueOf(item.getScore());
-                    boolean result = otherEvalRecordService.add(taskId, subTaskId, item.getUsername(), item.getName(), score);
-                    if (result) {
-                        successList.add(item);
-                    } else {
-                        throw new TeException("数据库异常，添加失败");
-                    }
-                } catch (NumberFormatException e) {
-                    item.setReason("成绩只能为浮点数或者正整数");
+                if(StringUtils.isBlank(item.getUsername())){
+                    item.setReason("教师工号不能为空");
                     errorList.add(item);
-                } catch (Exception ex) {
-                    item.setReason(ex.getMessage());
+                }else if(StringUtils.isBlank(item.getName())){
+                    item.setReason("教师姓名不能为空");
                     errorList.add(item);
+                }else if(StringUtils.isBlank(item.getScore())){
+                    item.setReason("得分不能为空");
+                    errorList.add(item);
+                }else if(!Pattern.matches("^(100|([1-9]?\\d))([.]\\d*)?$",item.getScore())){
+                    item.setReason("其他评价分数只能为浮点数或者正整数");
+                    errorList.add(item);
+                }else {
+                    try {
+                        Double score = Double.valueOf(item.getScore());
+                        boolean result = otherEvalRecordService.add(taskId, subTaskId, item.getUsername(), item.getName(), score);
+                        if (result) {
+                            successList.add(item);
+                        } else {
+                            throw new TeException("添加失败，系统异常，请联系管理员");
+                        }
+                    } catch (NumberFormatException e) {
+                        item.setReason("成绩只能为浮点数或者正整数");
+                        errorList.add(item);
+                    } catch (Exception ex) {
+                        item.setReason(ex.getMessage());
+                        errorList.add(item);
+                    }
                 }
+
             }
             response.put("successList", successList);
             response.put("errorList", errorList);

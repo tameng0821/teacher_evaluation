@@ -290,8 +290,38 @@ function getRecordListSelectedRows() {
 	return grid.getGridParam("selarrrow");
 }
 
+//选择一条记录
+function getSelectedRowFromGrid(grid) {
+	let rowKey = grid.getGridParam("selrow");
+	if(!rowKey){
+		alert("请选择一条记录");
+		return ;
+	}
+
+	let selectedIDs = grid.getGridParam("selarrrow");
+	if(selectedIDs.length > 1){
+		alert("只能选择一条记录");
+		return ;
+	}
+
+	return selectedIDs[0];
+}
+
+//选择多条记录
+function getSelectedRowsFromGrid(grid) {
+	let rowKey = grid.getGridParam("selrow");
+	if(!rowKey){
+		alert("请选择一条记录");
+		return ;
+	}
+
+	return grid.getGridParam("selarrrow");
+}
+
 //初始化fileinput
 function fileInputInit(element,uploadUrl,uploadedCallback) {
+
+	element.fileinput('destroy');
 
 	element.fileinput({
 		language: 'zh', //设置语言
@@ -308,4 +338,6 @@ function fileInputInit(element,uploadUrl,uploadedCallback) {
 	}).on("fileuploaded", function(event, data, previewId, index) {
 		uploadedCallback(data);
 	});
+
+	element.fileinput('clear');
 }
