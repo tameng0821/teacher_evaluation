@@ -4,6 +4,8 @@ import com.ambow.lyu.modules.eval.entity.EvalResultEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * 评价结果
  * 
@@ -13,5 +15,13 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface EvalResultDao extends BaseMapper<EvalResultEntity> {
-	
+
+    Double getAverageTotal(Long taskId,String deptName);
+    Double getAverageStudent(Long taskId,String deptName);
+    Double getAverageColleague(Long taskId,String deptName);
+    Double getAverageInspector(Long taskId,String deptName);
+    Double getAverageOther(Long taskId,String deptName);
+
+    List<String> getDeptList(Long taskId);
+
 }

@@ -1,9 +1,11 @@
 package com.ambow.lyu.modules.eval.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.ambow.lyu.common.dto.EvalResultSummary;
 import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.modules.eval.entity.EvalResultEntity;
+import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,10 +19,19 @@ public interface EvalResultService extends IService<EvalResultEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
 
+    List<EvalResultEntity> queryList(Map<String, Object> params);
+
     /**
      * 重新计算总分，计算排名
      * @param taskId 任务ID
      */
     void sortEvalResult(Long taskId);
+
+    /**
+     * 查询评价结果汇总
+     * @param taskId 任务ID
+     * @return 评价结果汇总
+     */
+    EvalResultSummary querySummary(Long taskId);
 }
 

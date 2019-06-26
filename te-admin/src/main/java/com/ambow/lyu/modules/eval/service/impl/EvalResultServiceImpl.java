@@ -1,5 +1,6 @@
 package com.ambow.lyu.modules.eval.service.impl;
 
+import com.ambow.lyu.common.dto.EvalResultSummary;
 import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.common.utils.Query;
 import com.ambow.lyu.modules.eval.dao.EvalResultDao;
@@ -8,9 +9,11 @@ import com.ambow.lyu.modules.eval.service.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -31,14 +34,47 @@ public class EvalResultServiceImpl extends ServiceImpl<EvalResultDao, EvalResult
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
 
-        Long taskId = (Long) params.get("task_id");
-
         IPage<EvalResultEntity> page = this.page(
                 new Query<EvalResultEntity>().getPage(params),
-                new QueryWrapper<EvalResultEntity>().eq(taskId != null,"task_id",taskId)
+                genarateQueryWrapper(params)
         );
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public List<EvalResultEntity> queryList(Map<String, Object> params) {
+        return super.list(genarateQueryWrapper(params));
+    }
+
+    private QueryWrapper<EvalResultEntity> genarateQueryWrapper(Map<String, Object> params){
+        Long taskId = (Long) params.get("task_id");
+        String name = (String) params.get("name");
+        String ranking1 = (String) params.get("ranking1");
+        String ranking2 = (String) params.get("ranking2");
+        String selectedDept = (String) params.get("selectedDept");
+        String selectedRaking = (String) params.get("selectedRaking");
+
+        Long ranking1Long = null;
+        Long ranking2Long = null;
+        if(StringUtils.isNotBlank(ranking1)&&StringUtils.isNotBlank(ranking2)){
+            ranking1Long = Long.valueOf(ranking1);
+            ranking2Long = Long.valueOf(ranking2);
+            if(ranking1Long > ranking2Long){
+                Long temp = ranking1Long;
+                ranking1Long = ranking2Long;
+                ranking2Long = temp;
+
+            }
+        }
+
+        return new QueryWrapper<EvalResultEntity>()
+                .eq(taskId != null,"task_id",taskId)
+                .like(StringUtils.isNotBlank(name),"name",name)
+                .between(ranking1Long != null,
+                        "ranking",ranking1Long,ranking2Long)
+                .eq(StringUtils.isNotBlank(selectedDept),"dept_name",selectedDept)
+                .eq(StringUtils.isNotBlank(selectedRaking),"raking",selectedRaking);
     }
 
     @Override
@@ -63,24 +99,112 @@ public class EvalResultServiceImpl extends ServiceImpl<EvalResultDao, EvalResult
         }
         //按照成绩降序排序
         evalResultEntityList.sort((EvalResultEntity e1,EvalResultEntity e2) -> e2.getAccountScore().compareTo(e1.getAccountScore()));
-        //30%为优秀、30%~70%为良好、后30%为合格、小于60分为不合格
-        int goodLine = evalResultEntityList.size() * 30 / 100;
-        int okLine = evalResultEntityList.size() * 70 / 100;
+
+        //设置排名，分数相同排名一样
         for(int i = 0 ; i < evalResultEntityList.size() ; ++i){
             EvalResultEntity evalResultEntity = evalResultEntityList.get(i);
-            if(evalResultEntity.getAccountScore() < 60){
-                evalResultEntity.setRating("不合格");
-            }else if( i <= goodLine){
-                evalResultEntity.setRating("优秀");
-            }else if(i <= okLine){
-                evalResultEntity.setRating("良好");
+            if(i > 0 && evalResultEntity.getAccountScore().equals(evalResultEntityList.get(i-1).getAccountScore())){
+                evalResultEntity.setRanking(evalResultEntityList.get(i-1).getRanking());
             }else {
+                evalResultEntity.setRanking((long) (i+1));
+            }
+        }
+
+        //30%为优秀、30%~70%为良好、后30%为合格、小于60分为不合格
+        long goodRanking = Math.round(evalResultEntityList.size() * 30.0 / 100 );
+        long okRanking = Math.round(evalResultEntityList.size() * 70.0 / 100);
+        for (EvalResultEntity evalResultEntity : evalResultEntityList) {
+            if (evalResultEntity.getAccountScore() < 60) {
+                evalResultEntity.setRating("不合格");
+            } else if (evalResultEntity.getRanking() <= goodRanking) {
+                evalResultEntity.setRating("优秀");
+            } else if (evalResultEntity.getRanking() <= okRanking) {
+                evalResultEntity.setRating("良好");
+            } else {
                 evalResultEntity.setRating("合格");
             }
-            evalResultEntity.setRanking((long) (i+1));
             evalResultEntity.setUpdateTime(new Date());
             super.updateById(evalResultEntity);
         }
+    }
+
+    @Override
+    public EvalResultSummary querySummary(Long taskId) {
+
+        double averageTotal = baseMapper.getAverageTotal(taskId,null);
+        double averageStudent = baseMapper.getAverageStudent(taskId,null);
+        double averageColleague = baseMapper.getAverageColleague(taskId,null);
+        double averageInspector = baseMapper.getAverageInspector(taskId,null);
+        double averageOther = baseMapper.getAverageOther(taskId,null);
+
+        long goodCount = super.count(new QueryWrapper<EvalResultEntity>().eq("task_id",taskId).eq("rating","优秀"));
+        long fineCount = super.count(new QueryWrapper<EvalResultEntity>().eq("task_id",taskId).eq("rating","良好"));
+        long passCount = super.count(new QueryWrapper<EvalResultEntity>().eq("task_id",taskId).eq("rating","合格"));
+        long failCount = super.count(new QueryWrapper<EvalResultEntity>().eq("task_id",taskId).eq("rating","不合格"));
+
+
+        List<String> deptList = baseMapper.getDeptList(taskId);
+
+        List<Double> deptAverageStudentList = new ArrayList<>(deptList.size());
+        List<Double> deptAverageColleagueList = new ArrayList<>(deptList.size());
+        List<Double> deptAverageInspectorList = new ArrayList<>(deptList.size());
+        List<Double> deptAverageOtherList = new ArrayList<>(deptList.size());
+        List<Double> deptAverageTotalList = new ArrayList<>(deptList.size());
+        for(int i = 0 ; i < deptList.size() ; ++i){
+            String deptName = deptList.get(i);
+            deptAverageTotalList.add(baseMapper.getAverageTotal(taskId,deptName));
+            deptAverageStudentList.add(baseMapper.getAverageStudent(taskId,deptName));
+            deptAverageColleagueList.add(baseMapper.getAverageColleague(taskId,deptName));
+            deptAverageInspectorList.add(baseMapper.getAverageInspector(taskId,deptName));
+            deptAverageOtherList.add(baseMapper.getAverageOther(taskId,deptName));
+        }
+
+//        List<EvalResultEntity> evalResultEntityList = super.list(new QueryWrapper<EvalResultEntity>().eq("task_id",taskId));
+
+
+//        List<String> personList = new ArrayList<>(evalResultEntityList.size());
+//        List<Double> personStudentList = new ArrayList<>(evalResultEntityList.size());
+//        List<Double> personColleagueList = new ArrayList<>(evalResultEntityList.size());
+//        List<Double> personInspectorList = new ArrayList<>(evalResultEntityList.size());
+//        List<Double> personOtherList = new ArrayList<>(evalResultEntityList.size());
+//        List<Double> personTotalList = new ArrayList<>(evalResultEntityList.size());
+//        for(int i = 0 ; i < evalResultEntityList.size() ; ++i){
+//            EvalResultEntity evalResult = evalResultEntityList.get(i);
+//            personTotalList.add(evalResult.getAccountScore());
+//            personStudentList.add(evalResult.getStudentEvalScore());
+//            personColleagueList.add(evalResult.getColleagueEvalScore());
+//            personInspectorList.add(evalResult.getInspectorEvalScore());
+//            personOtherList.add(evalResult.getOtherEvalScore());
+//        }
+
+
+        EvalResultSummary summary = new EvalResultSummary();
+        summary.setAverageTotal(averageTotal);
+        summary.setAverageStudent(averageStudent);
+        summary.setAverageColleague(averageColleague);
+        summary.setAverageInspector(averageInspector);
+        summary.setAverageOther(averageOther);
+
+        summary.setGoodCount(goodCount);
+        summary.setFineCount(fineCount);
+        summary.setPassCount(passCount);
+        summary.setFailCount(failCount);
+
+        summary.setDeptList(deptList);
+        summary.setDeptAverageTotalList(deptAverageTotalList);
+        summary.setDeptAverageStudentList(deptAverageStudentList);
+        summary.setDeptAverageColleagueList(deptAverageColleagueList);
+        summary.setDeptAverageInspectorList(deptAverageInspectorList);
+        summary.setDeptAverageOtherList(deptAverageOtherList);
+
+//        summary.setPersonList(personList);
+//        summary.setPersonStudentList(personStudentList);
+//        summary.setPersonColleagueList(personColleagueList);
+//        summary.setPersonInspectorList(personInspectorList);
+//        summary.setPersonOtherList(personOtherList);
+//        summary.setPersonTotalList(personTotalList);
+
+        return summary;
     }
 
 }

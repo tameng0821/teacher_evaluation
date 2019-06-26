@@ -2,13 +2,17 @@
 <html>
 <head>
     <title>评价结果</title>
-		<#include "/header.html">
+    <script src="../../../statics/plugins/echarts/echarts.min.js"></script>
+    <#include "/header.html">
 </head>
 <body>
 <div id="rrapp" v-cloak>
     <div v-show="showList">
         <div class="grid-btn" id="container_grid">
-            <a class="btn btn-primary" @click="queryResultList"><i class="fa fa-pencil-square-o"></i>&nbsp;查看评价结果</a>
+            <#if shiro.hasPermission("eval:evalresult:info")>
+            <a class="btn btn-primary" @click="queryResultList"><i class="fa fa-pencil-square-o"></i>&nbsp;查看评价明细</a>
+            <a class="btn btn-primary" @click="querySummary"><i class="fa fa-pencil-square-o"></i>&nbsp;查看评价汇总</a>
+            </#if>
         </div>
         <table id="jqGrid"></table>
         <div id="jqGridPager"></div>
@@ -16,26 +20,93 @@
 
     <div v-show="showResultList">
         <div class="grid-btn">
-            <div class="form-group col-sm-1">
-                <a class="btn btn-warning" @click="reload"><i class="fa fa-chevron-circle-left"></i>&nbsp;返回</a>
+            <div class="row form-inline">
+                <div class="form-group col-sm-1">
+                    <a class="btn btn-warning" @click="reload"><i class="fa fa-chevron-circle-left"></i>&nbsp;返回</a>
+                </div>
             </div>
-            <#if shiro.hasPermission("eval:evalresult:info")>
-            <div class="form-group col-sm-2">
-                <input type="text" class="form-control" v-model="q.name" @keyup.enter="resultListReload" placeholder="姓名">
+            <div class="row form-inline">
+                <div class="form-group col-sm-1">
+                    查询条件
+                </div>
+                <div class="form-group col-sm-3">
+                    <div class="input-group">
+                        <span class="input-group-addon">姓名</span>
+                        <input type="text" class="form-control" v-model="q.name" placeholder="姓名">
+                    </div>
+                </div>
+                <div class="form-group col-sm-4">
+                    <div class="input-group">
+                        <span class="input-group-addon">排名</span>
+                        <input type="text" class="form-control" v-model="q.ranking1" placeholder="例如输入1">
+                        <span class="input-group-addon">至</span>
+                        <input type="text" class="form-control" v-model="q.ranking2" placeholder="例如输入5">
+                    </div>
+                </div>
             </div>
-            <a class="btn btn-default" @click="resultListReload">查询</a>
-            </#if>
-            <#if shiro.hasPermission("eval:evalresult:update")>
-            <a class="btn btn-primary" @click="gotoUpdateResult"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
-            </#if>
+            <div class="row form-inline">
+                <div class="form-group col-sm-1"></div>
+                <div class="form-group col-sm-2">
+                    <div class="input-group">
+                        <span class="input-group-addon">部门</span>
+                        <select class="form-control" v-model="q.selectedDept">
+                            <option value="">--选择部门--</option>
+                            <option v-for='item in q.deptList'>{{ item }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group col-sm-2">
+                    <div class="input-group">
+                        <span class="input-group-addon">评级</span>
+                        <select class="form-control" v-model="q.selectedRaking">
+                            <option value="">--选择评级--</option>
+                            <option v-for='item in q.rakingList'>{{ item }}</option>
+                        </select>
+                    </div>
+                </div>
+                <a class="btn btn-default" @click="resultListReload">查询</a>
+                <a class="btn btn-default" @click="exportEvalResult">导出</a>
+            </div>
+            <!--<#if shiro.hasPermission("eval:evalresult:update")>-->
+            <!--<div class="row form-inline">-->
+                <!--<div class="form-group col-sm-1">-->
+                    <!--<a class="btn btn-primary" @click="gotoUpdateResult"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--</#if>-->
         </div>
+
         <table id="resultListJqGrid"></table>
         <div id="resultListJqGridPager"></div>
+    </div>
+
+    <div v-show="showSummary" class="panel panel-default">
+        <div class="panel-heading">{{title}}</div>
+        <div class="form-horizontal" style="width: 1050px;">
+            <div class="form-group">
+                <div class="form-group col-sm-1">
+                    <a class="btn btn-warning" @click="reload"><i class="fa fa-chevron-circle-left"></i>&nbsp;返回</a>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-6">
+                    <div id="container_e1" style="width: 500px;height:400px;"></div>
+                </div>
+                <div class="col-sm-6">
+                    <div id="container_e3" style="width: 500px;height:400px;"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div id="container_e2" style="width: 1000px;height:800px;"></div>
+            </div>
+        </div>
     </div>
 
 
 </div>
 
 <script src="${request.contextPath}/statics/js/modules/eval/evalresult.js?_${.now?long}"></script>
+<script src="${request.contextPath}/statics/plugins/echarts/echarts.min.js"></script>
+<script src="${request.contextPath}/statics/plugins/echarts/extension/dataTool.min.js"></script>
 </body>
 </html>

@@ -25,5 +25,56 @@
         <result property="updateTime" column="update_time"/>
     </resultMap>
 
+    <select id="getAverageTotal" resultType="java.lang.Double">
+        SELECT AVG (account_score)
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+        <if test="deptName != null">
+            AND dept_name = #{deptName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="getAverageStudent" resultType="java.lang.Double">
+        SELECT AVG (student_eval_score)
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+        <if test="deptName != null">
+            AND dept_name = #{deptName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="getAverageColleague" resultType="java.lang.Double">
+        SELECT AVG (colleague_eval_score)
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+        <if test="deptName != null">
+            AND dept_name = #{deptName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="getAverageInspector" resultType="java.lang.Double">
+        SELECT AVG (inspector_eval_score)
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+        <if test="deptName != null">
+            AND dept_name = #{deptName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="getAverageOther" resultType="java.lang.Double">
+        SELECT AVG (other_eval_score)
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+        <if test="deptName != null">
+            AND dept_name = #{deptName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="getDeptList" resultType="java.lang.String">
+        SELECT DISTINCT dept_name
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+    </select>
+
 
 </mapper>

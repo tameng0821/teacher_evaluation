@@ -5,6 +5,7 @@ import com.ambow.lyu.common.dto.EvalTaskItemScoreDto;
 import com.ambow.lyu.common.dto.StuOrOtherEvalScoreDto;
 import com.ambow.lyu.common.exception.TeException;
 import com.ambow.lyu.modules.eval.entity.ColleagueEvalTaskItemEntity;
+import com.ambow.lyu.modules.eval.entity.EvalResultEntity;
 import com.ambow.lyu.modules.eval.entity.InspectorEvalTaskItemEntity;
 import com.ambow.lyu.modules.sys.entity.SysUserEntity;
 import org.apache.commons.lang3.StringUtils;
@@ -51,13 +52,7 @@ public class ExcelUtils {
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
 
         //标题
-        HSSFRow titleRow = sheet.createRow(0);
-        for(int i=0; i < titles.size() ; ++i){
-            HSSFCell titleCell = titleRow.createCell(i);
-            titleCell.setCellValue(titles.get(i));
-            titleCell.setCellStyle(cellStyle);
-            sheet.setColumnWidth(i,titles.get(i).getBytes().length*256);
-        }
+        createWorkbookTitle(titles, sheet, cellStyle);
 
         //填充人员工号、人员姓名
         for(int i = 0 ; i < users.size() ; ++i){
@@ -66,6 +61,64 @@ public class ExcelUtils {
             contentRow.createCell(1).setCellValue(users.get(i).getName());
         }
 
+        return getResponseEntity(fileName, wb);
+    }
+
+
+
+    public static ResponseEntity<byte[]> createEvalResultExcel(String fileName, List<EvalResultEntity> evalResultList) throws IOException {
+
+        HSSFWorkbook wb = new HSSFWorkbook();
+        HSSFSheet sheet = wb.createSheet("评价结果");
+
+        //左右、上下居中
+        HSSFCellStyle cellStyle = wb.createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+
+        //标题
+        List<String> titles = new ArrayList<>();
+        titles.add(EXCEL_TEM_TITLE_0);
+        titles.add(EXCEL_TEM_TITLE_1);
+        titles.add("系部");
+        titles.add("学生评价");
+        titles.add("同行评价");
+        titles.add("督导评价");
+        titles.add("其他评价");
+        titles.add("总分");
+        titles.add("排名");
+        titles.add("评级");
+        createWorkbookTitle(titles, sheet, cellStyle);
+
+        //填充人员工号、人员姓名
+        for(int i = 0 ; i < evalResultList.size() ; ++i){
+            HSSFRow contentRow = sheet.createRow(i+1);
+            contentRow.createCell(0).setCellValue(evalResultList.get(i).getUsername());
+            contentRow.createCell(1).setCellValue(evalResultList.get(i).getName());
+            contentRow.createCell(2).setCellValue(evalResultList.get(i).getDeptName());
+            contentRow.createCell(3).setCellValue(evalResultList.get(i).getStudentEvalScore());
+            contentRow.createCell(4).setCellValue(evalResultList.get(i).getColleagueEvalScore());
+            contentRow.createCell(5).setCellValue(evalResultList.get(i).getInspectorEvalScore());
+            contentRow.createCell(6).setCellValue(evalResultList.get(i).getOtherEvalScore());
+            contentRow.createCell(7).setCellValue(evalResultList.get(i).getAccountScore());
+            contentRow.createCell(8).setCellValue(evalResultList.get(i).getRanking());
+            contentRow.createCell(9).setCellValue(evalResultList.get(i).getRating());
+        }
+
+        return getResponseEntity(fileName, wb);
+
+    }
+
+    private static void createWorkbookTitle(List<String> titles, HSSFSheet sheet, HSSFCellStyle cellStyle) {
+        HSSFRow titleRow = sheet.createRow(0);
+        for (int i = 0; i < titles.size(); ++i) {
+            HSSFCell titleCell = titleRow.createCell(i);
+            titleCell.setCellValue(titles.get(i));
+            titleCell.setCellStyle(cellStyle);
+            sheet.setColumnWidth(i, titles.get(i).getBytes().length * 256);
+        }
+    }
+
+    private static ResponseEntity<byte[]> getResponseEntity(String fileName, HSSFWorkbook wb) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentDispositionFormData("attachment", new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
