@@ -222,18 +222,18 @@ public class EvalTaskServiceImpl extends ServiceImpl<EvalTaskDao, EvalTaskEntity
 
         //删除同行评价记录,删除同行任务
         List<ColleagueEvalTaskEntity> colleagueTasks = colleagueEvalTaskService.list(new QueryWrapper<ColleagueEvalTaskEntity>().in("task_id", idList));
-       for(ColleagueEvalTaskEntity entity : colleagueTasks){
-           colleagueEvalRecordService.remove(new QueryWrapper<ColleagueEvalRecordEntity>().eq("sub_task_id", entity.getId()));
-           colleagueEvalTaskService.removeById(entity.getTaskId());
+       for(ColleagueEvalTaskEntity colleagueEvalTaskEntity : colleagueTasks){
+           colleagueEvalRecordService.remove(new QueryWrapper<ColleagueEvalRecordEntity>().eq("sub_task_id", colleagueEvalTaskEntity.getId()));
+           colleagueEvalTaskService.removeById(colleagueEvalTaskEntity.getId());
        }
         //删除督导评价项目
         inspectorEvalTaskItemService.remove(new QueryWrapper<InspectorEvalTaskItemEntity>().in("task_id", idList));
 
         //删除督导评价记录,删除督导任务
         List<InspectorEvalTaskEntity> inspectorTasks = inspectorEvalTaskService.list(new QueryWrapper<InspectorEvalTaskEntity>().in("task_id", idList));
-        for(InspectorEvalTaskEntity entity : inspectorTasks){
-            inspectorEvalRecordService.remove(new QueryWrapper<InspectorEvalRecordEntity>().eq("sub_task_id", entity.getId()));
-            inspectorEvalTaskService.removeById(entity.getId());
+        for(InspectorEvalTaskEntity inspectorEvalTaskEntity : inspectorTasks){
+            inspectorEvalRecordService.remove(new QueryWrapper<InspectorEvalRecordEntity>().eq("sub_task_id", inspectorEvalTaskEntity.getId()));
+            inspectorEvalTaskService.removeById(inspectorEvalTaskEntity.getId());
         }
 
         //删除其他评价记录,删除其他任务
