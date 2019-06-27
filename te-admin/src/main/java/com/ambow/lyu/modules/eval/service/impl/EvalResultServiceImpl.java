@@ -1,6 +1,7 @@
 package com.ambow.lyu.modules.eval.service.impl;
 
 import com.ambow.lyu.common.dto.EvalResultSummary;
+import com.ambow.lyu.common.dto.EvalResultSummaryDeptDetail;
 import com.ambow.lyu.common.utils.PageUtils;
 import com.ambow.lyu.common.utils.Query;
 import com.ambow.lyu.modules.eval.dao.EvalResultDao;
@@ -136,6 +137,16 @@ public class EvalResultServiceImpl extends ServiceImpl<EvalResultDao, EvalResult
         double averageColleague = baseMapper.getAverageColleague(taskId,null);
         double averageInspector = baseMapper.getAverageInspector(taskId,null);
         double averageOther = baseMapper.getAverageOther(taskId,null);
+        double maxTotal = baseMapper.getMaxTotal(taskId,null);
+        double maxStudent = baseMapper.getMaxStudent(taskId,null);
+        double maxColleague = baseMapper.getMaxColleague(taskId,null);
+        double maxInspector = baseMapper.getMaxInspector(taskId,null);
+        double maxOther = baseMapper.getMaxOther(taskId,null);
+        double minTotal = baseMapper.getMinTotal(taskId,null);
+        double minStudent = baseMapper.getMinStudent(taskId,null);
+        double minColleague = baseMapper.getMinColleague(taskId,null);
+        double minInspector = baseMapper.getMinInspector(taskId,null);
+        double minOther = baseMapper.getMinOther(taskId,null);
 
         long goodCount = super.count(new QueryWrapper<EvalResultEntity>().eq("task_id",taskId).eq("rating","优秀"));
         long fineCount = super.count(new QueryWrapper<EvalResultEntity>().eq("task_id",taskId).eq("rating","良好"));
@@ -159,23 +170,58 @@ public class EvalResultServiceImpl extends ServiceImpl<EvalResultDao, EvalResult
             deptAverageOtherList.add(baseMapper.getAverageOther(taskId,deptName));
         }
 
-//        List<EvalResultEntity> evalResultEntityList = super.list(new QueryWrapper<EvalResultEntity>().eq("task_id",taskId));
+        List<EvalResultSummaryDeptDetail> deptDetails = new ArrayList<>();
+        for(String deptName : deptList){
+            List<EvalResultEntity> evalResultEntityList = super.list(new QueryWrapper<EvalResultEntity>()
+                    .eq("task_id",taskId).eq("dept_name",deptName));
+
+            List<String> personList = new ArrayList<>(evalResultEntityList.size());
+            List<Double> personStudentList = new ArrayList<>(evalResultEntityList.size());
+            List<Double> personColleagueList = new ArrayList<>(evalResultEntityList.size());
+            List<Double> personInspectorList = new ArrayList<>(evalResultEntityList.size());
+            List<Double> personOtherList = new ArrayList<>(evalResultEntityList.size());
+            List<Double> personTotalList = new ArrayList<>(evalResultEntityList.size());
+            for(int i = 0 ; i < evalResultEntityList.size() ; ++i){
+                EvalResultEntity evalResult = evalResultEntityList.get(i);
+                personList.add(evalResult.getName());
+                personTotalList.add(evalResult.getAccountScore());
+                personStudentList.add(evalResult.getStudentEvalScore());
+                personColleagueList.add(evalResult.getColleagueEvalScore());
+                personInspectorList.add(evalResult.getInspectorEvalScore());
+                personOtherList.add(evalResult.getOtherEvalScore());
+            }
+
+            EvalResultSummaryDeptDetail deptDetail = new EvalResultSummaryDeptDetail();
+            deptDetail.setDeptName(deptName);
+            deptDetail.setPersonList(personList);
+            deptDetail.setPersonStudentList(personStudentList);
+            deptDetail.setPersonColleagueList(personColleagueList);
+            deptDetail.setPersonInspectorList(personInspectorList);
+            deptDetail.setPersonOtherList(personOtherList);
+            deptDetail.setPersonTotalList(personTotalList);
+            deptDetails.add(deptDetail);
+        }
+
+        //所有人得分情况
+        List<EvalResultEntity> evalResultEntityList = super.list(new QueryWrapper<EvalResultEntity>()
+                .eq("task_id",taskId));
+        List<String> personList = new ArrayList<>(evalResultEntityList.size());
+        List<Double> personStudentList = new ArrayList<>(evalResultEntityList.size());
+        List<Double> personColleagueList = new ArrayList<>(evalResultEntityList.size());
+        List<Double> personInspectorList = new ArrayList<>(evalResultEntityList.size());
+        List<Double> personOtherList = new ArrayList<>(evalResultEntityList.size());
+        List<Double> personTotalList = new ArrayList<>(evalResultEntityList.size());
+        for(int i = 0 ; i < evalResultEntityList.size() ; ++i){
+            EvalResultEntity evalResult = evalResultEntityList.get(i);
+            personList.add(evalResult.getName());
+            personTotalList.add(evalResult.getAccountScore());
+            personStudentList.add(evalResult.getStudentEvalScore());
+            personColleagueList.add(evalResult.getColleagueEvalScore());
+            personInspectorList.add(evalResult.getInspectorEvalScore());
+            personOtherList.add(evalResult.getOtherEvalScore());
+        }
 
 
-//        List<String> personList = new ArrayList<>(evalResultEntityList.size());
-//        List<Double> personStudentList = new ArrayList<>(evalResultEntityList.size());
-//        List<Double> personColleagueList = new ArrayList<>(evalResultEntityList.size());
-//        List<Double> personInspectorList = new ArrayList<>(evalResultEntityList.size());
-//        List<Double> personOtherList = new ArrayList<>(evalResultEntityList.size());
-//        List<Double> personTotalList = new ArrayList<>(evalResultEntityList.size());
-//        for(int i = 0 ; i < evalResultEntityList.size() ; ++i){
-//            EvalResultEntity evalResult = evalResultEntityList.get(i);
-//            personTotalList.add(evalResult.getAccountScore());
-//            personStudentList.add(evalResult.getStudentEvalScore());
-//            personColleagueList.add(evalResult.getColleagueEvalScore());
-//            personInspectorList.add(evalResult.getInspectorEvalScore());
-//            personOtherList.add(evalResult.getOtherEvalScore());
-//        }
 
 
         EvalResultSummary summary = new EvalResultSummary();
@@ -184,6 +230,18 @@ public class EvalResultServiceImpl extends ServiceImpl<EvalResultDao, EvalResult
         summary.setAverageColleague(averageColleague);
         summary.setAverageInspector(averageInspector);
         summary.setAverageOther(averageOther);
+
+        summary.setMaxTotal(maxTotal);
+        summary.setMaxStudent(maxStudent);
+        summary.setMaxColleague(maxColleague);
+        summary.setMaxInspector(maxInspector);
+        summary.setMaxOther(maxOther);
+
+        summary.setMinTotal(minTotal);
+        summary.setMinStudent(minStudent);
+        summary.setMinColleague(minColleague);
+        summary.setMinInspector(minInspector);
+        summary.setMinOther(minOther);
 
         summary.setGoodCount(goodCount);
         summary.setFineCount(fineCount);
@@ -197,12 +255,14 @@ public class EvalResultServiceImpl extends ServiceImpl<EvalResultDao, EvalResult
         summary.setDeptAverageInspectorList(deptAverageInspectorList);
         summary.setDeptAverageOtherList(deptAverageOtherList);
 
-//        summary.setPersonList(personList);
-//        summary.setPersonStudentList(personStudentList);
-//        summary.setPersonColleagueList(personColleagueList);
-//        summary.setPersonInspectorList(personInspectorList);
-//        summary.setPersonOtherList(personOtherList);
-//        summary.setPersonTotalList(personTotalList);
+        summary.setPersonList(personList);
+        summary.setPersonTotalList(personTotalList);
+        summary.setPersonStudentList(personStudentList);
+        summary.setPersonColleagueList(personColleagueList);
+        summary.setPersonInspectorList(personInspectorList);
+        summary.setPersonOtherList(personOtherList);
+
+        summary.setDeptDetails(deptDetails);
 
         return summary;
     }

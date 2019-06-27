@@ -153,10 +153,11 @@ let vm = new Vue({
             vm.switchResultSummary();
 
             // 基于准备好的dom，初始化echarts实例
+            let chartDiv = document.getElementById('echart_div');
             let myChart1 = echarts.init(document.getElementById('container_e1'),'light');
             let myChart2 = echarts.init(document.getElementById('container_e2'),'light');
             let myChart3 = echarts.init(document.getElementById('container_e3'),'light');
-            // let myChart4 = echarts.init(document.getElementById('container_e4'),'light');
+            let myChart4 = echarts.init(document.getElementById('container_e4'),'light');
 
             let myChart2SeriesLabel = {
                 normal: {
@@ -170,7 +171,7 @@ let vm = new Vue({
                 let summary = r.summary;
                 myChart1.setOption({
                     title : {
-                        text: '优秀/良好/合格占比',
+                        text: '优秀/良好/合格占比分析',
                         x: 'center'
                     },
                     toolbox: {
@@ -206,7 +207,7 @@ let vm = new Vue({
 
                 myChart2.setOption({
                     title: {
-                        text: '各系部成绩分析'
+                        text: '各系部平均分分析'
                     },
                     tooltip: {
                         trigger: 'axis',
@@ -276,7 +277,7 @@ let vm = new Vue({
 
                 myChart3.setOption({
                     title: {
-                        text: '平均分分析'
+                        text: '评价标准分析'
                     },
                     toolbox: {
                         show: true,
@@ -286,43 +287,179 @@ let vm = new Vue({
                     },
                     tooltip: {},
                     legend: {
-                        data:['平均分']
+                        data:['平均分','最高分','最低分']
                     },
                     xAxis: {
                         data: ['学生评价','同行评价','督导评价','其他评价','总分']
                     },
                     yAxis: {},
-                    series: [{
-                        name: '平均分',
-                        type: 'bar',
-                        data: [summary.averageStudent, summary.averageColleague, summary.averageInspector, summary.averageOther, summary.averageTotal]
-                    }]
+                    series: [
+                        {
+                            name: '平均分',
+                            type: 'bar',
+                            data: [summary.averageStudent, summary.averageColleague, summary.averageInspector, summary.averageOther, summary.averageTotal]
+                        },
+                        {
+                            name: '最高分',
+                            type: 'bar',
+                            data: [summary.maxStudent, summary.maxColleague, summary.maxInspector, summary.maxOther, summary.maxTotal]
+                        },
+                        {
+                            name: '最低分',
+                            type: 'bar',
+                            data: [summary.minStudent, summary.minColleague, summary.minInspector, summary.minOther, summary.minTotal]
+                        }]
+                });
+                let minScore = Math.min(summary.minStudent, summary.minColleague, summary.minInspector, summary.minOther, summary.minTotal);
+
+                myChart4.setOption({
+                    title: {
+                        text: '学院个人成绩分析',
+                        top: 10,
+                        left: 10
+                    },
+                    toolbox: {
+                        show: true,
+                        feature: {
+                            saveAsImage: {}
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        backgroundColor : 'rgba(100,149,237,0.8)'
+                    },
+                    legend: {
+                        type: 'scroll',
+                        bottom: 10,
+                        data: summary.personList
+                    },
+                    visualMap: {
+                        top: 'middle',
+                        right: 10,
+                        type: 'continuous',
+                        min: minScore-5,
+                        max: 100,
+                        text:['High','Low'],
+                        realtime: false,
+                        calculable : true,
+                        color: ['orangered','yellow','lightskyblue']
+                    },
+                    radar: {
+                        indicator : [
+                            { text: '总分', min: minScore-5, max: 100},
+                            { text: '学生评价', min: minScore-5, max: 100},
+                            { text: '同行评价', min: minScore-5, max: 100},
+                            { text: '督导评价', min: minScore-5, max: 100},
+                            { text: '其他评价', min: minScore-5, max: 100}
+                        ]
+                    },
+                    series : (function () {
+                        let series = [];
+                        for(let n = 0 ; n < summary.personList.length ; ++n){
+                            let item = {
+                                name: summary.personList[n],
+                                type: 'radar',
+                                symbol: 'none',
+                                lineStyle: {
+                                    width: 1
+                                },
+                                emphasis: {
+                                    areaStyle: {
+                                        color: 'rgba(0,250,0,0.6)'
+                                    }
+                                },
+                                data: [{
+                                    value:[summary.personTotalList[n],summary.personStudentList[n],summary.personColleagueList[n],summary.personInspectorList[n],summary.personOtherList[n]],
+                                    name: summary.personList[n]
+                                }]
+                            };
+                            series.push(item);
+                        }
+                        return series;
+                    })()
                 });
 
-                // myChart4.setOption({
-                //     title: {
-                //         text: '个人成绩分析'
-                //     },
-                //     toolbox: {
-                //         show: true,
-                //         feature: {
-                //             saveAsImage: {}
-                //         }
-                //     },
-                //     tooltip: {},
-                //     legend: {
-                //         data: ['学生评价','同行评价','督导评价','其他评价','总分']
-                //     },
-                //     xAxis: {
-                //         data: summary.personList
-                //     },
-                //     yAxis: {},
-                //     series: [{name: '学生评价',type: 'bar',data: summary.personStudentList},
-                //         {name: '同行评价',type: 'bar',data: summary.personColleagueList},
-                //         {name: '督导评价',type: 'bar',data: summary.personInspectorList},
-                //         {name: '其他评价',type: 'bar',data: summary.personOtherList},
-                //         {name: '总分',type: 'bar',data: summary.personTotalList}]
-                // });
+                for(let i = 0 ; i < summary.deptDetails.length ; ++i){
+                    let echartId = 'container_e_dept_'+i;
+                    let deptDetail = summary.deptDetails[i];
+
+                    let containerDiv = document.createElement("div");
+                    containerDiv.setAttribute('style','width: 1000px;height:400px;');
+                    containerDiv.setAttribute('id',echartId);
+                    let formGroupDiv = document.createElement("div");
+                    formGroupDiv.setAttribute("class", "form-group");
+                    formGroupDiv.appendChild(containerDiv);
+                    chartDiv.appendChild(formGroupDiv);
+
+                    let myChart = echarts.init(containerDiv,'light');
+                    myChart.setOption({
+                        title: {
+                            text: '系部个人成绩分析',
+                            subtext: deptDetail.deptName,
+                            top: 10,
+                            left: 10
+                        },
+                        toolbox: {
+                            show: true,
+                            feature: {
+                                saveAsImage: {}
+                            }
+                        },
+                        tooltip: {
+                            trigger: 'item',
+                            backgroundColor : 'rgba(100,149,237,0.8)'
+                        },
+                        legend: {
+                            type: 'scroll',
+                            bottom: 10,
+                            data: deptDetail.personList
+                        },
+                        visualMap: {
+                            top: 'middle',
+                            right: 10,
+                            type: 'continuous',
+                            min: minScore-5,
+                            max: 100,
+                            text:['High','Low'],
+                            realtime: false,
+                            calculable : true,
+                            color: ['orangered','yellow','lightskyblue']
+                        },
+                        radar: {
+                            indicator : [
+                                { text: '总分', min: minScore-5, max: 100},
+                                { text: '学生评价', min: minScore-5, max: 100},
+                                { text: '同行评价', min: minScore-5, max: 100},
+                                { text: '督导评价', min: minScore-5, max: 100},
+                                { text: '其他评价', min: minScore-5, max: 100}
+                            ]
+                        },
+                        series : (function () {
+                            let series = [];
+                            for(let n = 0 ; n < deptDetail.personList.length ; ++n){
+                                let item = {
+                                    name: deptDetail.personList[n],
+                                    type: 'radar',
+                                    symbol: 'none',
+                                    lineStyle: {
+                                        width: 1
+                                    },
+                                    emphasis: {
+                                        areaStyle: {
+                                            color: 'rgba(0,250,0,0.6)'
+                                        }
+                                    },
+                                    data: [{
+                                            value:[deptDetail.personTotalList[n],deptDetail.personStudentList[n],deptDetail.personColleagueList[n],deptDetail.personInspectorList[n],deptDetail.personOtherList[n]],
+                                            name: deptDetail.personList[n]
+                                        }]
+                                };
+                                series.push(item);
+                            }
+                            return series;
+                        })()
+                    });
+                }
             });
         },
         exportEvalResult: function(event){

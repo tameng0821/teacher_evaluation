@@ -289,7 +289,7 @@ INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, 
 
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('170', '100', '评价结果', 'modules/eval/evalresult.html', NULL, '1', 'fa fa-book', '9');
 INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('171', '170', '查看', null, 'eval:evalresult:list,eval:evalresult:info', '2', null, '1');
-INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('172', '170', '修改', null, 'eval:evalresult:update', '2', null, '2');
+-- INSERT INTO `sys_menu` (`menu_id`, `parent_id`, `name`, `url`, `perms`, `type`, `icon`, `order_num`) VALUES ('172', '170', '修改', null, 'eval:evalresult:update', '2', null, '2');
 
 create table tb_student_eval_record
 (

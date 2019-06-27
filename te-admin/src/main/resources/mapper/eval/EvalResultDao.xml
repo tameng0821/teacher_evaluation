@@ -26,7 +26,7 @@
     </resultMap>
 
     <select id="getAverageTotal" resultType="java.lang.Double">
-        SELECT AVG (account_score)
+        SELECT AVG(account_score)
         FROM tb_eval_result
         WHERE task_id = #{taskId,jdbcType=DECIMAL}
         <if test="deptName != null">
@@ -35,7 +35,7 @@
     </select>
 
     <select id="getAverageStudent" resultType="java.lang.Double">
-        SELECT AVG (student_eval_score)
+        SELECT AVG(student_eval_score)
         FROM tb_eval_result
         WHERE task_id = #{taskId,jdbcType=DECIMAL}
         <if test="deptName != null">
@@ -44,7 +44,7 @@
     </select>
 
     <select id="getAverageColleague" resultType="java.lang.Double">
-        SELECT AVG (colleague_eval_score)
+        SELECT AVG(colleague_eval_score)
         FROM tb_eval_result
         WHERE task_id = #{taskId,jdbcType=DECIMAL}
         <if test="deptName != null">
@@ -53,7 +53,7 @@
     </select>
 
     <select id="getAverageInspector" resultType="java.lang.Double">
-        SELECT AVG (inspector_eval_score)
+        SELECT AVG(inspector_eval_score)
         FROM tb_eval_result
         WHERE task_id = #{taskId,jdbcType=DECIMAL}
         <if test="deptName != null">
@@ -62,7 +62,7 @@
     </select>
 
     <select id="getAverageOther" resultType="java.lang.Double">
-        SELECT AVG (other_eval_score)
+        SELECT AVG(other_eval_score)
         FROM tb_eval_result
         WHERE task_id = #{taskId,jdbcType=DECIMAL}
         <if test="deptName != null">
@@ -75,6 +75,97 @@
         FROM tb_eval_result
         WHERE task_id = #{taskId,jdbcType=DECIMAL}
     </select>
+
+    <select id="getMaxTotal" resultType="java.lang.Double">
+        SELECT MAX(account_score)
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+        <if test="deptName != null">
+            AND dept_name = #{deptName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="getMaxStudent" resultType="java.lang.Double">
+        SELECT MAX(student_eval_score)
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+        <if test="deptName != null">
+            AND dept_name = #{deptName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="getMaxColleague" resultType="java.lang.Double">
+        SELECT MAX(colleague_eval_score)
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+        <if test="deptName != null">
+            AND dept_name = #{deptName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="getMaxInspector" resultType="java.lang.Double">
+        SELECT MAX(inspector_eval_score)
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+        <if test="deptName != null">
+            AND dept_name = #{deptName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="getMaxOther" resultType="java.lang.Double">
+        SELECT MAX(other_eval_score)
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+        <if test="deptName != null">
+            AND dept_name = #{deptName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="getMinTotal" resultType="java.lang.Double">
+        SELECT MIN(account_score)
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+        <if test="deptName != null">
+            AND dept_name = #{deptName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="getMinStudent" resultType="java.lang.Double">
+        SELECT MIN(student_eval_score)
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+        <if test="deptName != null">
+            AND dept_name = #{deptName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="getMinColleague" resultType="java.lang.Double">
+        SELECT MIN(colleague_eval_score)
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+        <if test="deptName != null">
+            AND dept_name = #{deptName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="getMinInspector" resultType="java.lang.Double">
+        SELECT MIN(inspector_eval_score)
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+        <if test="deptName != null">
+            AND dept_name = #{deptName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="getMinOther" resultType="java.lang.Double">
+        SELECT MIN(other_eval_score)
+        FROM tb_eval_result
+        WHERE task_id = #{taskId,jdbcType=DECIMAL}
+        <if test="deptName != null">
+            AND dept_name = #{deptName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
 
 
 </mapper>

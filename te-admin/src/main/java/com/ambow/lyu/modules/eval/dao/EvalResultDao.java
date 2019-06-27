@@ -22,6 +22,18 @@ public interface EvalResultDao extends BaseMapper<EvalResultEntity> {
     Double getAverageInspector(Long taskId,String deptName);
     Double getAverageOther(Long taskId,String deptName);
 
+    Double getMaxTotal(Long taskId,String deptName);
+    Double getMaxStudent(Long taskId,String deptName);
+    Double getMaxColleague(Long taskId,String deptName);
+    Double getMaxInspector(Long taskId,String deptName);
+    Double getMaxOther(Long taskId,String deptName);
+
+    Double getMinTotal(Long taskId,String deptName);
+    Double getMinStudent(Long taskId,String deptName);
+    Double getMinColleague(Long taskId,String deptName);
+    Double getMinInspector(Long taskId,String deptName);
+    Double getMinOther(Long taskId,String deptName);
+
     List<String> getDeptList(Long taskId);
 
 }
