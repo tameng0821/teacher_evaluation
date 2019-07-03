@@ -33,5 +33,12 @@ public interface EvalResultService extends IService<EvalResultEntity> {
      * @return 评价结果汇总
      */
     EvalResultSummary querySummary(Long taskId);
+
+    /**
+     * 查询部门列表
+     * @param taskId 任务ID
+     * @return 部门列表
+     */
+    List<String> queryDeptList(Long taskId);
 }
 

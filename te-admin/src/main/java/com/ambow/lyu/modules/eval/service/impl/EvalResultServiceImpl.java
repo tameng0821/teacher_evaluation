@@ -54,7 +54,7 @@ public class EvalResultServiceImpl extends ServiceImpl<EvalResultDao, EvalResult
         String ranking1 = (String) params.get("ranking1");
         String ranking2 = (String) params.get("ranking2");
         String selectedDept = (String) params.get("selectedDept");
-        String selectedRaking = (String) params.get("selectedRaking");
+        String selectedRating = (String) params.get("selectedRating");
 
         Long ranking1Long = null;
         Long ranking2Long = null;
@@ -75,7 +75,7 @@ public class EvalResultServiceImpl extends ServiceImpl<EvalResultDao, EvalResult
                 .between(ranking1Long != null,
                         "ranking",ranking1Long,ranking2Long)
                 .eq(StringUtils.isNotBlank(selectedDept),"dept_name",selectedDept)
-                .eq(StringUtils.isNotBlank(selectedRaking),"raking",selectedRaking);
+                .eq(StringUtils.isNotBlank(selectedRating),"rating",selectedRating);
     }
 
     @Override
@@ -265,6 +265,11 @@ public class EvalResultServiceImpl extends ServiceImpl<EvalResultDao, EvalResult
         summary.setDeptDetails(deptDetails);
 
         return summary;
+    }
+
+    @Override
+    public List<String> queryDeptList(Long taskId) {
+        return baseMapper.getDeptList(taskId);
     }
 
 }

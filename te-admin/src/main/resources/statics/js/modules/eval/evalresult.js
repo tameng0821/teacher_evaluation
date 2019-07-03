@@ -88,8 +88,8 @@ let vm = new Vue({
             ranking1:null,
             ranking2:null,
             selectedDept: null,
-            deptList: [ '计算机工程系', '软件工程系', '通信工程系' , '网络与信息工程系' , '公共教学部'],
-            selectedRaking: null,
+            deptList: [],
+            selectedRating: null,
             rakingList:['优秀', '良好', '合格' , '不合格']
         },
 
@@ -123,6 +123,11 @@ let vm = new Vue({
             let rowData = $("#jqGrid").getRowData(id);
             vm.taskId = rowData.id;
 
+            //获取部门列表
+            $.get(baseURL + 'eval/evalresult/detail/deptList/'+id, function(r){
+                vm.q.deptList = r.deptList;
+            });
+
             vm.switchResultList();
             resultJqGrid.url = baseURL + 'eval/evalresult/detail/list/'+id;
             resultJqGrid.width = $("#container_grid")[0].offsetWidth;
@@ -136,7 +141,7 @@ let vm = new Vue({
                     'ranking1': vm.q.ranking1,
                     'ranking2': vm.q.ranking2,
                     'selectedDept': vm.q.selectedDept,
-                    'selectedRaking': vm.q.selectedRaking},
+                    'selectedRating': vm.q.selectedRating},
                 page:page
             }).trigger("reloadGrid");
         },
@@ -337,7 +342,7 @@ let vm = new Vue({
                         top: 'middle',
                         right: 10,
                         type: 'continuous',
-                        min: minScore-5,
+                        min: 60,
                         max: 100,
                         text:['High','Low'],
                         realtime: false,
@@ -346,11 +351,11 @@ let vm = new Vue({
                     },
                     radar: {
                         indicator : [
-                            { text: '总分', min: minScore-5, max: 100},
-                            { text: '学生评价', min: minScore-5, max: 100},
-                            { text: '同行评价', min: minScore-5, max: 100},
-                            { text: '督导评价', min: minScore-5, max: 100},
-                            { text: '其他评价', min: minScore-5, max: 100}
+                            { text: '总分', min: 60, max: 100},
+                            { text: '学生评价', min: 60, max: 100},
+                            { text: '同行评价', min: 60, max: 100},
+                            { text: '督导评价', min: 60, max: 100},
+                            { text: '其他评价', min: 60, max: 100}
                         ]
                     },
                     series : (function () {
@@ -418,7 +423,7 @@ let vm = new Vue({
                             top: 'middle',
                             right: 10,
                             type: 'continuous',
-                            min: minScore-5,
+                            min: 60,
                             max: 100,
                             text:['High','Low'],
                             realtime: false,
@@ -427,11 +432,11 @@ let vm = new Vue({
                         },
                         radar: {
                             indicator : [
-                                { text: '总分', min: minScore-5, max: 100},
-                                { text: '学生评价', min: minScore-5, max: 100},
-                                { text: '同行评价', min: minScore-5, max: 100},
-                                { text: '督导评价', min: minScore-5, max: 100},
-                                { text: '其他评价', min: minScore-5, max: 100}
+                                { text: '总分', min: 60, max: 100},
+                                { text: '学生评价', min: 60, max: 100},
+                                { text: '同行评价', min: 60, max: 100},
+                                { text: '督导评价', min: 60, max: 100},
+                                { text: '其他评价', min: 60, max: 100}
                             ]
                         },
                         series : (function () {
@@ -469,7 +474,7 @@ let vm = new Vue({
             form.append($("<input></input>").attr("type", "hidden").attr("name", "ranking1").attr("value", vm.q.ranking1));
             form.append($("<input></input>").attr("type", "hidden").attr("name", "ranking2").attr("value", vm.q.ranking2));
             form.append($("<input></input>").attr("type", "hidden").attr("name", "selectedDept").attr("value", vm.q.selectedDept));
-            form.append($("<input></input>").attr("type", "hidden").attr("name", "selectedRaking").attr("value", vm.q.selectedRaking));
+            form.append($("<input></input>").attr("type", "hidden").attr("name", "selectedRating").attr("value", vm.q.selectedRating));
             form.appendTo('body').submit().remove();
         },
         gotoUpdateResult: function (event) {

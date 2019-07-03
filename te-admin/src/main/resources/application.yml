@@ -6,11 +6,11 @@ server:
     min-spare-threads: 30
   port: 8080
   servlet:
-    context-path: /te-admin
+    context-path: /te
 
 spring:
   profiles:
-    active: dev
+    active: prod
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
@@ -49,3 +49,9 @@ mybatis-plus:
     cache-enabled: false
     call-setters-on-nulls: true
     jdbc-type-for-null: 'null'
+
+    #日志配置
+logging:
+  file: D:\\logs\\te\\admin.log
+  file:max-history: 30
+  file:max-size: 50M

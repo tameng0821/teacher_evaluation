@@ -60,6 +60,17 @@ public class EvalResultController {
     }
 
     /**
+     * 明细
+     */
+    @RequestMapping("/detail/deptList/{taskId}")
+    @RequiresPermissions("eval:evalresult:list")
+    public Response deptList(@PathVariable("taskId") Long taskId){
+        List<String> deptList = evalResultService.queryDeptList(taskId);
+
+        return Response.ok().put("deptList", deptList);
+    }
+
+    /**
      * 导出明细
      */
     @RequestMapping("/detail/export/{taskId}")
